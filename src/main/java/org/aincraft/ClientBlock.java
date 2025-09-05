@@ -2,11 +2,9 @@ package org.aincraft;
 
 import net.kyori.adventure.key.Key;
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Transformation;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
+import org.bukkit.util.Vector;
 
 public interface ClientBlock {
 
@@ -16,11 +14,9 @@ public interface ClientBlock {
 
   void show(Player player);
 
-  void move(Location location);
+  void hide(Player player);
 
-  Location getBlockLocation();
-
-  net.minecraft.world.entity.Display.ItemDisplay getDisplay();
+  void teleport(Vector position);
 
   interface Builder {
 
@@ -30,7 +26,9 @@ public interface ClientBlock {
 
     Builder setTransformation(Transformation transformation);
 
-    Builder addViewer(Entity viewer);
+    Builder addViewer(Player player);
+
+    Builder setViewRange(float range);
 
     ClientBlock build();
   }

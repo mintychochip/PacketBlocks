@@ -7,6 +7,6 @@ public class Metal extends JavaPlugin {
 
   @Override
   public void onEnable() {
-    Bukkit.getPluginCommand("test").setExecutor(new TestCommand());
+    Bukkit.getPluginCommand("test").setExecutor(new TestCommand(this));
   }
 }

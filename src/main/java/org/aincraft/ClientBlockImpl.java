@@ -6,14 +6,18 @@ import java.util.HashSet;
 import java.util.Set;
 import net.kyori.adventure.key.Key;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Brightness;
 import net.minecraft.world.entity.Display.ItemDisplay;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.PositionMoveRotation;
+import net.minecraft.world.entity.Relative;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.aincraft.ClientBlock.Builder;
@@ -21,12 +25,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftItem;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -35,35 +41,38 @@ import org.joml.Vector3f;
 public final class ClientBlockImpl implements ClientBlock {
 
   private final Key itemModel;
-  private final Set<Player> playersVisible;
-  private Location blockLocation;
+  private final ServerLevel level;
+  private final Vec3 position;
+  @Nullable
+  private final Brightness brightness;
+  private final Transformation transformation;
+  private final Set<ServerPlayer> viewers;
   private final ItemDisplay itemDisplay;
+  private final Plugin plugin;
 
-  private ClientBlockImpl(Key itemModel, Set<Player> playersVisible, Location blockLocation,
-      ItemDisplay itemDisplay) {
+  public ClientBlockImpl(Key itemModel, ServerLevel level, Vec3 position,
+      @Nullable Brightness brightness, Transformation transformation, Set<ServerPlayer> viewers,
+      ItemDisplay itemDisplay, Plugin plugin) {
     this.itemModel = itemModel;
-    this.playersVisible = playersVisible;
-    this.blockLocation = blockLocation;
+    this.level = level;
+    this.position = position;
+    this.brightness = brightness;
+    this.transformation = transformation;
+    this.viewers = viewers;
     this.itemDisplay = itemDisplay;
+    this.plugin = plugin;
   }
 
-  public static ClientBlock create(Key itemModel, Location blockLocation,
-      net.minecraft.server.level.ServerLevel level) {
-    ItemDisplay display = new ItemDisplay(EntityType.ITEM_DISPLAY, level);
-    display.setPos(blockLocation.getBlockX(), blockLocation.getBlockY(), blockLocation.getBlockZ());
-    ItemStack bukkitItemStack = ItemStack.of(Material.PAPER);
-    bukkitItemStack.setData(DataComponentTypes.ITEM_MODEL, itemModel);
-    net.minecraft.world.item.ItemStack itemStack = CraftItemStack.asNMSCopy(bukkitItemStack);
-    display.setItemStack(itemStack);
-    display.setBrightnessOverride(null);
-    display.setBoundingBox(new AABB(0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f));
-    display.setTransformation(new Transformation(
+  public static ClientBlock create(World world, Vector position, Plugin plugin) {
+    CraftWorld craftWorld = (CraftWorld) world;
+    Builder builder = new Builder(Key.key("minecraft:stone"), craftWorld.getHandle(),
+        new Vec3(position.getX(), position.getY(), position.getZ()), null, new Transformation(
         new Vector3f(0.5f, 0.5f, 0.5f),
         new Quaternionf(0.0f, 0.0f, 0.0f, 1.0f),
         new Vector3f(1.0f, 1.0f, 1.0f),
         new Quaternionf(0.0f, 0.0f, 0.0f, 1.0f)
-    ));
-    return new ClientBlockImpl(itemModel, new HashSet<>(), blockLocation, display);
+    ), 1.0f, new HashSet<>(), plugin);
+    return builder.build();
   }
 
   @Override
@@ -73,16 +82,22 @@ public final class ClientBlockImpl implements ClientBlock {
 
   @Override
   public boolean visibleTo(Player player) {
-    return playersVisible.add(player);
+    if (player instanceof ServerPlayer serverPlayer) {
+      return viewers.add(serverPlayer);
+    }
+    return false;
   }
 
   @Override
   public void show(Player player) {
-    if (playersVisible.contains(player)) {
+    if (!(player instanceof CraftPlayer craftPlayer)) {
       return;
     }
-    CraftPlayer craftPlayer = (CraftPlayer) player;
     ServerPlayer serverPlayer = craftPlayer.getHandle();
+    if (viewers.contains(serverPlayer)) {
+      return;
+    }
+    viewers.add(serverPlayer);
     ClientboundAddEntityPacket packet = new ClientboundAddEntityPacket(
         itemDisplay.getId(), itemDisplay.getUUID(), itemDisplay.getX(),
         itemDisplay.getY(), itemDisplay.getZ(), itemDisplay.getXRot(),
@@ -96,17 +111,23 @@ public final class ClientBlockImpl implements ClientBlock {
   }
 
   @Override
-  public void move(Location location) {
+  public void hide(Player player) {
+    if (!(player instanceof CraftPlayer craftPlayer)) {
+      return;
+    }
+    ServerPlayer serverPlayer = craftPlayer.getHandle();
+    if (!viewers.contains(serverPlayer)) {
+      return;
+    }
+    viewers.remove(serverPlayer);
+    ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(
+        itemDisplay.getId());
+    serverPlayer.connection.send(packet);
   }
 
   @Override
-  public Location getBlockLocation() {
-    return blockLocation;
-  }
+  public void teleport(Vector position) {
 
-  @Override
-  public ItemDisplay getDisplay() {
-    return itemDisplay;
   }
 
   private static final class Builder implements ClientBlock.Builder {
@@ -117,17 +138,21 @@ public final class ClientBlockImpl implements ClientBlock {
     @Nullable
     private Brightness brightness;
     private Transformation transformation;
-    private Set<Entity> viewers;
+    private float range;
+    private Set<ServerPlayer> viewers;
+    private final Plugin plugin;
 
     public Builder(Key itemModel, ServerLevel level, Vec3 position, @Nullable Brightness brightness,
-        Transformation transformation,
-        Set<Entity> viewers) {
+        Transformation transformation, float range,
+        Set<ServerPlayer> viewers, Plugin plugin) {
       this.itemModel = itemModel;
       this.level = level;
       this.position = position;
       this.brightness = brightness;
       this.transformation = transformation;
+      this.range = range;
       this.viewers = viewers;
+      this.plugin = plugin;
     }
 
     @Override
@@ -152,11 +177,14 @@ public final class ClientBlockImpl implements ClientBlock {
     }
 
     @Override
-    public ClientBlock.Builder addViewer(Entity viewer) {
-      if (viewers == null) {
-        return this;
-      }
-      viewers.add(viewer);
+    public ClientBlock.Builder addViewer(Player player) {
+
+      return this;
+    }
+
+    @Override
+    public ClientBlock.Builder setViewRange(float range) {
+      this.range = range;
       return this;
     }
 
@@ -165,9 +193,14 @@ public final class ClientBlockImpl implements ClientBlock {
       ItemDisplay display = new ItemDisplay(EntityType.ITEM_DISPLAY, level);
       display.setPos(position);
       display.setBrightnessOverride(brightness);
-      display.setItemStack();
+      ItemStack bukkitStack = ItemStack.of(Material.PAPER);
+      bukkitStack.setData(DataComponentTypes.ITEM_MODEL, itemModel);
+      net.minecraft.world.item.ItemStack itemStack = CraftItemStack.asNMSCopy(bukkitStack);
+      display.setViewRange(range);
+      display.setItemStack(itemStack);
       display.setTransformation(transformation);
-      return new ClientBlockImpl();
+      return new ClientBlockImpl(itemModel, level, position, brightness, transformation, viewers,
+          display, plugin);
     }
 
     @NotNull
@@ -176,5 +209,9 @@ public final class ClientBlockImpl implements ClientBlock {
       return new Transformation(transformation.getTranslation(), transformation.getLeftRotation(),
           transformation.getScale(), transformation.getRightRotation());
     }
+  }
+
+  private static Vec3 toVec3(Vector vector) {
+    return new Vec3(vector.getX(), vector.getY(), vector.getZ());
   }
 }
