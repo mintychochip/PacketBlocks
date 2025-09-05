@@ -22,7 +22,7 @@ public interface ClientBlock {
 
     Builder setItemModel(Key itemModel);
 
-    Builder setLocation(Location location);
+    Builder setLocation(Location location, boolean aligned);
 
     Builder setTransformation(Transformation transformation);
 

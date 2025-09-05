@@ -8,30 +8,22 @@ import net.kyori.adventure.key.Key;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Brightness;
 import net.minecraft.world.entity.Display.ItemDisplay;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.PositionMoveRotation;
-import net.minecraft.world.entity.Relative;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.aincraft.ClientBlock.Builder;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -39,6 +31,22 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public final class ClientBlockImpl implements ClientBlock {
+
+  private static final Key DEFAULT_ITEM_MODEL;
+  private static final Vec3 DEFAULT_POSITION;
+  private static final Transformation DEFAULT_TRANSFORMATION;
+  private static final float DEFAULT_RANGE;
+
+  static {
+    float scale = 1.0001f;
+    float translation = (scale / 2.0f) - 0.5f;
+    DEFAULT_ITEM_MODEL = Key.key("minecraft:stone");
+    DEFAULT_POSITION = new Vec3(translation, translation, translation);
+    DEFAULT_TRANSFORMATION = new Transformation(new Vector3f(0, 0, 0), new Quaternionf(0, 0, 0, 1),
+        new Vector3f(scale, scale, scale),
+        new Quaternionf(0, 0, 0, 1));
+    DEFAULT_RANGE = 32.0f;
+  }
 
   private final Key itemModel;
   private final ServerLevel level;
@@ -63,15 +71,21 @@ public final class ClientBlockImpl implements ClientBlock {
     this.plugin = plugin;
   }
 
+  public static ClientBlock.Builder builder(World world, Plugin plugin) {
+    CraftWorld craftWorld = (CraftWorld) world;
+    return new Builder(craftWorld.getHandle(), DEFAULT_ITEM_MODEL, DEFAULT_POSITION
+        , DEFAULT_TRANSFORMATION, DEFAULT_RANGE, new HashSet<>(), plugin, null);
+  }
+
   public static ClientBlock create(World world, Vector position, Plugin plugin) {
     CraftWorld craftWorld = (CraftWorld) world;
-    Builder builder = new Builder(Key.key("minecraft:stone"), craftWorld.getHandle(),
-        new Vec3(position.getX(), position.getY(), position.getZ()), null, new Transformation(
+    Builder builder = new Builder(craftWorld.getHandle(), Key.key("minecraft:stone"),
+        new Vec3(position.getX(), position.getY(), position.getZ()), new Transformation(
         new Vector3f(0.5f, 0.5f, 0.5f),
         new Quaternionf(0.0f, 0.0f, 0.0f, 1.0f),
         new Vector3f(1.0f, 1.0f, 1.0f),
         new Quaternionf(0.0f, 0.0f, 0.0f, 1.0f)
-    ), 1.0f, new HashSet<>(), plugin);
+    ), 1.0f, new HashSet<>(), plugin, null);
     return builder.build();
   }
 
@@ -142,9 +156,8 @@ public final class ClientBlockImpl implements ClientBlock {
     private Set<ServerPlayer> viewers;
     private final Plugin plugin;
 
-    public Builder(Key itemModel, ServerLevel level, Vec3 position, @Nullable Brightness brightness,
-        Transformation transformation, float range,
-        Set<ServerPlayer> viewers, Plugin plugin) {
+    public Builder(ServerLevel level, Key itemModel, Vec3 position, Transformation transformation,
+        float range, Set<ServerPlayer> viewers, Plugin plugin, @Nullable Brightness brightness) {
       this.itemModel = itemModel;
       this.level = level;
       this.position = position;
@@ -162,11 +175,20 @@ public final class ClientBlockImpl implements ClientBlock {
     }
 
     @Override
-    public ClientBlock.Builder setLocation(Location location) {
+    public ClientBlock.Builder setLocation(Location location, boolean aligned) {
       World world = location.getWorld();
       CraftWorld craftWorld = (CraftWorld) world;
       this.level = craftWorld.getHandle();
-      this.position = new Vec3(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+      if (aligned) {
+        this.position = new Vec3(location.getBlockX(), location.getBlockY(), location.getBlockZ());
+        this.transformation = new Transformation(
+            new Vector3f(0.5f, 0.5f, 0.5f).sub(transformation.getTranslation()),
+            transformation.getLeftRotation(),
+            transformation.getScale(),
+            transformation.getRightRotation());
+        return this;
+      }
+      this.position = new Vec3(location.getX(), location.getY(), location.getZ());
       return this;
     }
 
