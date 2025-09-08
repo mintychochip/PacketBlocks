@@ -1,0 +1,27 @@
+CREATE TABLE packet_blocks
+(
+    world      TEXT    NOT NULL,
+    x          REAL    NOT NULL,
+    y          REAL    NOT NULL,
+    z          REAL    NOT NULL,
+    cx         INTEGER NOT NULL,
+    cz         INTEGER NOT NULL,
+    item_model TEXT    NOT NULL,
+    block      INTEGER NOT NULL,
+    sky        INTEGER NOT NULL,
+    tx         REAL    NOT NULL,
+    ty         REAL    NOT NULL,
+    tz         REAL    NOT NULL,
+    lx         REAL    NOT NULL,
+    ly         REAL    NOT NULL,
+    lz         REAL    NOT NULL,
+    lw         REAL    NOT NULL,
+    sx         REAL    NOT NULL,
+    sy         REAL    NOT NULL,
+    sz         REAL    NOT NULL,
+    rx         REAL    NOT NULL,
+    ry         REAL    NOT NULL,
+    rz         REAL    NOT NULL,
+    rw         REAL    NOT NULL,
+    PRIMARY KEY (world,x,y,z)
+);

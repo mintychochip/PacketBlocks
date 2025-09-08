@@ -22,6 +22,8 @@ repositories {
 }
 
 dependencies {
+    implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
+    implementation("com.google.inject:guice:7.0.0")
     paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")

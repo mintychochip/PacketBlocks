@@ -8,3 +8,5 @@ softdepend:
 commands:
   test:
     description: asdads
+  item:
+    description: test

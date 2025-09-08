@@ -1,32 +1,40 @@
 package org.aincraft;
 
-import java.util.HashSet;
+import com.google.inject.Inject;
+import java.util.List;
 import java.util.Random;
-import java.util.Set;
+import java.util.random.RandomGenerator;
 import net.kyori.adventure.key.Key;
-import net.kyori.adventure.text.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Display.ItemDisplay;
-import net.minecraft.world.entity.EntityType;
-import org.aincraft.ClientBlock.Builder;
+import org.aincraft.api.BlockBinding;
+import org.aincraft.api.ClientBlock;
+import org.aincraft.api.ClientBlockData;
+import org.aincraft.domain.ClientBlockDataImpl;
+import org.aincraft.domain.ClientBlockService;
+import org.aincraft.domain.Service;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Vector3f;
 
 public class TestCommand implements CommandExecutor {
 
   private final Plugin plugin;
+  private final ClientBlockService clientBlockService;
+  private final Service service;
 
-  public TestCommand(Plugin plugin) {
+  @Inject
+  public TestCommand(Plugin plugin, ClientBlockService clientBlockService, Service service) {
     this.plugin = plugin;
+    this.clientBlockService = clientBlockService;
+    this.service = service;
   }
 
   @Override
@@ -34,10 +42,19 @@ public class TestCommand implements CommandExecutor {
       @NotNull String s, @NotNull String @NotNull [] strings) {
     if (commandSender instanceof Player player) {
       CraftPlayer craftPlayer = (CraftPlayer) player;
-      ClientBlock block = ClientBlockImpl.builder(player.getWorld(), plugin)
-          .setItemModel(Key.key("minecraft:oak_planks"))
-          .setLocation(player.getLocation(),true).build();
-      block.show(player);
+      List<BlockBinding> bindings = service.getBindings(player.getChunk());
+      for (int i = 0; i < 25; ++i) {
+        for (int j = 0; j < 25; ++j) {
+          for (int u = 0; u < 25; ++u) {
+            ClientBlock block = clientBlockService.upsertBlock(
+                new BlockBindingImpl(new ClientBlockDataImpl(
+                    Key.key("item:bus")).translation(new Vector3f(0.5f, 0.5f, 0.5f))
+                    .itemModel(Key.key("minecraft:diamond_ore")),
+                    player.getLocation().clone().add(i, j, u)));
+            block.show(player);
+          }
+        }
+      }
     }
     return true;
   }
