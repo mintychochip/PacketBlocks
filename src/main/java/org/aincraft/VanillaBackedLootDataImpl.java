@@ -1,9 +1,8 @@
 package org.aincraft;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import org.aincraft.api.LootData;
+import org.aincraft.loot.LootData;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootTable;

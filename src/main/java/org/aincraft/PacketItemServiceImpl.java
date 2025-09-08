@@ -3,7 +3,7 @@ package org.aincraft;
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import io.papermc.paper.persistence.PersistentDataContainerView;
-import org.aincraft.api.ClientBlockData;
+import org.aincraft.api.ModelData;
 import org.bukkit.NamespacedKey;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
@@ -26,15 +26,15 @@ public class PacketItemServiceImpl implements PacketItemService {
   }
 
   @Override
-  public @NotNull ClientBlockData readPacketData(ItemStack stack) throws IllegalArgumentException {
+  public @NotNull ModelData readPacketData(ItemStack stack) throws IllegalArgumentException {
     Preconditions.checkArgument(isPacketItem(stack));
     PersistentDataContainerView pdc = stack.getPersistentDataContainer();
     String json = pdc.get(itemKey, PersistentDataType.STRING);
-    return gson.fromJson(json, ClientBlockData.class);
+    return gson.fromJson(json, ModelData.class);
   }
 
   @Override
-  public void writePacketData(ItemStack stack, ClientBlockData data) {
+  public void writePacketData(ItemStack stack, ModelData data) {
     String json = gson.toJson(data);
     stack.editPersistentDataContainer(pdc -> {
       pdc.set(itemKey, PersistentDataType.STRING, json);

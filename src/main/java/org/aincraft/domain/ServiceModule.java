@@ -15,7 +15,7 @@ import org.aincraft.PacketItemServiceImpl;
 import org.aincraft.adapter.ClientBlockDataFactoryImpl;
 import org.aincraft.adapter.KyoriKeyAdapterImpl;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.ClientBlockData;
+import org.aincraft.api.ModelData;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -42,7 +42,7 @@ public final class ServiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-      bind(new TypeLiteral<Mapper<ClientBlockData, ClientBlockData.Record>>() {
+      bind(new TypeLiteral<Mapper<ModelData, ModelData.Record>>() {
       })
           .to(ClientBlockDataMapperImpl.class)
           .in(Singleton.class);

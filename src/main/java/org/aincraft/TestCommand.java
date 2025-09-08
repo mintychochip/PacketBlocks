@@ -2,24 +2,17 @@ package org.aincraft;
 
 import com.google.inject.Inject;
 import java.util.List;
-import java.util.Random;
-import java.util.random.RandomGenerator;
 import net.kyori.adventure.key.Key;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.ClientBlock;
-import org.aincraft.api.ClientBlockData;
-import org.aincraft.domain.ClientBlockDataImpl;
+import org.aincraft.api.BlockModel;
+import org.aincraft.domain.ModelDataImpl;
 import org.aincraft.domain.ClientBlockService;
 import org.aincraft.domain.Service;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
-import org.bukkit.entity.ItemDisplay;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Vector3f;
@@ -46,8 +39,8 @@ public class TestCommand implements CommandExecutor {
       for (int i = 0; i < 25; ++i) {
         for (int j = 0; j < 25; ++j) {
           for (int u = 0; u < 25; ++u) {
-            ClientBlock block = clientBlockService.upsertBlock(
-                new BlockBindingImpl(new ClientBlockDataImpl(
+            BlockModel block = clientBlockService.upsertBlock(
+                new BlockBindingImpl(new ModelDataImpl(
                     Key.key("item:bus")).translation(new Vector3f(0.5f, 0.5f, 0.5f))
                     .itemModel(Key.key("minecraft:diamond_ore")),
                     player.getLocation().clone().add(i, j, u)));

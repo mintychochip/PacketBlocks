@@ -1,15 +1,13 @@
 package org.aincraft.domain;
 
-import java.util.UUID;
-import net.kyori.adventure.key.Key;
-import org.aincraft.api.ClientBlockData;
+import org.aincraft.api.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public interface ClientBlockDataRepository {
 
-  boolean save(@NotNull ClientBlockData.Record record);
+  boolean save(@NotNull ModelData.Record record);
 
   @Nullable
-  ClientBlockData.Record load(String resourceKey);
+  ModelData.Record load(String resourceKey);
 }

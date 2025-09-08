@@ -1,4 +1,4 @@
-package org.aincraft.api;
+package org.aincraft.loot;
 
 import java.util.Collection;
 import org.bukkit.inventory.ItemStack;

@@ -3,7 +3,7 @@ package org.aincraft;
 import com.google.inject.Inject;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
-import org.aincraft.domain.ClientBlockDataImpl;
+import org.aincraft.domain.ModelDataImpl;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,10 +26,10 @@ public class ItemCommand implements CommandExecutor {
   public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command,
       @NotNull String label, @NotNull String @NotNull [] args) {
     if (sender instanceof Player player) {
-      ItemStack stack = ItemStack.of(Material.MANGROVE_ROOTS);
+      ItemStack stack = ItemStack.of(Material.STONE);
       stack.setData(DataComponentTypes.ITEM_MODEL, Key.key("minecraft:diamond_ore"));
       itemService.writePacketData(stack,
-          new ClientBlockDataImpl(Key.key("item:bus")).translation(new Vector3f(0.5f, 0.5f, 0.5f))
+          new ModelDataImpl(Key.key("item:bus")).translation(new Vector3f(0.5f,0.5f,0.5f))
               .itemModel(Key.key("minecraft:diamond_ore")));
       player.getInventory().addItem(stack);
 

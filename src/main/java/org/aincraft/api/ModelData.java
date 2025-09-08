@@ -1,13 +1,10 @@
 package org.aincraft.api;
 
-import java.util.UUID;
 import net.kyori.adventure.key.Key;
-import org.bukkit.World;
-import org.bukkit.plugin.Plugin;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public interface ClientBlockData {
+public interface ModelData {
 
   Key resourceKey();
 
@@ -27,19 +24,19 @@ public interface ClientBlockData {
 
   int skyLight();
 
-  ClientBlockData range(float range);
+  ModelData range(float range);
 
-  ClientBlockData brightness(int block, int sky);
+  ModelData brightness(int block, int sky);
 
-  ClientBlockData scale(Vector3f scale);
+  ModelData scale(Vector3f scale);
 
-  ClientBlockData translation(Vector3f translation);
+  ModelData translation(Vector3f translation);
 
-  ClientBlockData leftRotation(Quaternionf leftRotation);
+  ModelData leftRotation(Quaternionf leftRotation);
 
-  ClientBlockData rightRotation(Quaternionf rightRotation);
+  ModelData rightRotation(Quaternionf rightRotation);
 
-  ClientBlockData itemModel(Key key);
+  ModelData itemModel(Key key);
 
   interface Builder {
 
@@ -57,7 +54,7 @@ public interface ClientBlockData {
 
     Builder setBrightness(int block, int sky);
 
-    ClientBlockData build();
+    ModelData build();
   }
 
   record Record(String resourceKey, String itemModel,

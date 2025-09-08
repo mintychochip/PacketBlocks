@@ -4,8 +4,8 @@ import com.google.inject.Inject;
 import org.aincraft.BlockBindingImpl;
 import org.aincraft.Mapper;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.ClientBlockData;
-import org.aincraft.api.ClientBlockData.Record;
+import org.aincraft.api.ModelData;
+import org.aincraft.api.ModelData.Record;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -14,18 +14,18 @@ import org.jetbrains.annotations.NotNull;
 
 public final class BlockBindingMapperImpl implements Mapper<BlockBinding, BlockBinding.Record> {
 
-  private final Mapper<ClientBlockData, ClientBlockData.Record> blockDataInstanceMapper;
+  private final Mapper<ModelData, ModelData.Record> blockDataInstanceMapper;
 
   @Inject
   public BlockBindingMapperImpl(
-      Mapper<ClientBlockData, ClientBlockData.Record> blockDataInstanceMapper) {
+      Mapper<ModelData, ModelData.Record> blockDataInstanceMapper) {
     this.blockDataInstanceMapper = blockDataInstanceMapper;
   }
 
   @Override
   public @NotNull BlockBinding asDomain(@NotNull BlockBinding.Record record)
       throws IllegalArgumentException {
-    ClientBlockData blockData = blockDataInstanceMapper.asDomain(
+    ModelData blockData = blockDataInstanceMapper.asDomain(
         record.blockData());
     World world = Bukkit.getWorld(record.world());
     if (world == null) {

@@ -8,17 +8,14 @@ import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Brightness;
 import net.minecraft.world.entity.Display.ItemDisplay;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
-import org.aincraft.api.ClientBlock;
-import org.aincraft.api.ClientBlockData;
-import org.aincraft.domain.ClientBlockDataImpl;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
+import org.aincraft.api.BlockModel;
+import org.aincraft.api.ModelData;
+import org.aincraft.domain.ModelDataImpl;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -26,18 +23,17 @@ import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.util.Vector;
 
-public final class ClientBlockImpl implements ClientBlock {
+public final class BlockModelImpl implements BlockModel {
 
-  private ClientBlockData blockData;
+  private ModelData blockData;
   private final World world;
   private final Vector position;
   private final Set<Player> viewers = new HashSet<>();
   private final ItemDisplay itemDisplay;
 
-  public ClientBlockImpl(ClientBlockData blockData, World world, Vector position,
+  public BlockModelImpl(ModelData blockData, World world, Vector position,
       ItemDisplay itemDisplay) {
     this.blockData = blockData;
     this.world = world;
@@ -45,11 +41,11 @@ public final class ClientBlockImpl implements ClientBlock {
     this.itemDisplay = itemDisplay;
   }
 
-  public static ClientBlockImpl create(ClientBlockData blockData, World world) {
+  public static BlockModelImpl create(ModelData blockData, World world) {
     return create(blockData, world, new Vector());
   }
 
-  public static ClientBlockImpl create(ClientBlockData blockData, World world, Vector position) {
+  public static BlockModelImpl create(ModelData blockData, World world, Vector position) {
     CraftWorld craftWorld = (CraftWorld) world;
     ItemDisplay display = new ItemDisplay(EntityType.ITEM_DISPLAY, craftWorld.getHandle());
     display.setPos(new Vec3(position.getX(), position.getY(), position.getZ()));
@@ -60,16 +56,16 @@ public final class ClientBlockImpl implements ClientBlock {
     display.setTransformation(
         new Transformation(blockData.translation(), blockData.leftRotation(), blockData.scale(),
             blockData.rightRotation()));
-    Brightness brightness = ClientBlockDataImpl.asNMSBrightness(blockData.blockLight(),
+    Brightness brightness = ModelDataImpl.asNMSBrightness(blockData.blockLight(),
         blockData.skyLight());
     display.setBrightnessOverride(brightness);
     display.setViewRange(blockData.range());
     display.setGlowColorOverride(1);
-    return new ClientBlockImpl(blockData, world, position, display);
+    return new BlockModelImpl(blockData, world, position, display);
   }
 
   @Override
-  public ClientBlockData getBlockData() {
+  public ModelData getBlockData() {
     return blockData;
   }
 
@@ -79,7 +75,7 @@ public final class ClientBlockImpl implements ClientBlock {
   }
 
   @Override
-  public void setBlockData(ClientBlockData blockData) {
+  public void setBlockData(ModelData blockData) {
     this.blockData = blockData;
     itemDisplay.setPos(new Vec3(position.getX(), position.getY(), position.getZ()));
     ItemStack bukkitStack = ItemStack.of(Material.PAPER);
@@ -89,7 +85,7 @@ public final class ClientBlockImpl implements ClientBlock {
     itemDisplay.setTransformation(
         new Transformation(blockData.translation(), blockData.leftRotation(), blockData.scale(),
             blockData.rightRotation()));
-    Brightness brightness = ClientBlockDataImpl.asNMSBrightness(blockData.blockLight(),
+    Brightness brightness = ModelDataImpl.asNMSBrightness(blockData.blockLight(),
         blockData.skyLight());
     itemDisplay.setBrightnessOverride(brightness);
     itemDisplay.setViewRange(blockData.range());

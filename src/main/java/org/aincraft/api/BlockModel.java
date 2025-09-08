@@ -6,13 +6,13 @@ import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
-public interface ClientBlock {
+public interface BlockModel {
 
-  ClientBlockData getBlockData();
+  ModelData getBlockData();
 
   Vector getPosition();
 
-  void setBlockData(ClientBlockData blockData);
+  void setBlockData(ModelData blockData);
 
   boolean visibleTo(Player player);
 
@@ -26,15 +26,15 @@ public interface ClientBlock {
 
   interface Builder {
 
-    Builder setBlockData(ClientBlockData blockData);
+    Builder setBlockData(ModelData blockData);
 
     Builder setLocation(Location location);
 
-    ClientBlock build();
+    BlockModel build();
   }
 
   interface Factory {
 
-    ClientBlock create(BlockData blockData);
+    BlockModel create(BlockData blockData);
   }
 }

@@ -7,26 +7,26 @@ import com.google.gson.reflect.TypeToken;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
-import org.aincraft.domain.ClientBlockDataImpl;
-import org.aincraft.api.ClientBlockData;
+import org.aincraft.domain.ModelDataImpl;
+import org.aincraft.api.ModelData;
 
 public class ClientBlockDataFactoryImpl implements TypeAdapterFactory {
 
   @SuppressWarnings("unchecked")
   @Override
   public <T> TypeAdapter<T> create(Gson gson, TypeToken<T> type) {
-    if (type.getRawType() != ClientBlockData.class) return null;
+    if (type.getRawType() != ModelData.class) return null;
 
-    final TypeAdapter<ClientBlockDataImpl> delegate = gson.getAdapter(ClientBlockDataImpl.class);
+    final TypeAdapter<ModelDataImpl> delegate = gson.getAdapter(ModelDataImpl.class);
 
-    return (TypeAdapter<T>) new TypeAdapter<ClientBlockData>() {
-      @Override public void write(JsonWriter out, ClientBlockData value) throws IOException {
+    return (TypeAdapter<T>) new TypeAdapter<ModelData>() {
+      @Override public void write(JsonWriter out, ModelData value) throws IOException {
         // assume your implementation is ClientBlockDataImpl
-        delegate.write(out, (ClientBlockDataImpl) value);
+        delegate.write(out, (ModelDataImpl) value);
       }
 
       @Override
-      public ClientBlockData read(JsonReader in) throws IOException {
+      public ModelData read(JsonReader in) throws IOException {
         return delegate.read(in);
       }
     };

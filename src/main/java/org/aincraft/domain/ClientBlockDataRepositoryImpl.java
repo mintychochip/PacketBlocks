@@ -8,17 +8,15 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.UUID;
 import org.aincraft.ConnectionSource;
-import org.aincraft.api.ClientBlockData;
-import org.aincraft.api.ClientBlockData.Record;
+import org.aincraft.api.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 final class ClientBlockDataRepositoryImpl implements ClientBlockDataRepository {
 
   private final ConnectionSource connectionSource;
-  private final Cache<String, ClientBlockData> readCache = Caffeine.newBuilder().expireAfterAccess(
+  private final Cache<String, ModelData> readCache = Caffeine.newBuilder().expireAfterAccess(
       Duration.ofMinutes(10)).build();
 
   @Inject
@@ -27,7 +25,7 @@ final class ClientBlockDataRepositoryImpl implements ClientBlockDataRepository {
   }
 
   @Override
-  public boolean save(@NotNull ClientBlockData.Record record) {
+  public boolean save(@NotNull ModelData.Record record) {
     final String sql =
         "INSERT INTO client_block_data (" +
             "resource_key, item_model, " +
@@ -73,7 +71,7 @@ final class ClientBlockDataRepositoryImpl implements ClientBlockDataRepository {
   }
 
   @Override
-  public @Nullable ClientBlockData.Record load(String resourceKey) {
+  public @Nullable ModelData.Record load(String resourceKey) {
     try (Connection connection = connectionSource.getConnection();
         PreparedStatement ps = connection.prepareStatement(
             "SELECT item_model, tx, ty, tz, lx, ly, lz, lw, sx, sy, sz, rx, ry, rz, rw, range, block, sky FROM client_block_data WHERE resource_key = ?")) {
@@ -104,7 +102,7 @@ final class ClientBlockDataRepositoryImpl implements ClientBlockDataRepository {
         float rz = rs.getFloat("rz");
         float rw = rs.getFloat("rw");
         float range = rs.getFloat("range");
-        return new ClientBlockData.Record(resourceKey, itemModel,
+        return new ModelData.Record(resourceKey, itemModel,
             tx, ty, tz,
             lx, ly, lz, lw,
             sx, sy, sz,

@@ -1,21 +1,20 @@
 package org.aincraft.domain;
 
-import java.util.UUID;
 import net.kyori.adventure.key.Key;
 import net.minecraft.util.Brightness;
-import org.aincraft.api.ClientBlockData;
+import org.aincraft.api.ModelData;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public record ClientBlockDataImpl(
+public record ModelDataImpl(
     Key resourceKey,
     Key itemModel,
     Vector3f translation, Quaternionf leftRotation, Vector3f scale,
     Quaternionf rightRotation,
     float range,
     @Nullable Brightness brightness
-) implements ClientBlockData {
+) implements ModelData {
 
   private static final Key DEFAULT_ITEM_MODEL;
   private static final Vector3f DEFAULT_TRANSLATION, DEFAULT_SCALE;
@@ -23,8 +22,8 @@ public record ClientBlockDataImpl(
   private static final float DEFAULT_RANGE;
 
   static {
-    float scale = 1.0001f;
-    float translation = (scale / 2.0f) - 0.5f;
+    float scale = 1.000001f;
+    float translation = (1.0f - scale) / 2.0f;
     DEFAULT_ITEM_MODEL = Key.key("minecraft:stone");
     DEFAULT_SCALE = new Vector3f(scale, scale, scale);
     DEFAULT_TRANSLATION = new Vector3f(translation, translation, translation);
@@ -32,7 +31,7 @@ public record ClientBlockDataImpl(
     DEFAULT_RANGE = 32.0f;
   }
 
-  public ClientBlockDataImpl(Key resourceKey) {
+  public ModelDataImpl(Key resourceKey) {
     this(resourceKey, DEFAULT_ITEM_MODEL, DEFAULT_TRANSLATION, DEFAULT_ROTATION,
         DEFAULT_SCALE,
         DEFAULT_ROTATION, DEFAULT_RANGE, null);
@@ -43,42 +42,42 @@ public record ClientBlockDataImpl(
   }
 
   @Override
-  public ClientBlockData brightness(int block, int sky) {
+  public ModelData brightness(int block, int sky) {
     return new BuilderImpl(this)
         .setBrightness(block, sky)
         .build();
   }
 
   @Override
-  public ClientBlockData scale(Vector3f scale) {
+  public ModelData scale(Vector3f scale) {
     return new BuilderImpl(this)
         .setScale(scale)
         .build();
   }
 
   @Override
-  public ClientBlockData translation(Vector3f translation) {
+  public ModelData translation(Vector3f translation) {
     return new BuilderImpl(this)
         .setTranslation(translation)
         .build();
   }
 
   @Override
-  public ClientBlockData leftRotation(Quaternionf leftRotation) {
+  public ModelData leftRotation(Quaternionf leftRotation) {
     return new BuilderImpl(this)
         .setLeftRotation(leftRotation)
         .build();
   }
 
   @Override
-  public ClientBlockData rightRotation(Quaternionf rightRotation) {
+  public ModelData rightRotation(Quaternionf rightRotation) {
     return new BuilderImpl(this)
         .setRightRotation(rightRotation)
         .build();
   }
 
   @Override
-  public ClientBlockData itemModel(Key key) {
+  public ModelData itemModel(Key key) {
     return new BuilderImpl(this)
         .setItemModel(key)
         .build();
@@ -95,7 +94,7 @@ public record ClientBlockDataImpl(
   }
 
   @Override
-  public ClientBlockData range(float range) {
+  public ModelData range(float range) {
     return new BuilderImpl(this)
         .setRange(range)
         .build();
@@ -112,7 +111,7 @@ public record ClientBlockDataImpl(
     private Brightness brightness;
     private float range;
 
-    BuilderImpl(ClientBlockData blockData) {
+    BuilderImpl(ModelData blockData) {
       this.resourceKey = blockData.resourceKey();
       this.itemModel = blockData.itemModel();
       this.scale = blockData.scale();
@@ -166,8 +165,8 @@ public record ClientBlockDataImpl(
     }
 
     @Override
-    public ClientBlockData build() {
-      return new ClientBlockDataImpl(resourceKey, itemModel, translation,
+    public ModelData build() {
+      return new ModelDataImpl(resourceKey, itemModel, translation,
           leftRotation, scale, rightRotation, range, brightness);
     }
   }

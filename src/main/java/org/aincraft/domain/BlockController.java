@@ -3,41 +3,29 @@ package org.aincraft.domain;
 import com.google.inject.Inject;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
 import io.papermc.paper.event.packet.PlayerChunkUnloadEvent;
-import it.unimi.dsi.fastutil.shorts.Short2ObjectArrayMap;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.SectionPos;
-import net.minecraft.network.protocol.game.ClientboundLevelEventPacket;
-import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Display.ItemDisplay;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.block.Blocks;
 import org.aincraft.BlockBindingImpl;
-import org.aincraft.ClientBlockImpl;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.ClientBlock;
-import org.aincraft.api.ClientBlockData;
+import org.aincraft.api.BlockModel;
+import org.aincraft.api.ModelData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockState;
 import org.bukkit.craftbukkit.CraftWorld;
-import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockDamageEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.loot.LootContext;
 import org.bukkit.loot.LootContext.Builder;
@@ -47,12 +35,14 @@ import org.bukkit.plugin.Plugin;
 final class BlockController implements Listener {
 
   private final Plugin plugin;
+  private final Interceptor interceptor;
   private final ClientBlockService clientBlockService;
   private final Service service;
 
   @Inject
-  BlockController(Plugin plugin, ClientBlockService clientBlockService, Service service) {
+  BlockController(Plugin plugin, Interceptor interceptor, ClientBlockService clientBlockService, Service service) {
     this.plugin = plugin;
+    this.interceptor = interceptor;
     this.clientBlockService = clientBlockService;
     this.service = service;
   }
@@ -62,7 +52,7 @@ final class BlockController implements Listener {
     Player player = event.getPlayer();
     List<BlockBinding> bindings = service.getBindings(event.getChunk());
     for (BlockBinding binding : bindings) {
-      ClientBlock block = clientBlockService.loadBlock(binding.location());
+      BlockModel block = clientBlockService.loadBlock(binding.location());
       if (block == null) {
         continue;
       }
@@ -76,7 +66,7 @@ final class BlockController implements Listener {
     Player player = event.getPlayer();
     List<BlockBinding> bindings = service.getBindings(event.getChunk());
     for (BlockBinding binding : bindings) {
-      ClientBlock block = clientBlockService.loadBlock(binding.location());
+      BlockModel block = clientBlockService.loadBlock(binding.location());
       if (block == null) {
         continue;
       }
@@ -92,11 +82,21 @@ final class BlockController implements Listener {
     boolean packetItem = service.isPacketItem(item);
     if (packetItem) {
       CraftWorld craftWorld = (CraftWorld) serverBack.getWorld();
-      ClientBlockData data = service.readPacketData(item);
-      ClientBlock block = clientBlockService.upsertBlock(
+      ModelData data = service.readPacketData(item);
+      BlockModel block = clientBlockService.upsertBlock(
           new BlockBindingImpl(data, serverBack.getLocation()));
       block.show(player);
     }
+  }
+
+  @EventHandler
+  private void onJoin(final PlayerJoinEvent event) {
+    interceptor.inject(event.getPlayer());
+  }
+
+  @EventHandler
+  private void onLeave(final PlayerQuitEvent event) {
+    interceptor.eject(event.getPlayer());
   }
 
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
@@ -104,16 +104,12 @@ final class BlockController implements Listener {
     Block block = event.getBlock();
     Location location = block.getLocation();
     Player player = event.getPlayer();
-    ClientBlock clientBlock = clientBlockService.loadBlock(location);
-    if (clientBlock == null) {
+    BlockModel blockModel = clientBlockService.loadBlock(location);
+    if (blockModel == null) {
       return;
     }
     event.setCancelled(true);
-    clientBlockService.deleteBlock(block.getLocation());
-    block.setType(Material.AIR);
-    LootTable table = Bukkit.getLootTable(NamespacedKey.fromString("blocks/diamond_ore"));
-    LootContext context = new Builder(block.getLocation()).luck(1.0f).killer(player).build();
-    Collection<ItemStack> stack = table.populateLoot(ThreadLocalRandom.current(), context);
-    Bukkit.broadcastMessage(stack.toString());
+    player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_BREAK,1f,1f);
+    Bukkit.broadcastMessage("here");
   }
 }
