@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.aincraft.ConnectionSource;
 import org.aincraft.api.BlockBinding;
+import org.aincraft.api.ModelData;
 import org.aincraft.api.ModelData.Record;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -76,7 +77,7 @@ final class BlockBindingRepositoryImpl implements BlockBindingRepository {
           return null;
         }
         String resourceKey = rs.getString("resource_key");
-        Record record = blockDataRepository.load(resourceKey);
+        ModelData.Record record = blockDataRepository.load(resourceKey);
         if (record == null) {
           return null;
         }
@@ -105,7 +106,7 @@ final class BlockBindingRepositoryImpl implements BlockBindingRepository {
           double y = rs.getDouble("y");
           double z = rs.getDouble("z");
           String resourceKey = rs.getString("resource_key");
-          Record record = blockDataRepository.load(resourceKey);
+          ModelData.Record record = blockDataRepository.load(resourceKey);
           if (record == null) {
             continue;
           }

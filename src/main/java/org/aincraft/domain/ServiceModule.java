@@ -9,6 +9,7 @@ import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import net.kyori.adventure.key.Key;
+import org.aincraft.ConnectionSource;
 import org.aincraft.Mapper;
 import org.aincraft.PacketItemService;
 import org.aincraft.PacketItemServiceImpl;
@@ -16,6 +17,8 @@ import org.aincraft.adapter.ClientBlockDataFactoryImpl;
 import org.aincraft.adapter.KyoriKeyAdapterImpl;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.ModelData;
+import org.aincraft.api.ModelData.Record;
+import org.aincraft.domain.WriteBackRepositoryImpl.WriteBackConfiguration;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -50,14 +53,33 @@ public final class ServiceModule extends AbstractModule {
       })
           .to(BlockBindingMapperImpl.class)
           .in(Singleton.class);
-      bind(ClientBlockDataRepository.class).to(ClientBlockDataRepositoryImpl.class)
-          .in(Singleton.class);
-      bind(BlockBindingRepository.class).to(BlockBindingRepositoryImpl.class)
+      bind(ClientBlockDataRepository.class).to(ModelDataRepositoryImpl.class)
           .in(Singleton.class);
       bind(Service.class).to(ServiceImpl.class).in(Singleton.class);
       expose(Service.class);
       bind(ClientBlockService.class).to(ClientBlockServiceImpl.class).in(Singleton.class);
       expose(ClientBlockService.class);
+    }
+
+    @Provides
+    Repository.Writable<String,LootData.>
+
+    @Provides
+    Repository.Writable<String, ModelData.Record> modelDataRepository(
+        ConnectionSource connectionSource) {
+      ModelDataRepositoryImpl delegate = new ModelDataRepositoryImpl(connectionSource);
+      WriteBackRepositoryImpl<String, Record> repository = new WriteBackRepositoryImpl<>(
+          delegate, new WriteBackConfiguration());
+      repository.run(plugin);
+    }
+
+    @Provides
+    @Singleton
+    BlockBindingRepository blockBindingRepository(ClientBlockDataRepository blockDataRepository,
+        ConnectionSource connectionSource, Plugin plugin) {
+      BlockBindingRepositoryImpl repository = new BlockBindingRepositoryImpl(
+          blockDataRepository, connectionSource);
+      return WriteBackBlockBindingRepositoryImpl.create(repository, plugin);
     }
   }
 }

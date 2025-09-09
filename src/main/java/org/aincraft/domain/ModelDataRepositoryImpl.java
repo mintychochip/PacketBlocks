@@ -13,14 +13,14 @@ import org.aincraft.api.ModelData;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class ClientBlockDataRepositoryImpl implements ClientBlockDataRepository {
+final class ModelDataRepositoryImpl implements Repository.Writable<String, ModelData.Record> {
 
   private final ConnectionSource connectionSource;
   private final Cache<String, ModelData> readCache = Caffeine.newBuilder().expireAfterAccess(
       Duration.ofMinutes(10)).build();
 
   @Inject
-  ClientBlockDataRepositoryImpl(ConnectionSource connectionSource) {
+  ModelDataRepositoryImpl(ConnectionSource connectionSource) {
     this.connectionSource = connectionSource;
   }
 
@@ -68,6 +68,11 @@ final class ClientBlockDataRepositoryImpl implements ClientBlockDataRepository {
       e.printStackTrace(); // log so you can see what went wrong
       return false;
     }
+  }
+
+  @Override
+  public boolean delete(String key) {
+    return false;
   }
 
   @Override

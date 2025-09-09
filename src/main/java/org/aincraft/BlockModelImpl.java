@@ -137,13 +137,6 @@ public final class BlockModelImpl implements BlockModel {
   public void teleport(Vector position) {
     Vec3 pos = new Vec3(position.getX(), position.getY(), position.getZ());
     itemDisplay.setPos(pos);
-//    PositionMoveRotation moveRotation = new PositionMoveRotation(pos
-//        , itemDisplay.getDeltaMovement(),
-//        itemDisplay.getYRot(), itemDisplay.getXRot());
-//    ClientboundTeleportEntityPacket packet = new ClientboundTeleportEntityPacket(
-//        itemDisplay.getId(), moveRotation, Set.of(
-//        Relative.X, Relative.Y, Relative.Z, Relative.X_ROT, Relative.Y_ROT), false);
-//    viewers.forEach(viewer -> viewer.connection.send(packet));
   }
 
   @Override

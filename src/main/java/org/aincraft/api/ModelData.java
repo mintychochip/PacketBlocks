@@ -1,6 +1,7 @@
 package org.aincraft.api;
 
 import net.kyori.adventure.key.Key;
+import org.aincraft.domain.Repository;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -61,7 +62,11 @@ public interface ModelData {
                 float tx, float ty, float tz, float lx, float ly, float lz, float lw, float sx,
                 float sy, float sz, float rx, float ry, float rz, float rw, float range,
                 int block,
-                int sky) {
+                int sky) implements Repository.Record<String> {
 
+    @Override
+    public String key() {
+      return resourceKey;
+    }
   }
 }

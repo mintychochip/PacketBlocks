@@ -4,7 +4,9 @@ import com.google.inject.Inject;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
 import org.aincraft.domain.ModelDataImpl;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -32,7 +34,7 @@ public class ItemCommand implements CommandExecutor {
           new ModelDataImpl(Key.key("item:bus")).translation(new Vector3f(0.5f,0.5f,0.5f))
               .itemModel(Key.key("minecraft:diamond_ore")));
       player.getInventory().addItem(stack);
-
+      Server
     }
     return true;
   }
