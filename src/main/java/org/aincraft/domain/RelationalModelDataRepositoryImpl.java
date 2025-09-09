@@ -15,8 +15,6 @@ import org.jetbrains.annotations.Nullable;
 final class RelationalModelDataRepositoryImpl implements Repository<String, ModelData.Record> {
 
   private final ConnectionSource connectionSource;
-  private final Cache<String, ModelData> readCache = Caffeine.newBuilder().expireAfterAccess(
-      Duration.ofMinutes(10)).build();
 
   @Inject
   RelationalModelDataRepositoryImpl(ConnectionSource connectionSource) {

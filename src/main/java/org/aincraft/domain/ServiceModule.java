@@ -17,6 +17,7 @@ import org.aincraft.adapter.ClientBlockDataFactoryImpl;
 import org.aincraft.adapter.KyoriKeyAdapterImpl;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.ModelData;
+import org.aincraft.api.SoundEntry;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -50,6 +51,10 @@ public final class ServiceModule extends AbstractModule {
       bind(new TypeLiteral<Mapper<BlockBinding, BlockBinding.Record>>() {
       })
           .to(BlockBindingMapperImpl.class)
+          .in(Singleton.class);
+      bind(new TypeLiteral<Mapper<SoundEntry, SoundEntry.Record>>() {
+      })
+          .to(SoundEntryMapperImpl.class)
           .in(Singleton.class);
       bind(Service.class).to(ServiceImpl.class).in(Singleton.class);
       expose(Service.class);

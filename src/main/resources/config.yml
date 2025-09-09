@@ -1,1 +1,10 @@
 ruby_ore:
+  sounds:
+    break:
+      name:
+      volume:
+      pitch:
+    place:
+      name:
+      volume:
+      pitch:

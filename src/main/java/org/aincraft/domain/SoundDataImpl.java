@@ -1,11 +1,15 @@
 package org.aincraft.domain;
 
-import net.kyori.adventure.key.Key;
-import net.kyori.adventure.sound.Sound;
-import net.kyori.adventure.sound.Sound.Source;
+import java.util.HashMap;
+import java.util.Map;
 import org.aincraft.api.SoundData;
-import org.bukkit.entity.Player;
+import org.aincraft.api.SoundEntry;
 
-public final class SoundDataImpl implements {
+public final class SoundDataImpl implements SoundData {
 
+  private final Map<SoundType, SoundEntry> entries = new HashMap<>();
+  @Override
+  public SoundEntry getEntry(SoundType type) {
+    return entries.get(type);
+  }
 }

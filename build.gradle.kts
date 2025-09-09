@@ -22,6 +22,7 @@ repositories {
 }
 
 dependencies {
+    implementation("org.mongodb:bson:4.11.1")
     implementation("com.github.ben-manes.caffeine:caffeine:3.2.2")
     implementation("com.google.inject:guice:7.0.0")
     paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")

@@ -1,8 +1,7 @@
 package org.aincraft.api;
 
 import java.util.Map;
-import net.kyori.adventure.key.Key;
-import org.bukkit.entity.Player;
+import org.aincraft.domain.Repository;
 
 public interface SoundData {
 
@@ -13,24 +12,14 @@ public interface SoundData {
 
   SoundEntry getEntry(SoundType type);
 
-  record Record(String resourceKey, Map<String, SoundEntry.Record> entries) {
+  record Record(String resourceKey, Map<String, SoundEntry.Record> entries) implements Repository
 
-  }
+      .Record<String> {
 
-  interface SoundEntry {
-
-    SoundType type();
-
-    Key soundKey();
-
-    float volume();
-
-    float pitch();
-
-    void play(Player player);
-
-    record Record(String soundType, String soundKey, float volume, float pitch) {
-
+    @Override
+    public String key() {
+      return resourceKey;
     }
   }
+
 }
