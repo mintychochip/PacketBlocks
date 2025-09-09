@@ -19,7 +19,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class ServiceImpl implements Service {
 
-  private final ClientBlockDataRepository blockDataRepository;
+  private final Repository<String,ModelData.Record> blockDataRepository;
   private final BlockBindingRepository blockBindingRepository;
   private final PacketItemService packetItemService;
   private final Mapper<ModelData, ModelData.Record> blockDataRecordMapper;
@@ -27,7 +27,7 @@ public class ServiceImpl implements Service {
   private final Map<Location, BlockModel> activeBlocks = new HashMap<>();
 
   @Inject
-  public ServiceImpl(ClientBlockDataRepository blockDataRepository,
+  public ServiceImpl(Repository<String,ModelData.Record> blockDataRepository,
       BlockBindingRepository blockBindingRepository,
       PacketItemService packetItemService,
       Mapper<ModelData, ModelData.Record> blockDataRecordMapper,
@@ -37,12 +37,6 @@ public class ServiceImpl implements Service {
     this.packetItemService = packetItemService;
     this.blockDataRecordMapper = blockDataRecordMapper;
     this.blockBindingRecordMapper = blockBindingRecordMapper;
-  }
-
-  @Override
-  public boolean saveBlockBinding(@NotNull ModelData blockData) {
-    ModelData.Record record = blockDataRecordMapper.asRecord(blockData);
-    return blockDataRepository.save(record);
   }
 
   @Override

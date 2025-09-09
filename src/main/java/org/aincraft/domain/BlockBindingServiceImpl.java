@@ -12,14 +12,14 @@ import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final class ClientBlockServiceImpl implements ClientBlockService {
+final class BlockBindingServiceImpl implements BlockBindingService {
 
   private final BlockBindingRepository blockBindingRepository;
   private final Mapper<BlockBinding, BlockBinding.Record> blockBindingMapper;
   private final Map<Location, BlockModel> blockMap = new HashMap<>();
 
   @Inject
-  ClientBlockServiceImpl(BlockBindingRepository blockBindingRepository,
+  BlockBindingServiceImpl(BlockBindingRepository blockBindingRepository,
       Mapper<BlockBinding, Record> blockBindingMapper) {
     this.blockBindingRepository = blockBindingRepository;
     this.blockBindingMapper = blockBindingMapper;

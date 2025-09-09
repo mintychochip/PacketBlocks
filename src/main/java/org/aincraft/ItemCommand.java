@@ -31,10 +31,10 @@ public class ItemCommand implements CommandExecutor {
       ItemStack stack = ItemStack.of(Material.STONE);
       stack.setData(DataComponentTypes.ITEM_MODEL, Key.key("minecraft:diamond_ore"));
       itemService.writePacketData(stack,
-          new ModelDataImpl(Key.key("item:bus")).translation(new Vector3f(0.5f,0.5f,0.5f))
+          new ModelDataImpl(Key.key("item:bus")).translation(new Vector3f(0.5f, 0.5f, 0.5f))
               .itemModel(Key.key("minecraft:diamond_ore")));
       player.getInventory().addItem(stack);
-      Server
+
     }
     return true;
   }

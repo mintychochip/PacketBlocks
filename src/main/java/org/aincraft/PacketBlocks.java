@@ -1,17 +1,14 @@
 package org.aincraft;
 
-import com.google.gson.GsonBuilder;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.TypeLiteral;
 import java.util.Set;
 import org.bukkit.Bukkit;
-import org.bukkit.NamespacedKey;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class Metal extends JavaPlugin {
+public class PacketBlocks extends JavaPlugin {
 
   @Override
   public void onEnable() {

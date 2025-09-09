@@ -17,10 +17,9 @@ import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-class WriteBackRepositoryImpl<K, V extends Repository.Record<K>> implements
+abstract class WriteBackRepositoryImpl<K, V extends Repository.Record<K>> implements
     Repository.Writable<K, V> {
 
-  protected final Repository.Writable<K, V> delegate;
   protected final Cache<K, V> readCache = Caffeine.newBuilder()
       .expireAfterAccess(Duration.ofMinutes(10)).build();
   protected final Map<K, V> pendingUpdates = new ConcurrentHashMap<>();
@@ -29,9 +28,10 @@ class WriteBackRepositoryImpl<K, V extends Repository.Record<K>> implements
   private final AtomicBoolean flush = new AtomicBoolean(false);
   private final AtomicBoolean running = new AtomicBoolean(false);
 
-  WriteBackRepositoryImpl(Repository.Writable<K, V> delegate,
+  protected abstract Repository.Writable<K, V> delegate();
+
+  WriteBackRepositoryImpl(
       WriteBackConfiguration configuration) {
-    this.delegate = delegate;
     this.configuration = configuration;
   }
 
@@ -69,7 +69,7 @@ class WriteBackRepositoryImpl<K, V extends Repository.Record<K>> implements
     if (value != null) {
       return value;
     }
-    return readCache.get(key, delegate::load);
+    return readCache.get(key, delegate()::load);
   }
 
   private void flush() {
@@ -78,7 +78,7 @@ class WriteBackRepositoryImpl<K, V extends Repository.Record<K>> implements
     }
     Map<K, V> batchUpdates = new HashMap<>();
     Iterator<Entry<K, V>> updateIterator = pendingUpdates.entrySet().iterator();
-    while (!updateIterator.hasNext() && batchUpdates.size() < configuration.batchSize()) {
+    while (updateIterator.hasNext() && batchUpdates.size() < configuration.batchSize()) {
       Entry<K, V> entry = updateIterator.next();
       K key = entry.getKey();
       V value = entry.getValue();
@@ -88,7 +88,7 @@ class WriteBackRepositoryImpl<K, V extends Repository.Record<K>> implements
     }
     Set<K> batchDeletes = new HashSet<>();
     Iterator<K> deleteIterator = pendingDeletes.iterator();
-    while (!deleteIterator.hasNext() && batchDeletes.size() < configuration.batchSize()) {
+    while (deleteIterator.hasNext() && batchDeletes.size() < configuration.batchSize()) {
       K key = deleteIterator.next();
       if (!pendingDeletes.remove(key)) {
         batchDeletes.add(key);
@@ -96,9 +96,9 @@ class WriteBackRepositoryImpl<K, V extends Repository.Record<K>> implements
     }
     try {
       batchUpdates.forEach((__, value) -> {
-        delegate.save(value);
+        delegate().save(value);
       });
-      batchDeletes.forEach(delegate::delete);
+      batchDeletes.forEach(delegate()::delete);
     } catch (Throwable t) {
       pendingUpdates.putAll(batchUpdates);
       pendingDeletes.addAll(batchDeletes);

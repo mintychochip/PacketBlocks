@@ -1,5 +1,6 @@
 package org.aincraft.api;
 
+import java.sql.Timestamp;
 import java.util.Objects;
 import org.aincraft.api.ModelData.Record;
 import org.aincraft.domain.Repository;
@@ -17,9 +18,9 @@ public interface BlockBinding {
                 ModelData.Record blockData) implements Repository.Record<Location> {
 
     @Override
-      public Location key() {
-        World w = Bukkit.getWorld(world);
-        return new Location(w, x, y, z);
-      }
+    public Location key() {
+      World w = Bukkit.getWorld(world);
+      return new Location(w, x, y, z);
     }
+  }
 }

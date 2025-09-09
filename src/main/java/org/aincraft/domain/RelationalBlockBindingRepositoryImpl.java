@@ -10,21 +10,20 @@ import java.util.List;
 import org.aincraft.ConnectionSource;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.ModelData;
-import org.aincraft.api.ModelData.Record;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
-final class BlockBindingRepositoryImpl implements BlockBindingRepository {
+final class RelationalBlockBindingRepositoryImpl implements BlockBindingRepository {
 
-  private final ClientBlockDataRepository blockDataRepository;
+  private final Repository<String, ModelData.Record> modelDataRepository;
   private final ConnectionSource connectionSource;
 
   @Inject
-  public BlockBindingRepositoryImpl(ClientBlockDataRepository blockDataRepository,
-      ConnectionSource connectionSource) {
-    this.blockDataRepository = blockDataRepository;
+  public RelationalBlockBindingRepositoryImpl(
+      Repository<String, ModelData.Record> modelDataRepository, ConnectionSource connectionSource) {
+    this.modelDataRepository = modelDataRepository;
     this.connectionSource = connectionSource;
   }
 
@@ -77,7 +76,7 @@ final class BlockBindingRepositoryImpl implements BlockBindingRepository {
           return null;
         }
         String resourceKey = rs.getString("resource_key");
-        ModelData.Record record = blockDataRepository.load(resourceKey);
+        ModelData.Record record = modelDataRepository.load(resourceKey);
         if (record == null) {
           return null;
         }
@@ -106,7 +105,7 @@ final class BlockBindingRepositoryImpl implements BlockBindingRepository {
           double y = rs.getDouble("y");
           double z = rs.getDouble("z");
           String resourceKey = rs.getString("resource_key");
-          ModelData.Record record = blockDataRepository.load(resourceKey);
+          ModelData.Record record = modelDataRepository.load(resourceKey);
           if (record == null) {
             continue;
           }

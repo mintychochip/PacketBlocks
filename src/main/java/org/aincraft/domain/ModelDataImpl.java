@@ -22,11 +22,11 @@ public record ModelDataImpl(
   private static final float DEFAULT_RANGE;
 
   static {
-    float scale = 1.000001f;
+    float scale = 1.001f;
     float translation = (1.0f - scale) / 2.0f;
     DEFAULT_ITEM_MODEL = Key.key("minecraft:stone");
     DEFAULT_SCALE = new Vector3f(scale, scale, scale);
-    DEFAULT_TRANSLATION = new Vector3f(translation, translation, translation);
+    DEFAULT_TRANSLATION = new Vector3f(0.5f,0.5f,0.5f);
     DEFAULT_ROTATION = new Quaternionf(0, 0, 0, 1);
     DEFAULT_RANGE = 32.0f;
   }
@@ -35,10 +35,6 @@ public record ModelDataImpl(
     this(resourceKey, DEFAULT_ITEM_MODEL, DEFAULT_TRANSLATION, DEFAULT_ROTATION,
         DEFAULT_SCALE,
         DEFAULT_ROTATION, DEFAULT_RANGE, null);
-  }
-
-  public Builder builder() {
-    return new BuilderImpl(this);
   }
 
   @Override

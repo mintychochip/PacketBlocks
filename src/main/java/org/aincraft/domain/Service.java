@@ -12,8 +12,6 @@ import org.jetbrains.annotations.Nullable;
 
 public interface Service {
 
-  boolean saveBlockBinding(@NotNull ModelData blockData);
-
   boolean saveBlockBinding(@NotNull BlockBinding blockBinding);
 
   boolean isPacketItem(ItemStack itemStack);
