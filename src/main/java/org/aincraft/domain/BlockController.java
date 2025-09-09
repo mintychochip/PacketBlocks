@@ -8,6 +8,7 @@ import org.aincraft.BlockBindingImpl;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.BlockModel;
 import org.aincraft.api.ModelData;
+import org.aincraft.api.SoundData.SoundType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -80,8 +81,8 @@ final class BlockController implements Listener {
       return;
     }
     Player player = event.getPlayer();
-    Bukkit.getScheduler().runTask(plugin,() -> {
-      player.sendBlockChange(block.getLocation(),Bukkit.createBlockData(Material.FROSTED_ICE));
+    Bukkit.getScheduler().runTask(plugin, () -> {
+      player.sendBlockChange(block.getLocation(), Bukkit.createBlockData(Material.CHORUS_FLOWER));
     });
   }
 
@@ -106,7 +107,7 @@ final class BlockController implements Listener {
             data,
             serverBack.getLocation()));
     Bukkit.getScheduler().runTaskLater(plugin, () -> {
-      BlockData fake = Bukkit.createBlockData(Material.FROSTED_ICE);
+      BlockData fake = Bukkit.createBlockData(Material.CHORUS_FLOWER);
       player.sendBlockChange(serverBack.getLocation(), fake);
     }, 20L);
     final long t3 = System.nanoTime();
@@ -147,9 +148,10 @@ final class BlockController implements Listener {
     if (blockModel == null) {
       return;
     }
+    SoundDataImpl data = new SoundDataImpl(SoundType.BREAK,
+        Sound.BLOCK_AMETHYST_BLOCK_BREAK.key(), 1.0f, 1.0f);
+    data.play(player);
     blockBindingService.deleteBlock(location);
-    player.playSound(player.getLocation(), Sound.BLOCK_AMETHYST_BLOCK_BREAK, 1f, 1f);
   }
 
-  @EventHandler(priority = EventPriority.)
 }
