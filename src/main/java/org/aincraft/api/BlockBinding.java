@@ -2,6 +2,7 @@ package org.aincraft.api;
 
 import java.sql.Timestamp;
 import java.util.Objects;
+import net.kyori.adventure.key.Key;
 import org.aincraft.api.ModelData.Record;
 import org.aincraft.domain.Repository;
 import org.bukkit.Bukkit;
@@ -10,11 +11,13 @@ import org.bukkit.World;
 
 public interface BlockBinding {
 
+  Key resourceKey();
+
   ModelData blockData();
 
   Location location();
 
-  record Record(String world, double x, double y, double z, int cx, int cz,
+  record Record(String world, double x, double y, double z, int cx, int cz, String resourceKey,
                 ModelData.Record blockData) implements Repository.Record<Location> {
 
     @Override

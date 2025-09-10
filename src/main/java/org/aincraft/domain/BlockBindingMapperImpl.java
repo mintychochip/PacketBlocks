@@ -1,14 +1,17 @@
 package org.aincraft.domain;
 
 import com.google.inject.Inject;
+import net.kyori.adventure.key.Key;
 import org.aincraft.BlockBindingImpl;
 import org.aincraft.Mapper;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.ModelData;
 import org.aincraft.api.ModelData.Record;
+import org.aincraft.api.SoundData;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
+import org.bukkit.NamespacedKey;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,7 +35,8 @@ public final class BlockBindingMapperImpl implements Mapper<BlockBinding, BlockB
       throw new IllegalArgumentException("failed to locate world");
     }
     Location location = new Location(world, record.x(), record.y(), record.z());
-    return new BlockBindingImpl(blockData, location);
+    Key resourceKey = NamespacedKey.fromString(record.resourceKey());
+    return new BlockBindingImpl(resourceKey, blockData, location);
   }
 
   @Override
@@ -43,6 +47,6 @@ public final class BlockBindingMapperImpl implements Mapper<BlockBinding, BlockB
     Chunk chunk = location.getChunk();
     Record record = blockDataInstanceMapper.asRecord(domain.blockData());
     return new BlockBinding.Record(world.getName(), location.getX(), location.getY(),
-        location.getZ(), chunk.getX(), chunk.getZ(), record);
+        location.getZ(), chunk.getX(), chunk.getZ(), domain.resourceKey().toString(), record);
   }
 }

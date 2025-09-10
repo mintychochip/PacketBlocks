@@ -8,6 +8,7 @@ import org.aincraft.BlockBindingImpl;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.BlockModel;
 import org.aincraft.api.ModelData;
+import org.aincraft.api.PacketBlock;
 import org.aincraft.api.SoundData.SoundType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -30,16 +31,16 @@ import org.bukkit.plugin.Plugin;
 final class BlockController implements Listener {
 
   private final Plugin plugin;
+  private final PacketBlockService blockService;
   private final Interceptor interceptor;
-  private final BlockBindingService blockBindingService;
   private final Service service;
 
   @Inject
-  BlockController(Plugin plugin, Interceptor interceptor, BlockBindingService blockBindingService,
+  BlockController(Plugin plugin, PacketBlockService blockService, Interceptor interceptor,
       Service service) {
     this.plugin = plugin;
+    this.blockService = blockService;
     this.interceptor = interceptor;
-    this.blockBindingService = blockBindingService;
     this.service = service;
   }
 
@@ -48,27 +49,27 @@ final class BlockController implements Listener {
     Player player = event.getPlayer();
     List<BlockBinding> bindings = service.getBindings(event.getChunk());
     for (BlockBinding binding : bindings) {
-      BlockModel block = blockBindingService.loadBlock(binding.location());
+      PacketBlock block = blockService.load(binding.location());
       if (block == null) {
         continue;
       }
-      block.setBlockData(binding.blockData());
-      block.show(player);
+      BlockModel model = block.model();
+      model.show(player);
     }
   }
 
-  @EventHandler
-  private void onPlayerUnload(final PlayerChunkUnloadEvent event) {
-    Player player = event.getPlayer();
-    List<BlockBinding> bindings = service.getBindings(event.getChunk());
-    for (BlockBinding binding : bindings) {
-      BlockModel block = blockBindingService.loadBlock(binding.location());
-      if (block == null) {
-        continue;
-      }
-      block.hide(player);
-    }
-  }
+//  @EventHandler
+//  private void onPlayerUnload(final PlayerChunkUnloadEvent event) {
+//    Player player = event.getPlayer();
+//    List<BlockBinding> bindings = service.getBindings(event.getChunk());
+//    for (BlockBinding binding : bindings) {
+//      BlockModel block = blockBindingService.loadBlock(binding.location());
+//      if (block == null) {
+//        continue;
+//      }
+//      block.hide(player);
+//    }
+//  }
 
   @EventHandler
   private void onInteractWithPacketBlock(final PlayerInteractEvent event) {
@@ -76,8 +77,8 @@ final class BlockController implements Listener {
     if (block == null) {
       return;
     }
-    BlockModel blockModel = blockBindingService.loadBlock(block.getLocation());
-    if (blockModel == null) {
+    PacketBlock packetBlock = blockService.load(block.getLocation());
+    if (packetBlock == null) {
       return;
     }
     Player player = event.getPlayer();
@@ -102,17 +103,15 @@ final class BlockController implements Listener {
     ModelData data = service.readPacketData(item);
     final long t2 = System.nanoTime();
 
-    BlockModel block = blockBindingService.upsertBlock(
-        new BlockBindingImpl(
-            data,
-            serverBack.getLocation()));
+    PacketBlock packetBlock = blockService.save(
+        new BlockBindingImpl(data.resourceKey(), data, serverBack.getLocation()));
     Bukkit.getScheduler().runTaskLater(plugin, () -> {
       BlockData fake = Bukkit.createBlockData(Material.CHORUS_FLOWER);
       player.sendBlockChange(serverBack.getLocation(), fake);
     }, 20L);
     final long t3 = System.nanoTime();
 
-    block.show(player);
+    packetBlock.model().show(player);
     final long t4 = System.nanoTime();
 
     // Log (replace with your logger)
@@ -144,14 +143,10 @@ final class BlockController implements Listener {
     Block block = event.getBlock();
     Location location = block.getLocation();
     Player player = event.getPlayer();
-    BlockModel blockModel = blockBindingService.loadBlock(location);
-    if (blockModel == null) {
-      return;
+    PacketBlock packetBlock = blockService.load(location);
+    if (packetBlock != null) {
+      blockService.delete(location);
     }
-    SoundDataImpl data = new SoundDataImpl(SoundType.BREAK,
-        Sound.BLOCK_AMETHYST_BLOCK_BREAK.key(), 1.0f, 1.0f);
-    data.play(player);
-    blockBindingService.deleteBlock(location);
   }
 
 }

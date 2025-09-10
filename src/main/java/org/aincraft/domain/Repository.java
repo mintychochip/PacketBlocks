@@ -16,11 +16,6 @@ public interface Repository<K, V extends Record<K>> {
     boolean delete(K key);
   }
 
-  interface WriteBack<K, V extends Record<K>> extends Repository.Writable<K, V> {
-
-    void run(Plugin plugin);
-  }
-
   interface Record<K> {
 
     K key();

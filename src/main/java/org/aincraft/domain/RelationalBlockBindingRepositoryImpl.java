@@ -83,7 +83,7 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
         int cx = rs.getInt("cx");
         int cz = rs.getInt("cz");
         return new BlockBinding.Record(world.getName(), location.getBlockX(), location.getBlockY(),
-            location.getBlockZ(), cx, cz, record);
+            location.getBlockZ(), cx, cz, resourceKey, record);
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -110,7 +110,7 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
             continue;
           }
           BlockBinding.Record binding = new BlockBinding.Record(world, x, y, z, chunk.getX(),
-              chunk.getZ(), record);
+              chunk.getZ(), resourceKey, record);
           bindings.add(binding);
         }
       }

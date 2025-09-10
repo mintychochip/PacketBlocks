@@ -6,5 +6,5 @@ public interface PacketBlock {
 
   ModelData modelData();
 
-  SpoofData spoofData();
+  SoundData soundData();
 }

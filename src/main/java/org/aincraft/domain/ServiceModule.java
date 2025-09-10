@@ -58,8 +58,12 @@ public final class ServiceModule extends AbstractModule {
           .in(Singleton.class);
       bind(Service.class).to(ServiceImpl.class).in(Singleton.class);
       expose(Service.class);
+      bind(BlockModelService.class).to(BlockModelServiceImpl.class).in(Singleton.class);
+      expose(BlockModelService.class);
       bind(BlockBindingService.class).to(BlockBindingServiceImpl.class).in(Singleton.class);
       expose(BlockBindingService.class);
+      bind(PacketBlockService.class).to(PacketBlockServiceImpl.class).in(Singleton.class);
+      expose(PacketBlockService.class);
     }
 
     @Provides
