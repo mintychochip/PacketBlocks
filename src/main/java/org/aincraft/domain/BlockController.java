@@ -9,10 +9,12 @@ import org.aincraft.api.BlockBinding;
 import org.aincraft.api.BlockModel;
 import org.aincraft.api.ModelData;
 import org.aincraft.api.PacketBlock;
+import org.aincraft.api.SoundData;
 import org.aincraft.api.SoundData.SoundType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -22,6 +24,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -31,14 +34,17 @@ import org.bukkit.plugin.Plugin;
 final class BlockController implements Listener {
 
   private final Plugin plugin;
+  private final BlockBindingFactory blockBindingFactory;
   private final PacketBlockService blockService;
   private final Interceptor interceptor;
   private final Service service;
 
   @Inject
-  BlockController(Plugin plugin, PacketBlockService blockService, Interceptor interceptor,
+  BlockController(Plugin plugin, BlockBindingFactory blockBindingFactory,
+      PacketBlockService blockService, Interceptor interceptor,
       Service service) {
     this.plugin = plugin;
+    this.blockBindingFactory = blockBindingFactory;
     this.blockService = blockService;
     this.interceptor = interceptor;
     this.service = service;
@@ -100,15 +106,16 @@ final class BlockController implements Listener {
     }
     final long t1 = System.nanoTime();
     serverBack.setType(Material.STONE);
-    ModelData data = service.readPacketData(item);
+    String resourceKey = service.readPacketData(item);
     final long t2 = System.nanoTime();
 
-    PacketBlock packetBlock = blockService.save(
-        new BlockBindingImpl(data.resourceKey(), data, serverBack.getLocation()));
+    BlockBinding binding = blockBindingFactory.bind(serverBack.getLocation(), resourceKey);
+    PacketBlock packetBlock = blockService.save(binding);
+    packetBlock.soundData().getEntry(SoundType.PLACE).play(player);
     Bukkit.getScheduler().runTaskLater(plugin, () -> {
       BlockData fake = Bukkit.createBlockData(Material.CHORUS_FLOWER);
       player.sendBlockChange(serverBack.getLocation(), fake);
-    }, 20L);
+    }, 2L);
     final long t3 = System.nanoTime();
 
     packetBlock.model().show(player);
@@ -146,7 +153,20 @@ final class BlockController implements Listener {
     PacketBlock packetBlock = blockService.load(location);
     if (packetBlock != null) {
       blockService.delete(location);
+      SoundData soundData = packetBlock.soundData();
+      soundData.getEntry(SoundType.BREAK).play(player);
     }
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  private void onPacketBlockEntityBreak(final EntityExplodeEvent event) {
+    List<Block> blocks = event.blockList();
+    blocks.forEach(block -> {
+      PacketBlock packetBlock = blockService.load(block.getLocation());
+      if (packetBlock != null) {
+        blockService.delete(block.getLocation());
+      }
+    });
   }
 
 }

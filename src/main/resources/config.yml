@@ -1,4 +1,6 @@
-ruby_ore:
+"item:bus":
+  model:
+    item-model: minecraft:diamond_ore
   sounds:
     break:
       name:

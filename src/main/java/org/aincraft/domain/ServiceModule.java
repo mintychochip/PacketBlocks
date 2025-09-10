@@ -17,10 +17,14 @@ import org.aincraft.adapter.ClientBlockDataFactoryImpl;
 import org.aincraft.adapter.KyoriKeyAdapterImpl;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.ModelData;
+import org.aincraft.api.SoundData;
 import org.aincraft.api.SoundEntry;
+import org.aincraft.config.YamlConfiguration;
 import org.bukkit.NamespacedKey;
+import org.bukkit.Sound;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
+import org.yaml.snakeyaml.Yaml;
 
 public final class ServiceModule extends AbstractModule {
 
@@ -46,7 +50,7 @@ public final class ServiceModule extends AbstractModule {
     protected void configure() {
       bind(new TypeLiteral<Mapper<ModelData, ModelData.Record>>() {
       })
-          .to(ClientBlockDataMapperImpl.class)
+          .to(ModelDataMapperImpl.class)
           .in(Singleton.class);
       bind(new TypeLiteral<Mapper<BlockBinding, BlockBinding.Record>>() {
       })
@@ -56,21 +60,31 @@ public final class ServiceModule extends AbstractModule {
       })
           .to(SoundEntryMapperImpl.class)
           .in(Singleton.class);
+      bind(new TypeLiteral<Mapper<SoundData, SoundData.Record>>() {
+      })
+          .to(SoundDataMapperImpl.class)
+          .in(Singleton.class);
+      bind(new TypeLiteral<Repository<String, ModelData.Record>>() {
+      })
+          .toProvider(ModelDataRepositoryProviderImpl.class)
+          .in(Singleton.class);
+      bind(new TypeLiteral<Repository<String, SoundData.Record>>() {
+      })
+          .toProvider(SoundDataRepositoryProviderImpl.class)
+          .in(Singleton.class);
       bind(Service.class).to(ServiceImpl.class).in(Singleton.class);
       expose(Service.class);
       bind(BlockModelService.class).to(BlockModelServiceImpl.class).in(Singleton.class);
       expose(BlockModelService.class);
-      bind(BlockBindingService.class).to(BlockBindingServiceImpl.class).in(Singleton.class);
-      expose(BlockBindingService.class);
       bind(PacketBlockService.class).to(PacketBlockServiceImpl.class).in(Singleton.class);
       expose(PacketBlockService.class);
+      bind(BlockBindingFactory.class).to(BlockBindingFactoryImpl.class).in(Singleton.class);
+      expose(BlockBindingFactory.class);
     }
 
     @Provides
-    @Singleton
-    Repository<String, ModelData.Record> modelDataRepository(
-        ConnectionSource connectionSource) {
-      return new RelationalModelDataRepositoryImpl(connectionSource);
+    YamlConfiguration configuration(Plugin plugin) {
+      return YamlConfiguration.create(plugin, "config.yml");
     }
 
     @Provides

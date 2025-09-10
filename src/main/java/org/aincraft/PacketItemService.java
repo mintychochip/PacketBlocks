@@ -11,7 +11,7 @@ public interface PacketItemService {
   boolean isPacketItem(ItemStack stack);
 
   @NotNull
-  ModelData readPacketData(ItemStack stack) throws IllegalArgumentException;
+  String readPacketData(ItemStack stack) throws IllegalArgumentException;
 
-  void writePacketData(ItemStack stack, ModelData data);
+  void writePacketData(ItemStack stack, String resourceKey);
 }

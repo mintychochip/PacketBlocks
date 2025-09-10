@@ -21,5 +21,5 @@ public interface Service {
 
   List<BlockBinding> getBindings(Chunk chunk);
 
-  ModelData readPacketData(ItemStack itemStack) throws IllegalArgumentException;
+  String readPacketData(ItemStack itemStack) throws IllegalArgumentException;
 }

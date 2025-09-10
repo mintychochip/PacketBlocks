@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-final class ClientBlockDataMapperImpl implements
+final class ModelDataMapperImpl implements
     Mapper<ModelData, ModelData.Record> {
 
   @Override

@@ -26,18 +26,16 @@ public class PacketItemServiceImpl implements PacketItemService {
   }
 
   @Override
-  public @NotNull ModelData readPacketData(ItemStack stack) throws IllegalArgumentException {
+  public @NotNull String readPacketData(ItemStack stack) throws IllegalArgumentException {
     Preconditions.checkArgument(isPacketItem(stack));
     PersistentDataContainerView pdc = stack.getPersistentDataContainer();
-    String json = pdc.get(itemKey, PersistentDataType.STRING);
-    return gson.fromJson(json, ModelData.class);
+    return pdc.get(itemKey, PersistentDataType.STRING);
   }
 
   @Override
-  public void writePacketData(ItemStack stack, ModelData data) {
-    String json = gson.toJson(data);
+  public void writePacketData(ItemStack stack, String resourceKey) {
     stack.editPersistentDataContainer(pdc -> {
-      pdc.set(itemKey, PersistentDataType.STRING, json);
+      pdc.set(itemKey, PersistentDataType.STRING, resourceKey);
     });
   }
 }

@@ -69,7 +69,7 @@ public class ServiceImpl implements Service {
   }
 
   @Override
-  public ModelData readPacketData(ItemStack itemStack) throws IllegalArgumentException {
+  public String readPacketData(ItemStack itemStack) throws IllegalArgumentException {
     return packetItemService.readPacketData(itemStack);
   }
 }

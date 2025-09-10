@@ -11,5 +11,9 @@ public record SoundEntryImpl(Key resourceKey, SoundType type, Key soundKey, floa
 
   @Override
   public void play(Player player) {
+    if (player == null) {
+      return;
+    }
+    player.playSound(player.getLocation(), soundKey.asString(), volume, pitch);
   }
 }

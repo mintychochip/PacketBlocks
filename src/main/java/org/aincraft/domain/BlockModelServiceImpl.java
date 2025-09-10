@@ -8,7 +8,7 @@ import org.aincraft.api.BlockModel;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
-public class BlockModelServiceImpl implements BlockModelService {
+final class BlockModelServiceImpl implements BlockModelService {
 
   private final Map<Location, BlockModel> blockModelMap = new HashMap<>();
 
@@ -37,8 +37,7 @@ public class BlockModelServiceImpl implements BlockModelService {
     return true;
   }
 
-
-  private static BlockModel blockFromBinding(BlockBinding blockBinding) {
+  static BlockModel blockFromBinding(BlockBinding blockBinding) {
     Location location = blockBinding.location();
     return BlockModelImpl.create(blockBinding.blockData(), location.getWorld(),
         location.toVector());

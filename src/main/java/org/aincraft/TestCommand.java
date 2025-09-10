@@ -7,7 +7,6 @@ import net.kyori.adventure.key.Key;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.ModelData;
 import org.aincraft.domain.ModelDataImpl;
-import org.aincraft.domain.BlockBindingService;
 import org.aincraft.domain.Service;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -22,13 +21,11 @@ import org.joml.Vector3f;
 public class TestCommand implements CommandExecutor {
 
   private final Plugin plugin;
-  private final BlockBindingService blockBindingService;
   private final Service service;
 
   @Inject
-  public TestCommand(Plugin plugin, BlockBindingService blockBindingService, Service service) {
+  public TestCommand(Plugin plugin,Service service) {
     this.plugin = plugin;
-    this.blockBindingService = blockBindingService;
     this.service = service;
   }
 
