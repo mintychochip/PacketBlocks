@@ -2,9 +2,10 @@ package org.aincraft.api;
 
 public interface PacketBlock {
 
-  BlockModel model();
+  BlockModel blockModel();
 
   ModelData modelData();
 
   SoundData soundData();
+
 }

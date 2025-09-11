@@ -51,7 +51,7 @@ final class PacketBlockServiceImpl implements PacketBlockService {
     blockModelService.save(blockBinding);
     return new PacketBlock() {
       @Override
-      public BlockModel model() {
+      public BlockModel blockModel() {
         return blockModelService.load(blockBinding.location());
       }
 
@@ -83,7 +83,7 @@ final class PacketBlockServiceImpl implements PacketBlockService {
     BlockModel finalModel = model;
     return new PacketBlock() {
       @Override
-      public BlockModel model() {
+      public BlockModel blockModel() {
         return finalModel;
       }
 

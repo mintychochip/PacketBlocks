@@ -1,23 +1,21 @@
 package org.aincraft.domain;
 
 import com.google.inject.Inject;
+import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
-import io.papermc.paper.event.packet.PlayerChunkUnloadEvent;
 import java.util.List;
-import org.aincraft.BlockBindingImpl;
+import org.aincraft.PacketItemService;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.BlockModel;
-import org.aincraft.api.ModelData;
 import org.aincraft.api.PacketBlock;
 import org.aincraft.api.SoundData;
 import org.aincraft.api.SoundData.SoundType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -28,22 +26,26 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 
 final class BlockController implements Listener {
 
   private final Plugin plugin;
+  private final PacketItemService packetItemService;
   private final BlockBindingFactory blockBindingFactory;
   private final PacketBlockService blockService;
   private final Interceptor interceptor;
   private final Service service;
 
   @Inject
-  BlockController(Plugin plugin, BlockBindingFactory blockBindingFactory,
+  BlockController(Plugin plugin, PacketItemService packetItemService,
+      BlockBindingFactory blockBindingFactory,
       PacketBlockService blockService, Interceptor interceptor,
       Service service) {
     this.plugin = plugin;
+    this.packetItemService = packetItemService;
     this.blockBindingFactory = blockBindingFactory;
     this.blockService = blockService;
     this.interceptor = interceptor;
@@ -59,7 +61,7 @@ final class BlockController implements Listener {
       if (block == null) {
         continue;
       }
-      BlockModel model = block.model();
+      BlockModel model = block.blockModel();
       model.show(player);
     }
   }
@@ -118,7 +120,7 @@ final class BlockController implements Listener {
     }, 2L);
     final long t3 = System.nanoTime();
 
-    packetBlock.model().show(player);
+    packetBlock.blockModel().show(player);
     final long t4 = System.nanoTime();
 
     // Log (replace with your logger)
@@ -150,11 +152,19 @@ final class BlockController implements Listener {
     Block block = event.getBlock();
     Location location = block.getLocation();
     Player player = event.getPlayer();
+    ItemStack itemStack = player.getInventory().getItem(EquipmentSlot.HAND);
     PacketBlock packetBlock = blockService.load(location);
     if (packetBlock != null) {
       blockService.delete(location);
       SoundData soundData = packetBlock.soundData();
       soundData.getEntry(SoundType.BREAK).play(player);
+      if (itemStack.getEnchantmentLevel(Enchantment.SILK_TOUCH) > 0) {
+        Material material = block.getType();
+        ItemStack stack = ItemStack.of(material);
+        stack.setData(DataComponentTypes.ITEM_MODEL,packetBlock.modelData().itemModel());
+        packetItemService.writePacketData(stack, packetBlock.modelData().resourceKey().toString());
+        location.getWorld().dropItemNaturally(location,stack);
+      }
     }
   }
 
