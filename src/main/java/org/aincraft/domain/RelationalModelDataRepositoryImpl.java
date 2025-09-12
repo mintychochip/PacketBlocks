@@ -1,15 +1,11 @@
 package org.aincraft.domain;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.Duration;
 import org.aincraft.ConnectionSource;
-import org.aincraft.api.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 final class RelationalModelDataRepositoryImpl implements Repository<String, ModelData.Record> {

@@ -1,6 +1,5 @@
 package org.aincraft;
 
-import org.aincraft.api.ModelData;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;

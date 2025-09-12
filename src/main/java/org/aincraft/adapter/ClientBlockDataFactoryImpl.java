@@ -8,7 +8,6 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import java.io.IOException;
 import org.aincraft.domain.ModelDataImpl;
-import org.aincraft.api.ModelData;
 
 public class ClientBlockDataFactoryImpl implements TypeAdapterFactory {
 

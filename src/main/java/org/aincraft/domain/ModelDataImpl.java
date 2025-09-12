@@ -2,7 +2,6 @@ package org.aincraft.domain;
 
 import net.kyori.adventure.key.Key;
 import net.minecraft.util.Brightness;
-import org.aincraft.api.ModelData;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;

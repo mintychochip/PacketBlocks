@@ -8,4 +8,5 @@ public interface PacketBlock {
 
   SoundData soundData();
 
+  ItemData itemData();
 }

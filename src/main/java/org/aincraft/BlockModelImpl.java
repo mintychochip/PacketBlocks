@@ -14,7 +14,6 @@ import net.minecraft.world.entity.Display.ItemDisplay;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 import org.aincraft.api.BlockModel;
-import org.aincraft.api.ModelData;
 import org.aincraft.domain.ModelDataImpl;
 import org.bukkit.Material;
 import org.bukkit.World;

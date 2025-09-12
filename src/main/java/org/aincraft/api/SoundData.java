@@ -1,25 +1,23 @@
 package org.aincraft.api;
 
 import java.util.Map;
-import org.aincraft.domain.Repository;
+import org.jetbrains.annotations.Nullable;
 
 public interface SoundData {
 
   enum SoundType {
     BREAK,
-    PLACE,
+    PLACE
   }
 
-  SoundEntry getEntry(SoundType type);
+  Map<SoundType,SoundEntry> entries();
 
-  record Record(String resourceKey, Map<String, SoundEntry.Record> entries) implements Repository
+  @Nullable
+  default SoundEntry entry(SoundType type) {
+    return entries().get(type);
+  }
+  record Record(Map<String,SoundEntry.Record> entries) {
 
-      .Record<String> {
-
-    @Override
-    public String key() {
-      return resourceKey;
-    }
   }
 
 }

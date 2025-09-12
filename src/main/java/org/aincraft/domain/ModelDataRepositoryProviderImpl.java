@@ -5,7 +5,6 @@ import com.google.inject.Provider;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.aincraft.api.ModelData;
 import org.aincraft.config.YamlConfiguration;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;

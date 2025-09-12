@@ -10,6 +10,9 @@
       name:
       volume:
       pitch:
+  item:
+    item-model:
+    material:
   meta:
     no_explosion: true
     hardness: 2

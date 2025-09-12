@@ -1,7 +1,6 @@
 package org.aincraft.domain;
 
 import java.util.Map;
-import org.aincraft.api.SoundData;
 import org.jetbrains.annotations.Nullable;
 
 public class SoundDataRepositoryImpl implements Repository<String, SoundData.Record> {

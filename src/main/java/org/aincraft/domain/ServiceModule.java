@@ -16,15 +16,10 @@ import org.aincraft.PacketItemServiceImpl;
 import org.aincraft.adapter.ClientBlockDataFactoryImpl;
 import org.aincraft.adapter.KyoriKeyAdapterImpl;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.ModelData;
-import org.aincraft.api.SoundData;
-import org.aincraft.api.SoundEntry;
 import org.aincraft.config.YamlConfiguration;
 import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-import org.yaml.snakeyaml.Yaml;
 
 public final class ServiceModule extends AbstractModule {
 

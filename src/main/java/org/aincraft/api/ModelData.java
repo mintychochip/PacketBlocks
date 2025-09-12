@@ -1,13 +1,18 @@
 package org.aincraft.api;
 
 import net.kyori.adventure.key.Key;
-import org.aincraft.domain.Repository;
+import org.aincraft.api.Builder.Buildable;
+import org.aincraft.api.ModelData.ModelDataBuilder;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public interface ModelData {
+public interface ModelData extends Buildable<ModelDataBuilder, ModelData> {
 
-  Key resourceKey();
+  ModelData DEFAULT = ModelDataImpl.DEFAULT;
+
+  static ModelDataBuilder builder() {
+    return new ModelDataImpl.ModelDataBuilder();
+  }
 
   Key itemModel();
 
@@ -15,58 +20,30 @@ public interface ModelData {
 
   Vector3f translation();
 
-  Quaternionf leftRotation();
-
-  Quaternionf rightRotation();
+  Quaternionf rotation();
 
   float range();
 
-  int blockLight();
+  float block();
 
-  int skyLight();
+  float sky();
 
-  ModelData range(float range);
+  interface ModelDataBuilder extends org.aincraft.api.Builder<ModelData> {
 
-  ModelData brightness(int block, int sky);
+    ModelDataBuilder itemModel(Key itemModel);
 
-  ModelData scale(Vector3f scale);
+    ModelDataBuilder scale(Vector3f scale);
 
-  ModelData translation(Vector3f translation);
+    ModelDataBuilder translation(Vector3f translation);
 
-  ModelData leftRotation(Quaternionf leftRotation);
+    ModelDataBuilder rotation(Quaternionf rotation);
 
-  ModelData rightRotation(Quaternionf rightRotation);
+    ModelDataBuilder range(float range);
 
-  ModelData itemModel(Key key);
+    ModelDataBuilder block(float block);
 
-  interface Builder {
-
-    Builder setItemModel(Key itemModel);
-
-    Builder setScale(Vector3f scale);
-
-    Builder setTranslation(Vector3f translation);
-
-    Builder setLeftRotation(Quaternionf leftRotation);
-
-    Builder setRightRotation(Quaternionf rightRotation);
-
-    Builder setRange(float range);
-
-    Builder setBrightness(int block, int sky);
+    ModelDataBuilder sky(float sky);
 
     ModelData build();
-  }
-
-  record Record(String resourceKey, String itemModel,
-                float tx, float ty, float tz, float lx, float ly, float lz, float lw, float sx,
-                float sy, float sz, float rx, float ry, float rz, float rw, float range,
-                int block,
-                int sky) implements Repository.Record<String> {
-
-    @Override
-    public String key() {
-      return resourceKey;
-    }
   }
 }

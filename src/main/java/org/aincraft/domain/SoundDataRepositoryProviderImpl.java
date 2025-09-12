@@ -4,8 +4,6 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import java.util.HashMap;
 import java.util.Map;
-import org.aincraft.api.SoundData;
-import org.aincraft.api.SoundData.Record;
 import org.aincraft.config.YamlConfiguration;
 
 public final class SoundDataRepositoryProviderImpl implements

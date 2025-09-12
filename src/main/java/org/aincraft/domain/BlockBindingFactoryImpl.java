@@ -4,8 +4,6 @@ import com.google.inject.Inject;
 import org.aincraft.BlockBindingImpl;
 import org.aincraft.Mapper;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.ModelData;
-import org.aincraft.api.ModelData.Record;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 

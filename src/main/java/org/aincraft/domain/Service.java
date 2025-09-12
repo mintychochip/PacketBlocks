@@ -3,7 +3,6 @@ package org.aincraft.domain;
 import java.util.List;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.BlockModel;
-import org.aincraft.api.ModelData;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.inventory.ItemStack;
