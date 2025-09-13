@@ -3,14 +3,18 @@ package org.aincraft.api;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Map;
+import org.jetbrains.annotations.Nullable;
 
-public class SoundDataImpl implements SoundData {
+public final class SoundDataImpl implements SoundData {
 
   private final Map<SoundType, SoundEntry> entries;
 
   private SoundDataImpl(Map<SoundType, SoundEntry> entries) {
-    // Wrap in unmodifiable to prevent accidental mutation
-    this.entries = Collections.unmodifiableMap(new EnumMap<>(entries));
+    EnumMap<SoundType, SoundEntry> map = new EnumMap<>(SoundType.class);
+    if (entries != null && !entries.isEmpty()) {
+      map.putAll(entries);
+    }
+    this.entries = Collections.unmodifiableMap(map);
   }
 
   @Override
@@ -18,24 +22,34 @@ public class SoundDataImpl implements SoundData {
     return entries;
   }
 
-  public static Builder builder() {
-    return new Builder();
+  @Override
+  public @Nullable SoundEntry entry(SoundType type) {
+    return entries.get(type);
   }
 
-  public static final class Builder {
+  @Override
+  public SoundDataBuilder toBuilder() {
+    return new BuilderImpl().entries(entries);
+  }
+
+  static final class BuilderImpl implements SoundDataBuilder {
+
     private final Map<SoundType, SoundEntry> entries = new EnumMap<>(SoundType.class);
 
-    public Builder entry(SoundType type, SoundEntry entry) {
-      entries.put(type, entry);
+    @Override
+    public SoundDataBuilder entry(SoundType type, SoundEntry entry) {
+      this.entries.put(type, entry);
       return this;
     }
 
-    public Builder entries(Map<SoundType, SoundEntry> entries) {
+    @Override
+    public SoundDataBuilder entries(Map<SoundType, SoundEntry> entries) {
       this.entries.putAll(entries);
       return this;
     }
 
-    public SoundDataImpl build() {
+    @Override
+    public SoundData build() {
       return new SoundDataImpl(entries);
     }
   }

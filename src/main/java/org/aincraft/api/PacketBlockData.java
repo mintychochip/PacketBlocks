@@ -1,27 +1,20 @@
 package org.aincraft.api;
 
 import net.kyori.adventure.key.Key;
-import org.aincraft.domain.Repository;
+import org.bukkit.Material;
+import org.jetbrains.annotations.NotNull;
 
 public interface PacketBlockData {
 
+  @NotNull
   Key resourceKey();
 
+  @NotNull
   ModelData modelData();
 
+  @NotNull
   ItemData itemData();
 
+  @NotNull
   SoundData soundData();
-
-  record Record(String resourceKey, ModelDataRecord modelDataRecord,
-                SoundData.Record soundDataRecord, ItemDataRecord itemDataRecord) implements
-      Repository
-
-          .Record<String> {
-
-    @Override
-    public String key() {
-      return resourceKey;
-    }
-  }
 }

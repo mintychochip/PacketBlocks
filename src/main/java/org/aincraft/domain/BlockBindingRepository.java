@@ -4,10 +4,16 @@ import java.util.List;
 import org.aincraft.api.BlockBinding;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public interface BlockBindingRepository extends Repository.Writable<Location, BlockBinding.Record> {
+public interface BlockBindingRepository {
 
-  List<BlockBinding.Record> loadAllByChunk(Chunk chunk);
+  @Nullable
+  BlockBinding load(Location location);
+
+  boolean delete(Location location);
+
+  boolean save(BlockBinding blockBinding);
+
+  List<BlockBinding> loadAllByChunk(Chunk chunk);
 }

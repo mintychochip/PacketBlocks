@@ -6,5 +6,5 @@ import org.jetbrains.annotations.Nullable;
 public interface PacketBlockDataRepository {
 
   @Nullable
-  PacketBlockData.Record load(String resourceKey);
+  PacketBlockData load(String resourceKey);
 }

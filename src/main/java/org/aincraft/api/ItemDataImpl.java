@@ -1,54 +1,42 @@
 package org.aincraft.api;
 
+import io.papermc.paper.datacomponent.item.ItemLore;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 
-public class ItemDataImpl implements ItemData {
-
-  static final ItemDataImpl DEFAULT = new Builder()
-      .itemModel(Material.STONE.key())
-      .material(Material.STONE)
-      .build();
-
-  private final Key itemModel;
-  private final Material material;
-
-  private ItemDataImpl(Key itemModel, Material material) {
-    this.itemModel = itemModel;
-    this.material = material;
-  }
+record ItemDataImpl(Key itemModel, Material material, Component displayName,
+                    ItemLore lore) implements ItemData {
 
   @Override
-  public Key itemModel() {
-    return itemModel;
+  public ItemDataBuilder toBuilder() {
+    return new BuilderImpl()
+        .itemModel(itemModel)
+        .material(material);
   }
 
-  @Override
-  public Material material() {
-    return material;
-  }
-
-  public static Builder builder() {
-    return new Builder();
-  }
-
-  public static final class Builder {
+  static final class BuilderImpl implements ItemDataBuilder {
 
     private Key itemModel;
     private Material material;
+    private Component displayName;
+    private ItemLore lore;
 
-    public Builder itemModel(Key itemModel) {
+    @Override
+    public ItemDataBuilder itemModel(Key itemModel) {
       this.itemModel = itemModel;
       return this;
     }
 
-    public Builder material(Material material) {
+    @Override
+    public ItemDataBuilder material(Material material) {
       this.material = material;
       return this;
     }
 
-    public ItemDataImpl build() {
-      return new ItemDataImpl(itemModel, material);
+    @Override
+    public ItemData build() {
+      return new ItemDataImpl(itemModel, material, displayName, lore);
     }
   }
 }

@@ -1,21 +1,31 @@
 package org.aincraft.api;
 
+import io.papermc.paper.datacomponent.item.ItemLore;
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.text.Component;
 import org.aincraft.api.Builder.Buildable;
+import org.aincraft.api.ItemData.ItemDataBuilder;
+import org.aincraft.api.ItemDataImpl.BuilderImpl;
 import org.bukkit.Material;
 
-public interface ItemData extends Buildable<ItemData.Builder, ItemData> {
+public interface ItemData extends Buildable<ItemDataBuilder, ItemData> {
 
-  ItemData DEFAULT = ItemDataImpl.DEFAULT;
+  static ItemDataBuilder builder() {
+    return new BuilderImpl();
+  }
 
   Key itemModel();
 
   Material material();
 
-  interface Builder extends org.aincraft.api.Builder<ItemData> {
+  Component displayName();
 
-    Builder itemModel(Key key);
+  ItemLore lore();
 
-    Material material(Material material);
+  interface ItemDataBuilder extends org.aincraft.api.Builder<ItemData> {
+
+    ItemDataBuilder itemModel(Key key);
+
+    ItemDataBuilder material(Material material);
   }
 }

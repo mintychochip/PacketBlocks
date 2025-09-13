@@ -7,7 +7,7 @@ import org.jetbrains.annotations.Nullable;
 
 public interface BlockModelService {
 
-  boolean save(BlockBinding binding);
+  boolean save(BlockBinding blockBinding);
 
   @Nullable
   BlockModel load(Location location);

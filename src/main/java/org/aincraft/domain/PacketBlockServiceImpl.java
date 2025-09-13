@@ -1,33 +1,29 @@
 package org.aincraft.domain;
 
 import com.google.inject.Inject;
-import org.aincraft.Mapper;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.BlockBinding.Record;
 import org.aincraft.api.BlockModel;
+import org.aincraft.api.ModelData;
 import org.aincraft.api.PacketBlock;
+import org.aincraft.api.PacketBlockData;
+import org.aincraft.api.SoundData;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
 final class PacketBlockServiceImpl implements PacketBlockService {
 
   private final BlockModelService blockModelService;
-  private final Repository<String, SoundData.Record> soundDataRepository;
-  private final Mapper<SoundData, SoundData.Record> soundDataMapper;
+  private final PacketBlockDataRepository blockDataRepository;
   private final BlockBindingRepository blockBindingRepository;
-  private final Mapper<BlockBinding, BlockBinding.Record> blockBindingMapper;
 
   @Inject
   public PacketBlockServiceImpl(
-      BlockModelService blockModelService, Repository<String, SoundData.Record> soundDataRepository,
-      Mapper<SoundData, SoundData.Record> soundDataMapper,
+      BlockModelService blockModelService,
       BlockBindingRepository blockBindingRepository,
-      Mapper<BlockBinding, BlockBinding.Record> blockBindingMapper) {
+      PacketBlockDataRepository blockDataRepository) {
     this.blockModelService = blockModelService;
-    this.soundDataRepository = soundDataRepository;
-    this.soundDataMapper = soundDataMapper;
     this.blockBindingRepository = blockBindingRepository;
-    this.blockBindingMapper = blockBindingMapper;
+    this.blockDataRepository = blockDataRepository;
   }
 
   @Override
@@ -40,7 +36,7 @@ final class PacketBlockServiceImpl implements PacketBlockService {
 
   @Override
   public PacketBlock save(BlockBinding blockBinding) {
-    blockBindingRepository.save(blockBindingMapper.asRecord(blockBinding));
+    blockBindingRepository.save(blockBinding);
     blockModelService.save(blockBinding);
     return new PacketBlock() {
       @Override
@@ -49,14 +45,8 @@ final class PacketBlockServiceImpl implements PacketBlockService {
       }
 
       @Override
-      public ModelData modelData() {
-        return blockBinding.blockData();
-      }
-
-      @Override
-      public SoundData soundData() {
-        return soundDataMapper.asDomain(
-            soundDataRepository.load(blockBinding.resourceKey().toString()));
+      public PacketBlockData blockData() {
+        return blockDataRepository.load(blockBinding.resourceKey().toString());
       }
     };
   }
@@ -64,11 +54,7 @@ final class PacketBlockServiceImpl implements PacketBlockService {
   @Override
   public @Nullable PacketBlock load(Location location) {
     BlockModel model = blockModelService.load(location);
-    Record record = blockBindingRepository.load(location);
-    if (record == null) {
-      return null;
-    }
-    BlockBinding blockBinding = blockBindingMapper.asDomain(record);
+    BlockBinding blockBinding = blockBindingRepository.load(location);
     if (model == null) {
       blockModelService.save(blockBinding);
       model = blockModelService.load(location);
@@ -81,14 +67,8 @@ final class PacketBlockServiceImpl implements PacketBlockService {
       }
 
       @Override
-      public ModelData modelData() {
-        return blockBinding.blockData();
-      }
-
-      @Override
-      public SoundData soundData() {
-        return soundDataMapper.asDomain(
-            soundDataRepository.load(blockBinding.resourceKey().toString()));
+      public PacketBlockData blockData() {
+        return blockDataRepository.load(blockBinding.resourceKey().toString());
       }
     };
   }

@@ -8,14 +8,5 @@ import org.bukkit.inventory.ItemStack;
 
 public interface LootData {
 
-  Collection<ItemStack> loot(LootContext context);
-
-  interface LootFunction extends Keyed {
-
-    List<ItemStack> apply(List<ItemStack> items, LootContext context);
-  }
-
-  interface Rule {
-
-  }
+  boolean canSilkTouch();
 }

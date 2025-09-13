@@ -1,24 +1,34 @@
 package org.aincraft.domain;
 
+import com.google.common.cache.Cache;
 import com.google.inject.Inject;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.aincraft.PacketItemService;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.BlockModel;
+import org.aincraft.api.ItemData;
 import org.aincraft.api.PacketBlock;
+import org.aincraft.api.PacketBlockData;
+import org.aincraft.api.SoundData;
+import org.aincraft.api.SoundData.SoundType;
+import org.aincraft.api.SoundEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -26,34 +36,35 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
 
 final class BlockController implements Listener {
 
   private final Plugin plugin;
+  private final BlockBindingRepository blockBindingRepository;
   private final PacketItemService packetItemService;
-  private final BlockBindingFactory blockBindingFactory;
   private final PacketBlockService blockService;
-  private final Interceptor interceptor;
   private final Service service;
 
+  private final Map<Location, PacketBlockData> recentlyDeleted = new HashMap<>();
+
   @Inject
-  BlockController(Plugin plugin, PacketItemService packetItemService,
-      BlockBindingFactory blockBindingFactory,
-      PacketBlockService blockService, Interceptor interceptor,
+  BlockController(Plugin plugin, BlockBindingRepository blockBindingRepository,
+      PacketItemService packetItemService,
+      PacketBlockService blockService,
       Service service) {
     this.plugin = plugin;
+    this.blockBindingRepository = blockBindingRepository;
     this.packetItemService = packetItemService;
-    this.blockBindingFactory = blockBindingFactory;
     this.blockService = blockService;
-    this.interceptor = interceptor;
     this.service = service;
   }
 
   @EventHandler
   private void onPlayerChunkLoad(final PlayerChunkLoadEvent event) {
     Player player = event.getPlayer();
-    List<BlockBinding> bindings = service.getBindings(event.getChunk());
+    List<BlockBinding> bindings = blockBindingRepository.loadAllByChunk(event.getChunk());
     for (BlockBinding binding : bindings) {
       PacketBlock block = blockService.load(binding.location());
       if (block == null) {
@@ -67,8 +78,8 @@ final class BlockController implements Listener {
 //  @EventHandler
 //  private void onPlayerUnload(final PlayerChunkUnloadEvent event) {
 //    Player player = event.getPlayer();
-//    List<BlockBinding> bindings = service.getBindings(event.getChunk());
-//    for (BlockBinding binding : bindings) {
+//    List<BlockBindingImpl> bindings = service.getBindings(event.getChunk());
+//    for (BlockBindingImpl binding : bindings) {
 //      BlockModel block = blockBindingService.loadBlock(binding.location());
 //      if (block == null) {
 //        continue;
@@ -89,7 +100,7 @@ final class BlockController implements Listener {
     }
     Player player = event.getPlayer();
     Bukkit.getScheduler().runTask(plugin, () -> {
-      player.sendBlockChange(block.getLocation(), Bukkit.createBlockData(Material.CHORUS_FLOWER));
+      player.sendBlockChange(block.getLocation(), Bukkit.createBlockData(Material.GLASS));
     });
   }
 
@@ -109,11 +120,11 @@ final class BlockController implements Listener {
     String resourceKey = service.readPacketData(item);
     final long t2 = System.nanoTime();
 
-    BlockBinding binding = blockBindingFactory.bind(serverBack.getLocation(), resourceKey);
-    PacketBlock packetBlock = blockService.save(binding);
-    packetBlock.soundData().getEntry(SoundType.PLACE).play(player);
+    PacketBlock packetBlock = blockService.save(
+        BlockBinding.create(serverBack.getLocation(), resourceKey));
+    packetBlock.blockData().soundData().entry(SoundType.PLACE).play(serverBack.getLocation());
     Bukkit.getScheduler().runTaskLater(plugin, () -> {
-      BlockData fake = Bukkit.createBlockData(Material.CHORUS_FLOWER);
+      BlockData fake = Bukkit.createBlockData(Material.GLASS);
       player.sendBlockChange(serverBack.getLocation(), fake);
     }, 2L);
     final long t3 = System.nanoTime();
@@ -135,34 +146,40 @@ final class BlockController implements Listener {
     ));
   }
 
-  @EventHandler
-  private void onJoin(final PlayerJoinEvent event) {
-    interceptor.inject(event.getPlayer());
-  }
-
-  @EventHandler
-  private void onLeave(final PlayerQuitEvent event) {
-    interceptor.eject(event.getPlayer());
-  }
-
   @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
   private void onPacketBlockBreak(final BlockBreakEvent event) {
     Block block = event.getBlock();
     Location location = block.getLocation();
-    Player player = event.getPlayer();
-    ItemStack itemStack = player.getInventory().getItem(EquipmentSlot.HAND);
     PacketBlock packetBlock = blockService.load(location);
     if (packetBlock != null) {
       blockService.delete(location);
-      SoundData soundData = packetBlock.soundData();
-      soundData.getEntry(SoundType.BREAK).play(player);
-      if (itemStack.getEnchantmentLevel(Enchantment.SILK_TOUCH) > 0) {
-        Material material = block.getType();
-        ItemStack stack = ItemStack.of(material);
-        stack.setData(DataComponentTypes.ITEM_MODEL,packetBlock.modelData().itemModel());
-        packetItemService.writePacketData(stack, packetBlock.modelData().resourceKey().toString());
-        location.getWorld().dropItemNaturally(location,stack);
-      }
+      recentlyDeleted.put(location, packetBlock.blockData());
+      PacketBlockData blockData = packetBlock.blockData();
+      SoundData soundData = blockData.soundData();
+      soundData.entry(SoundType.BREAK).play(block.getLocation());
+    }
+  }
+
+  @EventHandler(priority = EventPriority.LOWEST, ignoreCancelled = true)
+  private void onBlockDropItem(final BlockDropItemEvent event) {
+    List<Item> items = event.getItems();
+    if (items.isEmpty()) {
+      return;
+    }
+    Block block = event.getBlock();
+    if (!recentlyDeleted.containsKey(block.getLocation())) {
+      return;
+    }
+    Player player = event.getPlayer();
+    PlayerInventory inventory = player.getInventory();
+    ItemStack itemStack = inventory.getItemInMainHand();
+    PacketBlockData blockData = recentlyDeleted.remove(block.getLocation());
+    if (!items.isEmpty() && itemStack.getEnchantmentLevel(Enchantment.SILK_TOUCH) > 0) {
+      ItemData itemData = blockData.itemData();
+      ItemStack stack = ItemStack.of(itemData.material());
+      stack.setData(DataComponentTypes.ITEM_MODEL, itemData.itemModel());
+      packetItemService.writePacketData(stack, blockData.resourceKey().toString());
+      items.getFirst().setItemStack(stack);
     }
   }
 

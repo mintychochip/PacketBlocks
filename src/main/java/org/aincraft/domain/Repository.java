@@ -1,7 +1,6 @@
 package org.aincraft.domain;
 
 import org.aincraft.domain.Repository.Record;
-import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.Nullable;
 
 public interface Repository<K, V extends Record<K>> {

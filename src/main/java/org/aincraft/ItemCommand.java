@@ -3,17 +3,13 @@ package org.aincraft;
 import com.google.inject.Inject;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import net.kyori.adventure.key.Key;
-import org.aincraft.domain.ModelDataImpl;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.Server;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector3f;
 
 public class ItemCommand implements CommandExecutor {
 

@@ -16,31 +16,31 @@ import org.jetbrains.annotations.NotNull;
 
 final class RelationalBlockBindingRepositoryImpl implements BlockBindingRepository {
 
-  private final Repository<String, ModelData.Record> modelDataRepository;
   private final ConnectionSource connectionSource;
 
   @Inject
   public RelationalBlockBindingRepositoryImpl(
-      Repository<String, ModelData.Record> modelDataRepository, ConnectionSource connectionSource) {
-    this.modelDataRepository = modelDataRepository;
+      ConnectionSource connectionSource) {
     this.connectionSource = connectionSource;
   }
 
   @Override
-  public boolean save(@NotNull BlockBinding.Record record) {
+  public boolean save(BlockBinding blockBinding) {
+    String sql = "INSERT INTO block_bindings (world, x, y, z, cx, cz, resource_key) VALUES (?,?,?,?,?,?,?)";
     try (Connection connection = connectionSource.getConnection();
-        PreparedStatement ps = connection.prepareStatement(
-            "INSERT INTO block_bindings (world, x, y, z, cx, cz, resource_key) VALUES (?,?,?,?,?,?,?)")) {
-      ps.setString(1, record.world());
-      ps.setDouble(2, record.x());
-      ps.setDouble(3, record.y());
-      ps.setDouble(4, record.z());
-      ps.setInt(5, record.cx());
-      ps.setInt(6, record.cz());
-      ps.setString(7, record.blockData().resourceKey());
+        PreparedStatement ps = connection.prepareStatement(sql)) {
+
+      ps.setString(1, blockBinding.worldName());
+      ps.setDouble(2, blockBinding.x());
+      ps.setDouble(3, blockBinding.y());
+      ps.setDouble(4, blockBinding.z());
+      ps.setInt(5, blockBinding.chunkX());
+      ps.setInt(6, blockBinding.chunkZ());
+      ps.setString(7, blockBinding.resourceKey());
+
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
-      throw new RuntimeException(e);
+      throw new RuntimeException("Failed to save BlockBinding", e);
     }
   }
 
@@ -61,12 +61,11 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
   }
 
   @Override
-  public BlockBinding.Record load(Location location) {
+  public BlockBinding load(Location location) {
     try (Connection connection = connectionSource.getConnection();
         PreparedStatement ps = connection.prepareStatement(
-            "SELECT cx,cz,resource_key FROM block_bindings WHERE world=? AND x=? AND y=? AND z=?")) {
-      World world = location.getWorld();
-      ps.setString(1, world.getName());
+            "SELECT resource_key FROM block_bindings WHERE world=? AND x=? AND y=? AND z=?")) {
+      ps.setString(1, location.getWorld().getName());
       ps.setInt(2, location.getBlockX());
       ps.setInt(3, location.getBlockY());
       ps.setInt(4, location.getBlockZ());
@@ -75,14 +74,7 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
           return null;
         }
         String resourceKey = rs.getString("resource_key");
-        ModelData.Record record = modelDataRepository.load(resourceKey);
-        if (record == null) {
-          return null;
-        }
-        int cx = rs.getInt("cx");
-        int cz = rs.getInt("cz");
-        return new BlockBinding.Record(world.getName(), location.getBlockX(), location.getBlockY(),
-            location.getBlockZ(), cx, cz, resourceKey, record);
+        return BlockBinding.create(location,resourceKey);
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -90,13 +82,13 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
   }
 
   @Override
-  public List<BlockBinding.Record> loadAllByChunk(Chunk chunk) {
+  public List<BlockBinding> loadAllByChunk(Chunk chunk) {
     try (Connection connection = connectionSource.getConnection();
         PreparedStatement ps = connection.prepareStatement(
             "SELECT world, x, y, z, resource_key FROM block_bindings WHERE cx=? AND cz=?")) {
       ps.setInt(1, chunk.getX());
       ps.setInt(2, chunk.getZ());
-      List<BlockBinding.Record> bindings = new ArrayList<>();
+      List<BlockBinding> bindings = new ArrayList<>();
       try (ResultSet rs = ps.executeQuery()) {
         while (rs.next()) {
           String world = rs.getString("world");
@@ -104,13 +96,7 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
           double y = rs.getDouble("y");
           double z = rs.getDouble("z");
           String resourceKey = rs.getString("resource_key");
-          ModelData.Record record = modelDataRepository.load(resourceKey);
-          if (record == null) {
-            continue;
-          }
-          BlockBinding.Record binding = new BlockBinding.Record(world, x, y, z, chunk.getX(),
-              chunk.getZ(), resourceKey, record);
-          bindings.add(binding);
+          bindings.add(BlockBinding.create(world, x, y, z, resourceKey));
         }
       }
       return bindings;

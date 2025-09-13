@@ -14,7 +14,8 @@ import net.minecraft.world.entity.Display.ItemDisplay;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.phys.Vec3;
 import org.aincraft.api.BlockModel;
-import org.aincraft.domain.ModelDataImpl;
+import org.aincraft.api.ModelData;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.CraftWorld;
@@ -23,6 +24,7 @@ import org.bukkit.craftbukkit.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
+import org.joml.Vector3f;
 
 public final class BlockModelImpl implements BlockModel {
 
@@ -53,11 +55,9 @@ public final class BlockModelImpl implements BlockModel {
     net.minecraft.world.item.ItemStack itemStack = CraftItemStack.asNMSCopy(bukkitStack);
     display.setItemStack(itemStack);
     display.setTransformation(
-        new Transformation(blockData.translation(), blockData.leftRotation(), blockData.scale(),
-            blockData.rightRotation()));
-    Brightness brightness = ModelDataImpl.asNMSBrightness(blockData.blockLight(),
-        blockData.skyLight());
-    display.setBrightnessOverride(brightness);
+        new Transformation(blockData.translation(), blockData.rotation(), blockData.scale(),
+            blockData.rotation()));
+    display.setBrightnessOverride(null);
     display.setViewRange(blockData.range());
     display.setGlowColorOverride(1);
     return new BlockModelImpl(blockData, world, position, display);
@@ -82,11 +82,9 @@ public final class BlockModelImpl implements BlockModel {
     net.minecraft.world.item.ItemStack itemStack = CraftItemStack.asNMSCopy(bukkitStack);
     itemDisplay.setItemStack(itemStack);
     itemDisplay.setTransformation(
-        new Transformation(blockData.translation(), blockData.leftRotation(), blockData.scale(),
-            blockData.rightRotation()));
-    Brightness brightness = ModelDataImpl.asNMSBrightness(blockData.blockLight(),
-        blockData.skyLight());
-    itemDisplay.setBrightnessOverride(brightness);
+        new Transformation(blockData.translation(), blockData.rotation(), blockData.scale(),
+            blockData.rotation()));
+    itemDisplay.setBrightnessOverride(null);
     itemDisplay.setViewRange(blockData.range());
   }
 
@@ -142,4 +140,5 @@ public final class BlockModelImpl implements BlockModel {
   public Set<Player> viewers() {
     return viewers;
   }
+
 }

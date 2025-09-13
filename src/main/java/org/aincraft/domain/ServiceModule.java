@@ -3,20 +3,20 @@ package org.aincraft.domain;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.inject.AbstractModule;
+import com.google.inject.Exposed;
 import com.google.inject.PrivateModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
+import java.time.Duration;
 import net.kyori.adventure.key.Key;
 import org.aincraft.ConnectionSource;
 import org.aincraft.Mapper;
 import org.aincraft.PacketItemService;
 import org.aincraft.PacketItemServiceImpl;
-import org.aincraft.adapter.ClientBlockDataFactoryImpl;
-import org.aincraft.adapter.KyoriKeyAdapterImpl;
-import org.aincraft.api.BlockBinding;
 import org.aincraft.config.YamlConfiguration;
+import org.aincraft.domain.yaml.ConfigurationPacketRepositoryModule;
 import org.bukkit.NamespacedKey;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -34,8 +34,7 @@ public final class ServiceModule extends AbstractModule {
   @Singleton
   public PacketItemService packetItemService(Plugin plugin) {
     NamespacedKey itemKey = new NamespacedKey(plugin, "items");
-    Gson gson = new GsonBuilder().registerTypeAdapter(Key.class, new KyoriKeyAdapterImpl())
-        .registerTypeAdapterFactory(new ClientBlockDataFactoryImpl()).create();
+    Gson gson = new GsonBuilder().create();
     return new PacketItemServiceImpl(itemKey, gson);
   }
 
@@ -43,29 +42,8 @@ public final class ServiceModule extends AbstractModule {
 
     @Override
     protected void configure() {
-      bind(new TypeLiteral<Mapper<ModelData, ModelData.Record>>() {
-      })
-          .to(ModelDataMapperImpl.class)
-          .in(Singleton.class);
-      bind(new TypeLiteral<Mapper<BlockBinding, BlockBinding.Record>>() {
-      })
-          .to(BlockBindingMapperImpl.class)
-          .in(Singleton.class);
-      bind(new TypeLiteral<Mapper<SoundEntry, SoundEntry.Record>>() {
-      })
-          .to(SoundEntryMapperImpl.class)
-          .in(Singleton.class);
-      bind(new TypeLiteral<Mapper<SoundData, SoundData.Record>>() {
-      })
-          .to(SoundDataMapperImpl.class)
-          .in(Singleton.class);
-      bind(new TypeLiteral<Repository<String, ModelData.Record>>() {
-      })
-          .toProvider(ModelDataRepositoryProviderImpl.class)
-          .in(Singleton.class);
-      bind(new TypeLiteral<Repository<String, SoundData.Record>>() {
-      })
-          .toProvider(SoundDataRepositoryProviderImpl.class)
+      install(new ConfigurationPacketRepositoryModule());
+      bind(PacketBlockDataRepository.class).toProvider(PacketBlockDataRepositoryProviderImpl.class)
           .in(Singleton.class);
       bind(Service.class).to(ServiceImpl.class).in(Singleton.class);
       expose(Service.class);
@@ -73,8 +51,6 @@ public final class ServiceModule extends AbstractModule {
       expose(BlockModelService.class);
       bind(PacketBlockService.class).to(PacketBlockServiceImpl.class).in(Singleton.class);
       expose(PacketBlockService.class);
-      bind(BlockBindingFactory.class).to(BlockBindingFactoryImpl.class).in(Singleton.class);
-      expose(BlockBindingFactory.class);
     }
 
     @Provides
@@ -84,12 +60,13 @@ public final class ServiceModule extends AbstractModule {
 
     @Provides
     @Singleton
+    @Exposed
     BlockBindingRepository blockBindingRepository(
-        Repository<String, ModelData.Record> blockDataRepository,
         ConnectionSource connectionSource, Plugin plugin) {
       RelationalBlockBindingRepositoryImpl repository = new RelationalBlockBindingRepositoryImpl(
-          blockDataRepository, connectionSource);
-      return WriteBackBlockBindingRepositoryImpl.create(repository, plugin);
+          connectionSource);
+      return WriteBackBlockBindingRepositoryImpl.create(plugin, 50, Duration.ofSeconds(10),
+          repository);
     }
   }
 }

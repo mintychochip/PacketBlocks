@@ -3,15 +3,14 @@ package org.aincraft.api;
 import net.kyori.adventure.key.Key;
 import org.aincraft.api.Builder.Buildable;
 import org.aincraft.api.ModelData.ModelDataBuilder;
+import org.aincraft.api.ModelDataImpl.BuilderImpl;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 public interface ModelData extends Buildable<ModelDataBuilder, ModelData> {
 
-  ModelData DEFAULT = ModelDataImpl.DEFAULT;
-
   static ModelDataBuilder builder() {
-    return new ModelDataImpl.ModelDataBuilder();
+    return new BuilderImpl();
   }
 
   Key itemModel();
@@ -24,10 +23,6 @@ public interface ModelData extends Buildable<ModelDataBuilder, ModelData> {
 
   float range();
 
-  float block();
-
-  float sky();
-
   interface ModelDataBuilder extends org.aincraft.api.Builder<ModelData> {
 
     ModelDataBuilder itemModel(Key itemModel);
@@ -39,10 +34,6 @@ public interface ModelData extends Buildable<ModelDataBuilder, ModelData> {
     ModelDataBuilder rotation(Quaternionf rotation);
 
     ModelDataBuilder range(float range);
-
-    ModelDataBuilder block(float block);
-
-    ModelDataBuilder sky(float sky);
 
     ModelData build();
   }
