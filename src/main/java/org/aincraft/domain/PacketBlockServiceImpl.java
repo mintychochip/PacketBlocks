@@ -52,12 +52,14 @@ final class PacketBlockServiceImpl implements PacketBlockService {
   @Override
   public @Nullable PacketBlock load(Location location) {
     BlockModel model = blockModelService.load(location);
-    BlockBinding blockBinding = blockBindingRepository.load(location);
-    if (model == null && blockBinding != null) {
-      blockModelService.save(blockBinding);
-      model = blockModelService.load(location);
+    if (model == null) {
+      return null;
     }
     BlockModel finalModel = model;
+    BlockBinding binding = blockBindingRepository.load(location);
+    if (binding == null) {
+      return null;
+    }
     return new PacketBlock() {
       @Override
       public BlockModel blockModel() {
@@ -66,7 +68,7 @@ final class PacketBlockServiceImpl implements PacketBlockService {
 
       @Override
       public PacketBlockData blockData() {
-        return blockDataRepository.load(blockBinding.resourceKey().toString());
+        return blockDataRepository.load(binding.resourceKey());
       }
     };
   }

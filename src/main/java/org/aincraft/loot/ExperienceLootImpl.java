@@ -1,7 +1,7 @@
 package org.aincraft.loot;
 
 import com.google.common.base.Preconditions;
-import org.bukkit.entity.Player;
+import org.aincraft.loot.triggers.TriggerOnBreak;
 
 final class ExperienceLootImpl extends LootImpl implements Loot {
 
@@ -15,11 +15,11 @@ final class ExperienceLootImpl extends LootImpl implements Loot {
     return new ExperienceLootInstanceImpl(amount);
   }
 
-  private record ExperienceLootInstanceImpl(int amount) implements LootInstance {
+  private record ExperienceLootInstanceImpl(int amount) implements LootInstance, TriggerOnBreak {
 
     @Override
-    public void add(Player player) {
-      player.giveExp(amount);
+    public void onBreak(BlockBreakContext context) {
+      context.exp(amount + context.exp());
     }
   }
 }

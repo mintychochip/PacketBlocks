@@ -1,12 +1,11 @@
 package org.aincraft.loot;
 
 import net.kyori.adventure.key.Key;
-import org.bukkit.entity.Player;
 
-public sealed interface Loot permits LootImpl, ItemLootImpl, ExperienceLootImpl {
+public sealed interface Loot permits LootImpl, LootImpl.ItemLootImpl, ExperienceLootImpl {
 
   static Loot item(int min, int max, Key itemKey) {
-    return new ItemLootImpl(min, max, itemKey);
+    return new LootImpl.ItemLootImpl(min, max, itemKey);
   }
 
   static Loot experience(int min, int max) {
@@ -23,7 +22,5 @@ public sealed interface Loot permits LootImpl, ItemLootImpl, ExperienceLootImpl 
 
     int amount();
 
-    void add(Player player);
   }
-
 }

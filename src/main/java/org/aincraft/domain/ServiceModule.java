@@ -9,6 +9,7 @@ import com.google.inject.Provides;
 import com.google.inject.Singleton;
 import com.google.inject.multibindings.Multibinder;
 import java.time.Duration;
+import net.minecraft.network.protocol.Packet;
 import org.aincraft.ConnectionSource;
 import org.aincraft.PacketItemService;
 import org.aincraft.PacketItemServiceImpl;
@@ -42,8 +43,7 @@ public final class ServiceModule extends AbstractModule {
       install(new ConfigurationPacketRepositoryModule());
       bind(PacketBlockDataRepository.class).toProvider(PacketBlockDataRepositoryProviderImpl.class)
           .in(Singleton.class);
-      bind(Service.class).to(ServiceImpl.class).in(Singleton.class);
-      expose(Service.class);
+      expose(PacketBlockDataRepository.class);
       bind(BlockModelService.class).to(BlockModelServiceImpl.class).in(Singleton.class);
       expose(BlockModelService.class);
       bind(PacketBlockService.class).to(PacketBlockServiceImpl.class).in(Singleton.class);

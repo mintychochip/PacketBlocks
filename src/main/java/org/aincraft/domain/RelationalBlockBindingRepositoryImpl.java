@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.aincraft.ConnectionSource;
 import org.aincraft.api.BlockBinding;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -51,9 +52,9 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
             "DELETE FROM block_bindings WHERE world=? AND x=? AND y=? AND z=?")) {
       World world = location.getWorld();
       ps.setString(1, world.getName());
-      ps.setInt(2, location.getBlockX());
-      ps.setInt(3, location.getBlockY());
-      ps.setInt(4, location.getBlockZ());
+      ps.setDouble(2, location.x());
+      ps.setDouble(3, location.y());
+      ps.setDouble(4, location.z());
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -66,9 +67,9 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
         PreparedStatement ps = connection.prepareStatement(
             "SELECT resource_key FROM block_bindings WHERE world=? AND x=? AND y=? AND z=?")) {
       ps.setString(1, location.getWorld().getName());
-      ps.setInt(2, location.getBlockX());
-      ps.setInt(3, location.getBlockY());
-      ps.setInt(4, location.getBlockZ());
+      ps.setDouble(2, location.x());
+      ps.setDouble(3, location.y());
+      ps.setDouble(4, location.z());
       try (ResultSet rs = ps.executeQuery()) {
         if (!rs.next()) {
           return null;

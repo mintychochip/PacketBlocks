@@ -35,15 +35,15 @@ public class LootDataFactoryImpl implements ConfigurationFactory<LootData> {
         String type = Optional.ofNullable((String) loot.get("type")).orElse("unknown");
         int min = Optional.ofNullable(asInt(loot.get("min"))).orElse(1);
         int max = Optional.ofNullable(asInt(loot.get("max"))).orElse(1);
-        double weight = Optional.ofNullable(asDouble(loot.get("weight"))).orElse(1.0);
+        double chance = Optional.ofNullable(asDouble(loot.get("chance"))).orElse(1.0);
         switch (type.toLowerCase(Locale.ENGLISH)) {
           case "item" -> {
             String keyString = (String) loot.get("key");
             Key itemKey = NamespacedKey.fromString(keyString);
-            builder.addLoot(Loot.item(min, max, itemKey), weight);
+            builder.addLoot(Loot.item(min, max, itemKey), chance);
           }
           case "experience" -> {
-            builder.addLoot(Loot.experience(min, max), weight);
+            builder.addLoot(Loot.experience(min, max), chance);
           }
           default -> {
             throw new IllegalArgumentException("unknown loot type:" + type);

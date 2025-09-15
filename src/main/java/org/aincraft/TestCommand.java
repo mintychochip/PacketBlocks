@@ -1,7 +1,6 @@
 package org.aincraft;
 
 import com.google.inject.Inject;
-import org.aincraft.domain.Service;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,12 +12,10 @@ import org.jetbrains.annotations.NotNull;
 public class TestCommand implements CommandExecutor {
 
   private final Plugin plugin;
-  private final Service service;
 
   @Inject
-  public TestCommand(Plugin plugin,Service service) {
+  public TestCommand(Plugin plugin) {
     this.plugin = plugin;
-    this.service = service;
   }
 
   @Override

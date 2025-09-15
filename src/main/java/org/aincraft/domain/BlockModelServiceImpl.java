@@ -48,7 +48,7 @@ final class BlockModelServiceImpl implements BlockModelService {
   }
 
   private BlockModel blockFromBinding(BlockBinding blockBinding) {
-    PacketBlockData blockData = blockDataRepository.load("item:bus");
+    PacketBlockData blockData = blockDataRepository.load(blockBinding.resourceKey());
     Location location = blockBinding.location();
     return BlockModelImpl.create(blockData.modelData(), location.getWorld(), location.toVector());
   }

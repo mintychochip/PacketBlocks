@@ -3,6 +3,7 @@ package org.aincraft.loot;
 import java.util.List;
 import org.aincraft.api.Builder;
 import org.aincraft.api.Builder.Buildable;
+import org.aincraft.loot.Loot.LootInstance;
 import org.aincraft.loot.LootData.LootDataBuilder;
 import org.aincraft.loot.LootDataImpl.BuilderImpl;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +18,7 @@ public interface LootData extends Buildable<LootDataBuilder, LootData> {
 
   boolean dropOnShear();
 
-  List<ItemStack> get(LootContext context);
+  List<LootInstance> get(LootContext context);
 
   interface LootDataBuilder extends Builder<LootData> {
 

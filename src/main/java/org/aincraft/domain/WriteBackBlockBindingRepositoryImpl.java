@@ -100,7 +100,7 @@ public final class WriteBackBlockBindingRepositoryImpl implements BlockBindingRe
     Iterator<Location> deleteIterator = pendingDeletes.iterator();
     while (deleteIterator.hasNext() && batchDeletes.size() < batchSize) {
       Location key = deleteIterator.next();
-      if (!pendingDeletes.remove(key)) {
+      if (pendingDeletes.remove(key)) {
         batchDeletes.add(key);
       }
     }

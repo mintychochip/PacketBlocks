@@ -7,6 +7,7 @@ import org.aincraft.api.Builder.Buildable;
 import org.aincraft.api.ItemData.ItemDataBuilder;
 import org.aincraft.api.ItemDataImpl.BuilderImpl;
 import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
 
 public interface ItemData extends Buildable<ItemDataBuilder, ItemData> {
 

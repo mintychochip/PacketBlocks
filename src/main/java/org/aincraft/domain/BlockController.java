@@ -3,9 +3,11 @@ package org.aincraft.domain;
 import com.google.inject.Inject;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import org.aincraft.PacketItemService;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.BlockModel;
@@ -14,12 +16,24 @@ import org.aincraft.api.PacketBlock;
 import org.aincraft.api.PacketBlockData;
 import org.aincraft.api.SoundData;
 import org.aincraft.api.SoundData.SoundType;
+import org.aincraft.api.SoundEntry;
+import org.aincraft.loot.ItemLootInstanceImpl;
+import org.aincraft.loot.Loot;
+import org.aincraft.loot.Loot.LootInstance;
+import org.aincraft.loot.LootContext;
+import org.aincraft.loot.triggers.TriggerOnBreak;
+import org.aincraft.loot.triggers.TriggerOnDrop;
+import org.aincraft.loot.LootContextImpl;
+import org.aincraft.loot.LootData;
+import org.aincraft.loot.triggers.TriggerOnBreak.BlockBreakContext;
+import org.aincraft.loot.triggers.TriggerOnDrop.DropItemContext;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -40,20 +54,17 @@ final class BlockController implements Listener {
   private final BlockBindingRepository blockBindingRepository;
   private final PacketItemService packetItemService;
   private final PacketBlockService blockService;
-  private final Service service;
 
-  private final Map<Location, PacketBlockData> recentlyDeleted = new HashMap<>();
+  private final Map<Location, List<LootInstance>> recentlyDeleted = new HashMap<>();
 
   @Inject
   BlockController(Plugin plugin, BlockBindingRepository blockBindingRepository,
       PacketItemService packetItemService,
-      PacketBlockService blockService,
-      Service service) {
+      PacketBlockService blockService) {
     this.plugin = plugin;
     this.blockBindingRepository = blockBindingRepository;
     this.packetItemService = packetItemService;
     this.blockService = blockService;
-    this.service = service;
   }
 
   @EventHandler
@@ -107,12 +118,12 @@ final class BlockController implements Listener {
     Player player = event.getPlayer();
     Block serverBack = event.getBlockPlaced();
 
-    if (!service.isPacketItem(item)) {
+    if (!packetItemService.isPacketItem(item)) {
       return;
     }
     final long t1 = System.nanoTime();
     serverBack.setType(Material.STONE);
-    String resourceKey = service.readPacketData(item);
+    String resourceKey = packetItemService.readPacketData(item);
     final long t2 = System.nanoTime();
 
     PacketBlock packetBlock = blockService.save(
@@ -146,12 +157,28 @@ final class BlockController implements Listener {
     Block block = event.getBlock();
     Location location = block.getLocation();
     PacketBlock packetBlock = blockService.load(location);
-    if (packetBlock != null) {
-      blockService.delete(location);
-      recentlyDeleted.put(location, packetBlock.blockData());
-      PacketBlockData blockData = packetBlock.blockData();
-      SoundData soundData = blockData.soundData();
-      soundData.entry(SoundType.BREAK).play(block.getLocation());
+    if (packetBlock == null) {
+      return;
+    }
+    Player player = event.getPlayer();
+    PlayerInventory inventory = player.getInventory();
+    ItemStack itemStack = inventory.getItemInMainHand();
+    PacketBlockData blockData = packetBlock.blockData();
+    List<LootInstance> instances = loot(blockData, new LootContextImpl(itemStack, player));
+    if (player.getGameMode() != GameMode.CREATIVE) {
+      BlockBreakContext context = breakContext(event);
+      for (LootInstance instance : instances) {
+        if (instance instanceof TriggerOnBreak triggerOnBreak) {
+          triggerOnBreak.onBreak(context);
+        }
+      }
+    }
+    blockService.delete(location);
+    recentlyDeleted.put(location, instances);
+    SoundData soundData = blockData.soundData();
+    SoundEntry soundEntry = soundData.entry(SoundType.BREAK);
+    if (soundEntry != null) {
+      soundEntry.play(block.getLocation());
     }
   }
 
@@ -161,21 +188,17 @@ final class BlockController implements Listener {
     if (items.isEmpty()) {
       return;
     }
+    Bukkit.broadcastMessage("here");
     Block block = event.getBlock();
-    if (!recentlyDeleted.containsKey(block.getLocation())) {
+    List<LootInstance> instances = recentlyDeleted.remove(block.getLocation());
+    if (instances == null) {
       return;
     }
-    Player player = event.getPlayer();
-    PlayerInventory inventory = player.getInventory();
-    ItemStack itemStack = inventory.getItemInMainHand();
-    PacketBlockData blockData = recentlyDeleted.remove(block.getLocation());
-    if (!items.isEmpty() && itemStack.getEnchantmentLevel(Enchantment.SILK_TOUCH) > 0) {
-      ItemData itemData = blockData.itemData();
-      ItemStack stack = ItemStack.of(itemData.material());
-      stack.setData(DataComponentTypes.ITEM_MODEL, itemData.itemModel());
-      stack.setData(DataComponentTypes.ITEM_NAME,itemData.displayName());
-      packetItemService.writePacketData(stack, blockData.resourceKey().toString());
-      items.getFirst().setItemStack(stack);
+    DropItemContext context = dropContext(event);
+    for (LootInstance instance : instances) {
+      if (instance instanceof TriggerOnDrop itemLoot) {
+        itemLoot.onDrop(context);
+      }
     }
   }
 
@@ -183,11 +206,97 @@ final class BlockController implements Listener {
   private void onPacketBlockEntityBreak(final EntityExplodeEvent event) {
     List<Block> blocks = event.blockList();
     blocks.forEach(block -> {
-      PacketBlock packetBlock = blockService.load(block.getLocation());
+      Location location = block.getLocation();
+      PacketBlock packetBlock = blockService.load(location);
       if (packetBlock != null) {
-        blockService.delete(block.getLocation());
+        PacketBlockData blockData = packetBlock.blockData();
+        List<LootInstance> instances = loot(blockData, new LootContextImpl(null, null));
+        List<ItemStack> itemList = new ArrayList<>();
+        for (LootInstance instance : instances) {
+          if (instance instanceof TriggerOnDrop drop) {
+            drop.onDrop(new DropItemContext() {
+              @Override
+              public void items(List<ItemStack> items) {
+                itemList.addAll(items);
+              }
+
+              @Override
+              public List<ItemStack> items() {
+                return itemList;
+              }
+            });
+          }
+        }
+        itemList.forEach(item -> {
+          location.getWorld().dropItem(location,item);
+        });
+        blockService.delete(location);
+        SoundData soundData = blockData.soundData();
+        SoundEntry soundEntry = soundData.entry(SoundType.BREAK);
+        if (soundEntry != null) {
+          soundEntry.play(location);
+        }
+        blocks.remove(block);
+        block.setType(Material.AIR);
       }
     });
   }
 
+  @SuppressWarnings("UnstableApiUsage")
+  private ItemStack createPacketBlockItem(PacketBlockData packetBlockData) {
+    ItemData itemData = packetBlockData.itemData();
+    ItemStack stack = ItemStack.of(itemData.material());
+    stack.setData(DataComponentTypes.ITEM_MODEL, itemData.itemModel());
+    stack.setData(DataComponentTypes.ITEM_NAME, itemData.displayName());
+    packetItemService.writePacketData(stack, packetBlockData.resourceKey().toString());
+    return stack;
+  }
+
+  private List<LootInstance> loot(PacketBlockData packetBlockData, LootContext context) {
+    LootData lootData = packetBlockData.lootData();
+    if (context.silkTouch() && lootData.dropOnSilkTouch()) {
+      ItemStack item = createPacketBlockItem(packetBlockData);
+      return List.of(new ItemLootInstanceImpl(1, item.clone()));
+    }
+    return lootData.get(context);
+  }
+
+  private static BlockBreakContext breakContext(BlockBreakEvent event) {
+    return new BlockBreakContext() {
+      @Override
+      public void exp(int xp) {
+        event.setExpToDrop(xp);
+      }
+
+      @Override
+      public int exp() {
+        return event.getExpToDrop();
+      }
+    };
+  }
+
+  private static DropItemContext dropContext(BlockDropItemEvent event) {
+    event.getItems().clear();
+    return new DropItemContext() {
+      @Override
+      public void items(List<ItemStack> items) {
+        Block block = event.getBlock();
+        Location location = block.getLocation();
+        Location center = location.clone().add(0.5, 0.5, 0.5);
+        World world = location.getWorld();
+        List<Item> itemList = items.stream().map(item -> {
+          Item i = world.createEntity(center, Item.class);
+          i.setItemStack(item);
+          return i;
+        }).toList();
+        event.getItems().clear();
+        event.getItems().addAll(itemList);
+      }
+
+      @Override
+      public List<ItemStack> items() {
+        return event.getItems().stream().map(Item::getItemStack).collect(Collectors.toList());
+      }
+    };
+  }
 }
