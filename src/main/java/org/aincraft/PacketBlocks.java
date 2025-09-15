@@ -16,7 +16,6 @@ public class PacketBlocks extends JavaPlugin {
     Set<Listener> listeners = injector.getInstance(com.google.inject.Key.get(new TypeLiteral<>(){}));
     listeners.forEach(listener -> Bukkit.getPluginManager().registerEvents(listener,this));
     Bukkit.getPluginCommand("item").setExecutor(injector.getInstance(ItemCommand.class));
-    Bukkit.getPluginCommand("test").setExecutor(injector.getInstance(TestCommand.class));
   }
 
   @Override

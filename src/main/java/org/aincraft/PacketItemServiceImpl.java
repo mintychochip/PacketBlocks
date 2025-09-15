@@ -18,7 +18,6 @@ public class PacketItemServiceImpl implements PacketItemService {
     this.gson = gson;
   }
 
-  @Override
   public boolean isPacketItem(ItemStack stack) {
     PersistentDataContainerView pdc = stack.getPersistentDataContainer();
     return pdc.has(itemKey);

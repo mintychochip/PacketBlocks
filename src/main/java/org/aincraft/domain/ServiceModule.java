@@ -26,6 +26,7 @@ public final class ServiceModule extends AbstractModule {
     install(new RepositoryModule());
     Multibinder<Listener> binder = Multibinder.newSetBinder(binder(), Listener.class);
     binder.addBinding().to(BlockController.class);
+    binder.addBinding().to(OreGlowWalker.class);
   }
 
   @Provides

@@ -56,7 +56,6 @@ public final class BlockModelImpl implements BlockModel {
             blockData.rotation()));
     display.setBrightnessOverride(null);
     display.setViewRange(blockData.range());
-    display.setGlowColorOverride(1);
     return new BlockModelImpl(blockData, world, position, display);
   }
 
