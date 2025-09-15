@@ -3,10 +3,8 @@ package org.aincraft.domain;
 import com.google.inject.Inject;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.BlockModel;
-import org.aincraft.api.ModelData;
 import org.aincraft.api.PacketBlock;
 import org.aincraft.api.PacketBlockData;
-import org.aincraft.api.SoundData;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
 
@@ -55,7 +53,7 @@ final class PacketBlockServiceImpl implements PacketBlockService {
   public @Nullable PacketBlock load(Location location) {
     BlockModel model = blockModelService.load(location);
     BlockBinding blockBinding = blockBindingRepository.load(location);
-    if (model == null) {
+    if (model == null && blockBinding != null) {
       blockModelService.save(blockBinding);
       model = blockModelService.load(location);
     }

@@ -27,5 +27,9 @@ public interface ItemData extends Buildable<ItemDataBuilder, ItemData> {
     ItemDataBuilder itemModel(Key key);
 
     ItemDataBuilder material(Material material);
+
+    ItemDataBuilder displayName(Component displayName);
+
+    ItemDataBuilder lore(ItemLore lore);
   }
 }

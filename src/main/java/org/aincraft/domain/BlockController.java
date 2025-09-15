@@ -1,6 +1,5 @@
 package org.aincraft.domain;
 
-import com.google.common.cache.Cache;
 import com.google.inject.Inject;
 import io.papermc.paper.datacomponent.DataComponentTypes;
 import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
@@ -15,7 +14,6 @@ import org.aincraft.api.PacketBlock;
 import org.aincraft.api.PacketBlockData;
 import org.aincraft.api.SoundData;
 import org.aincraft.api.SoundData.SoundType;
-import org.aincraft.api.SoundEntry;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -32,9 +30,6 @@ import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.plugin.Plugin;
@@ -178,6 +173,7 @@ final class BlockController implements Listener {
       ItemData itemData = blockData.itemData();
       ItemStack stack = ItemStack.of(itemData.material());
       stack.setData(DataComponentTypes.ITEM_MODEL, itemData.itemModel());
+      stack.setData(DataComponentTypes.ITEM_NAME,itemData.displayName());
       packetItemService.writePacketData(stack, blockData.resourceKey().toString());
       items.getFirst().setItemStack(stack);
     }

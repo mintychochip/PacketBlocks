@@ -1,15 +1,20 @@
-"item:bus":
-  model:
-    item-model: minecraft:diamond_ore
+item:bus:
+  item-model: packetblocks:electrum_ore
+  material: STONE
+  display-name: Electrum Ore
   sounds:
     break:
-      name:
-      volume:
-      pitch:
+      key: minecraft:block.amethyst_block.break
     place:
-      name:
-      volume:
-      pitch:
-  item:
-    item-model:
-    material:
+      key: minecraft:block.amethyst_block.break
+  loot:
+    - type: item
+      key: minecraft:stone
+      min: 1
+      max: 2
+      weight: 5
+    - type: experience
+      min: 1
+      max: 2
+      weight: 2
+

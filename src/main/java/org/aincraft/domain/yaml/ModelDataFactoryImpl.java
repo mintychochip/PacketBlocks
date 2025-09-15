@@ -2,12 +2,9 @@ package org.aincraft.domain.yaml;
 
 import com.google.common.base.Preconditions;
 import java.util.List;
-import java.util.Vector;
-import net.kyori.adventure.key.Key;
 import org.aincraft.api.ModelData;
 import org.aincraft.api.ModelData.ModelDataBuilder;
 import org.aincraft.config.ConfigurationFactory;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.ConfigurationSection;
@@ -21,7 +18,7 @@ final class ModelDataFactoryImpl implements ConfigurationFactory<ModelData> {
   private static final ModelData DEFAULT = ModelData.builder()
       .itemModel(Material.STONE.key())
       .translation(new Vector3f(0.5f))
-      .scale(new Vector3f(1.0001f))
+      .scale(new Vector3f(1.001f))
       .rotation(new Quaternionf(0.0f,0.0f,0.0f,1.0f))
       .range(32.0f)
       .build();

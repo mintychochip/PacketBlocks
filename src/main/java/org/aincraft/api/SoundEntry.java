@@ -3,7 +3,6 @@ package org.aincraft.api;
 import net.kyori.adventure.key.Key;
 import org.aincraft.api.SoundData.SoundType;
 import org.bukkit.Location;
-import org.bukkit.entity.Player;
 
 public interface SoundEntry {
 

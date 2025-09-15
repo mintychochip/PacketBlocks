@@ -30,6 +30,9 @@ final class ItemDataFactoryImpl implements ConfigurationFactory<ItemData> {
     if (section.contains("material")) {
       builder.material(Material.valueOf(section.getString("material").toUpperCase(Locale.ENGLISH)));
     }
+    if (section.contains("display-name")) {
+      builder.displayName(section.getRichMessage("display-name"));
+    }
     return builder.build();
   }
 }

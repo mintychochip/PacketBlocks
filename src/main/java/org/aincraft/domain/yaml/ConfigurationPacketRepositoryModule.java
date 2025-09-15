@@ -1,6 +1,5 @@
 package org.aincraft.domain.yaml;
 
-import com.google.inject.AbstractModule;
 import com.google.inject.PrivateModule;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
@@ -9,11 +8,16 @@ import org.aincraft.api.ModelData;
 import org.aincraft.api.PacketBlockData;
 import org.aincraft.api.SoundData;
 import org.aincraft.config.ConfigurationFactory;
+import org.aincraft.loot.LootData;
 
 public final class ConfigurationPacketRepositoryModule extends PrivateModule {
 
   @Override
   protected void configure() {
+    bind(new TypeLiteral<ConfigurationFactory<LootData>>() {
+    })
+        .to(LootDataFactoryImpl.class)
+        .in(Singleton.class);
     bind(new TypeLiteral<ConfigurationFactory<ModelData>>() {
     })
         .to(ModelDataFactoryImpl.class)

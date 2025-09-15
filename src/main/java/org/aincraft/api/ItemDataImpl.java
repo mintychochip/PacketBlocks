@@ -12,7 +12,9 @@ record ItemDataImpl(Key itemModel, Material material, Component displayName,
   public ItemDataBuilder toBuilder() {
     return new BuilderImpl()
         .itemModel(itemModel)
-        .material(material);
+        .material(material)
+        .displayName(displayName)
+        .lore(lore);
   }
 
   static final class BuilderImpl implements ItemDataBuilder {
@@ -31,6 +33,18 @@ record ItemDataImpl(Key itemModel, Material material, Component displayName,
     @Override
     public ItemDataBuilder material(Material material) {
       this.material = material;
+      return this;
+    }
+
+    @Override
+    public ItemDataBuilder displayName(Component displayName) {
+      this.displayName = displayName;
+      return this;
+    }
+
+    @Override
+    public ItemDataBuilder lore(ItemLore lore) {
+      this.lore = lore;
       return this;
     }
 

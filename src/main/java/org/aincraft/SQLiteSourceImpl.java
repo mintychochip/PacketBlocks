@@ -5,11 +5,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import org.aincraft.ConnectionSource;
 import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 

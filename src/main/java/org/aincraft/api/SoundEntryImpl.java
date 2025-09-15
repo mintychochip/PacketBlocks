@@ -4,7 +4,6 @@ import net.kyori.adventure.key.Key;
 import org.aincraft.api.SoundData.SoundType;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.entity.Player;
 
 public record SoundEntryImpl(SoundType soundType, Key soundKey, float volume,
                              float pitch) implements SoundEntry {

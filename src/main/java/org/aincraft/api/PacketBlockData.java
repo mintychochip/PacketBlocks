@@ -1,7 +1,8 @@
 package org.aincraft.api;
 
+import java.util.List;
 import net.kyori.adventure.key.Key;
-import org.bukkit.Material;
+import org.aincraft.loot.LootData;
 import org.jetbrains.annotations.NotNull;
 
 public interface PacketBlockData {
@@ -17,4 +18,10 @@ public interface PacketBlockData {
 
   @NotNull
   SoundData soundData();
+
+  @NotNull
+  LootData lootData();
+
+  @NotNull
+  List<String> tags();
 }
