@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import net.kyori.adventure.key.Key;
 import org.aincraft.api.EntityModelAttributes.EntityModelAttributeImpl;
+import org.bukkit.World;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
@@ -16,7 +17,6 @@ final class EntityModelAttributeRegistry {
   static final Map<String, EntityModelAttributeImpl<?>> REGISTERED_ATTRIBUTES = new HashMap<>();
 
   static {
-    registerAttribute("transform", org.bukkit.util.Transformation.class);
     registerAttribute("translation", Vector3f.class);
     registerAttribute("scale", Vector3f.class);
     registerAttribute("left_rotation", Quaternionf.class);
@@ -26,6 +26,8 @@ final class EntityModelAttributeRegistry {
     registerAttribute("invisible", Boolean.class);
     registerAttribute("glowing", Boolean.class);
     registerAttribute("glow_color", Integer.class);
+    registerAttribute("world", World.class);
+    registerAttribute("position",Vector3f.class);
   }
 
   private static <T> void registerAttribute(String key, Class<T> clazz) {

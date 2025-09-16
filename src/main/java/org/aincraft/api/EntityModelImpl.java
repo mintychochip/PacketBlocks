@@ -32,6 +32,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Shulker;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
@@ -51,13 +52,11 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
     setMeta(meta);
   }
 
-  public static EntityModel create(EntityType entityType, World world) {
-    if (world instanceof CraftWorld craftWorld) {
-      ServerLevel level = craftWorld.getHandle();
-    }
-    Class<? extends org.bukkit.entity.Entity> entityClass = entityType.getEntityClass();
-    Class<? extends Entity> nmsClass = EntityMapper.getNMSEntityClass(entityClass);
-    new ItemDisplay()
+  public static EntityModel create(EntityType entityType, World world, Vector position) {
+    EntityModelMeta meta = EntityModelMetaImpl.create();
+    Entity entity = EntityMapper.create(entityType, world);
+    entity.setPos(position.getX(),position.getY(),position.getZ());
+    return new EntityModelImpl<>(meta, entity);
   }
 
   @Override
@@ -105,13 +104,6 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
 
   @Override
   public void setMeta(EntityModelMeta meta) {
-    if (meta.getAttribute(
-        EntityModelAttributes.WORLD) instanceof CraftWorld craftWorld) {
-      delegate.setLevel(craftWorld.getHandle());
-    }
-    Vector3f position = meta.getAttribute(EntityModelAttributes.POSITION,
-        new Vector3f());
-    delegate.setPos(position.x, position.y, position.z);
     delegate.setInvisible(meta.getAttribute(EntityModelAttributes.INVISIBLE, false));
     delegate.setGlowingTag(meta.getAttribute(EntityModelAttributes.GLOWING, false));
     if (delegate instanceof Display display) {
@@ -142,6 +134,11 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
     this.meta = meta;
   }
 
+  @Override
+  public EntityModelMeta getMeta() {
+    return meta;
+  }
+
   protected Packet<? super ClientGamePacketListener> updatePacket() {
     SynchedEntityData data = delegate.getEntityData();
     return new ClientboundSetEntityDataPacket(delegate.getId(), data.packAll());
@@ -149,20 +146,23 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
 
   record EntityModelMetaImpl(Map<String, Object> attributes) implements EntityModelMeta {
 
-    public static EntityModelMeta create() throws IllegalStateException {
+    static EntityModelMeta create() throws IllegalStateException {
       List<World> worlds = Bukkit.getWorlds();
       Preconditions.checkState(!worlds.isEmpty());
       EntityModelMeta meta = new EntityModelMetaImpl(new HashMap<>());
-      meta.setAttribute(EntityModelAttributes.TRANSLATION, ZERO_VECTOR);
-      meta.setAttribute(EntityModelAttributes.SCALE, ZERO_VECTOR);
-      meta.setAttribute(EntityModelAttributes.LEFT_ROTATION, ZERO_QUATERNION);
-      meta.setAttribute(EntityModelAttributes.RIGHT_ROTATION, ZERO_QUATERNION);
+      meta.setAttribute(EntityModelAttributes.TRANSLATION, new Vector3f(0.5f));
+      meta.setAttribute(EntityModelAttributes.SCALE, new Vector3f(1.0001f));
+      meta.setAttribute(EntityModelAttributes.LEFT_ROTATION,
+          new Quaternionf(0.0f, 0.0f, 0.0f, 1.0f));
+      meta.setAttribute(EntityModelAttributes.RIGHT_ROTATION,
+          new Quaternionf(0.0f, 0.0f, 0.0f, 1.0f));
       meta.setAttribute(EntityModelAttributes.WORLD, worlds.getFirst());
       meta.setAttribute(EntityModelAttributes.POSITION, ZERO_VECTOR);
       meta.setAttribute(EntityModelAttributes.INVISIBLE, false);
       meta.setAttribute(EntityModelAttributes.GLOWING, false);
       meta.setAttribute(EntityModelAttributes.GLOW_COLOR_OVERRIDE, 0);
       meta.setAttribute(EntityModelAttributes.WORLD, worlds.getFirst());
+      meta.setAttribute(EntityModelAttributes.ITEM_MODEL, Key.key("minecraft:stone"));
       return meta;
     }
 

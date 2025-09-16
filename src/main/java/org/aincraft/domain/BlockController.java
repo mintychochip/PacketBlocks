@@ -105,7 +105,7 @@ final class BlockController implements Listener {
     }
     Player player = event.getPlayer();
     Bukkit.getScheduler().runTask(plugin, () -> {
-      player.sendBlockChange(block.getLocation(), Bukkit.createBlockData(Material.GLASS));
+      player.sendBlockChange(block.getLocation(), Bukkit.createBlockData(Material.GOLD_ORE));
     });
   }
 
@@ -129,7 +129,7 @@ final class BlockController implements Listener {
         BlockBinding.create(serverBack.getLocation(), resourceKey));
     packetBlock.blockData().soundData().entry(SoundType.PLACE).play(serverBack.getLocation());
     Bukkit.getScheduler().runTaskLater(plugin, () -> {
-      BlockData fake = Bukkit.createBlockData(Material.GLASS);
+      BlockData fake = Bukkit.createBlockData(Material.GOLD_ORE);
       player.sendBlockChange(serverBack.getLocation(), fake);
     }, 2L);
     final long t3 = System.nanoTime();

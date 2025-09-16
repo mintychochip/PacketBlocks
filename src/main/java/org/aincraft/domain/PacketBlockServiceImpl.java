@@ -2,6 +2,7 @@ package org.aincraft.domain;
 
 import com.google.inject.Inject;
 import org.aincraft.api.BlockBinding;
+import org.aincraft.api.EntityModel;
 import org.aincraft.api.PacketBlock;
 import org.aincraft.api.PacketBlockData;
 import org.bukkit.Location;
@@ -36,8 +37,9 @@ final class PacketBlockServiceImpl implements PacketBlockService {
     blockBindingRepository.save(blockBinding);
     blockModelService.save(blockBinding);
     return new PacketBlock() {
+
       @Override
-      public BlockModel blockModel() {
+      public EntityModel model() {
         return blockModelService.load(blockBinding.location());
       }
 
@@ -50,19 +52,18 @@ final class PacketBlockServiceImpl implements PacketBlockService {
 
   @Override
   public @Nullable PacketBlock load(Location location) {
-    BlockModel model = blockModelService.load(location);
+    EntityModel model = blockModelService.load(location);
     if (model == null) {
       return null;
     }
-    BlockModel finalModel = model;
     BlockBinding binding = blockBindingRepository.load(location);
     if (binding == null) {
       return null;
     }
     return new PacketBlock() {
       @Override
-      public BlockModel blockModel() {
-        return finalModel;
+      public EntityModel model() {
+        return model;
       }
 
       @Override

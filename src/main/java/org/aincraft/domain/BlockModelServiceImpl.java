@@ -5,8 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.EntityModel;
+import org.aincraft.api.EntityModel.EntityModelMeta;
+import org.aincraft.api.EntityModelAttributes;
 import org.aincraft.api.PacketBlockData;
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 
 final class BlockModelServiceImpl implements BlockModelService {
@@ -48,7 +51,13 @@ final class BlockModelServiceImpl implements BlockModelService {
   private EntityModel blockFromBinding(BlockBinding blockBinding) {
     PacketBlockData blockData = blockDataRepository.load(blockBinding.resourceKey());
     Location location = blockBinding.location();
-    return EntityModel.create
-    return BlockModelImpl.create(blockData.modelData(), location.getWorld(), location.toVector());
+    EntityModel model = EntityModel.create(EntityType.SHULKER,
+        blockBinding.location());
+    EntityModelMeta meta = model.getMeta();
+    meta.setAttribute(EntityModelAttributes.INVISIBLE,true);
+    meta.setAttribute(EntityModelAttributes.GLOWING,true);
+    meta.setAttribute(EntityModelAttributes.GLOW_COLOR_OVERRIDE,1);
+    model.setMeta(meta);
+    return model;
   }
 }
