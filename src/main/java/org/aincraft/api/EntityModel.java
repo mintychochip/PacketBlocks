@@ -1,46 +1,43 @@
 package org.aincraft.api;
 
 import java.util.Set;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.Display.BlockDisplay;
-import net.minecraft.world.entity.Display.ItemDisplay;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.phys.Vec3;
+import org.aincraft.api.EntityModelImpl.EntityModelMetaImpl;
+import org.bukkit.Location;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public interface EntityModel<T extends Entity> {
+public interface EntityModel {
 
-  Vec3 position();
-
-  ServerLevel world();
-
-  boolean visible(ServerPlayer player);
-
-  void show(ServerPlayer player);
-
-  void hide(ServerPlayer player);
-
-  void teleport(Vec3 position);
-
-  Set<ServerPlayer> viewers();
-
-  T delegate();
-
-  void setGlowing(boolean glow);
-
-  void setInvisible(boolean invisible);
-
-  void push();
-
-  interface ItemDisplayModel extends EntityModel<ItemDisplay> {
-
-    ItemStack itemStack();
-
-    void itemStack(ItemStack itemStack);
+  static EntityModel create() {
+    return new EntityModelImpl<>(EntityModelMetaImpl.create(),);
   }
 
-  interface BlockDisplayModel extends EntityModel<BlockDisplay> {
+  boolean isVisible(Player player);
+
+  void showTo(Player player);
+
+  void hideFrom(Player player);
+
+  void teleport(Location location);
+
+  Set<Player> getViewers();
+
+  void setMeta(EntityModelMeta entityModelMeta);
+
+  interface EntityModelMeta {
+
+    @NotNull
+    <T> T getAttribute(EntityModelAttribute<T> attribute, T def);
+
+    @Nullable
+    <T> T getAttribute(EntityModelAttribute<T> attribute);
+
+    <T> void setAttribute(EntityModelAttribute<T> attribute, T value);
+
+  }
+
+  interface EntityModelAttribute<T> {
 
   }
 }

@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import org.aincraft.PacketItemService;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.BlockModel;
+import org.aincraft.api.EntityModel;
 import org.aincraft.api.ItemData;
 import org.aincraft.api.PacketBlock;
 import org.aincraft.api.PacketBlockData;
@@ -18,7 +18,6 @@ import org.aincraft.api.SoundData;
 import org.aincraft.api.SoundData.SoundType;
 import org.aincraft.api.SoundEntry;
 import org.aincraft.loot.ItemLootInstanceImpl;
-import org.aincraft.loot.Loot;
 import org.aincraft.loot.Loot.LootInstance;
 import org.aincraft.loot.LootContext;
 import org.aincraft.loot.triggers.TriggerOnBreak;
@@ -76,8 +75,8 @@ final class BlockController implements Listener {
       if (block == null) {
         continue;
       }
-      BlockModel model = block.blockModel();
-      model.show(player);
+      EntityModel model = block.model();
+      model.showTo(player);
     }
   }
 
@@ -135,7 +134,7 @@ final class BlockController implements Listener {
     }, 2L);
     final long t3 = System.nanoTime();
 
-    packetBlock.blockModel().show(player);
+    packetBlock.model().showTo(player);
     final long t4 = System.nanoTime();
 
     // Log (replace with your logger)
@@ -228,7 +227,7 @@ final class BlockController implements Listener {
           }
         }
         itemList.forEach(item -> {
-          location.getWorld().dropItem(location,item);
+          location.getWorld().dropItem(location, item);
         });
         blockService.delete(location);
         SoundData soundData = blockData.soundData();

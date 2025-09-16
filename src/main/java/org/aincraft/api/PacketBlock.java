@@ -2,7 +2,7 @@ package org.aincraft.api;
 
 public interface PacketBlock {
 
-  BlockModel blockModel();
+  EntityModel model();
 
   PacketBlockData blockData();
 }

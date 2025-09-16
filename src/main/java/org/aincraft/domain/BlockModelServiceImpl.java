@@ -3,9 +3,8 @@ package org.aincraft.domain;
 import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
-import org.aincraft.BlockModelImpl;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.BlockModel;
+import org.aincraft.api.EntityModel;
 import org.aincraft.api.PacketBlockData;
 import org.bukkit.Location;
 import org.jetbrains.annotations.Nullable;
@@ -13,7 +12,7 @@ import org.jetbrains.annotations.Nullable;
 final class BlockModelServiceImpl implements BlockModelService {
 
   private final PacketBlockDataRepository blockDataRepository;
-  private final Map<Location, BlockModel> blockModelMap = new HashMap<>();
+  private final Map<Location, EntityModel> modelMap = new HashMap<>();
 
   @Inject
   BlockModelServiceImpl(PacketBlockDataRepository blockDataRepository) {
@@ -23,33 +22,33 @@ final class BlockModelServiceImpl implements BlockModelService {
 
   @Override
   public boolean save(BlockBinding blockBinding) {
-    BlockModel newBlock = blockFromBinding(blockBinding);
-    BlockModel oldBlock = blockModelMap.remove(blockBinding.location());
-    if (oldBlock != null) {
-      oldBlock.viewers().forEach(oldBlock::hide);
+    EntityModel newModel = blockFromBinding(blockBinding);
+    EntityModel oldModel = modelMap.remove(blockBinding.location());
+    if (oldModel != null) {
+      oldModel.getViewers().forEach(oldModel::hideFrom);
     }
-    ;
-    blockModelMap.put(blockBinding.location(), newBlock);
+    modelMap.put(blockBinding.location(), newModel);
     return true;
   }
 
   @Override
-  public @Nullable BlockModel load(Location location) {
-    return blockModelMap.get(location);
+  public @Nullable EntityModel load(Location location) {
+    return modelMap.get(location);
   }
 
   @Override
   public boolean delete(Location location) {
-    BlockModel model = blockModelMap.remove(location);
+    EntityModel model = modelMap.remove(location);
     if (model != null) {
-      model.viewers().forEach(model::hide);
+      model.getViewers().forEach(model::hideFrom);
     }
     return true;
   }
 
-  private BlockModel blockFromBinding(BlockBinding blockBinding) {
+  private EntityModel blockFromBinding(BlockBinding blockBinding) {
     PacketBlockData blockData = blockDataRepository.load(blockBinding.resourceKey());
     Location location = blockBinding.location();
+    return EntityModel.create
     return BlockModelImpl.create(blockData.modelData(), location.getWorld(), location.toVector());
   }
 }

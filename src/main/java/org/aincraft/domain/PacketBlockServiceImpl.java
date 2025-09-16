@@ -2,7 +2,6 @@ package org.aincraft.domain;
 
 import com.google.inject.Inject;
 import org.aincraft.api.BlockBinding;
-import org.aincraft.api.BlockModel;
 import org.aincraft.api.PacketBlock;
 import org.aincraft.api.PacketBlockData;
 import org.bukkit.Location;

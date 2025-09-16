@@ -1,144 +1,194 @@
 package org.aincraft.api;
 
-import java.util.ArrayDeque;
-import java.util.Deque;
+import com.google.common.base.Preconditions;
+import com.mojang.math.Transformation;
+import io.papermc.paper.datacomponent.DataComponentTypes;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import net.kyori.adventure.key.Key;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
-import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Display;
+import net.minecraft.world.entity.Display.ItemDisplay;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.PositionMoveRotation;
-import net.minecraft.world.entity.Relative;
-import net.minecraft.world.phys.Vec3;
+import org.aincraft.api.EntityModelAttributes.EntityModelAttributeImpl;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.craftbukkit.CraftWorld;
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Shulker;
+import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
-public class EntityModelImpl<T extends Entity> implements EntityModel<T> {
+class EntityModelImpl<T extends Entity> implements EntityModel {
 
-  private final ServerLevel level;
-  private final Vec3 position;
-  private final Set<ServerPlayer> viewers = new HashSet<>();
-  private final T delegate;
+  private static final Vector3f ZERO_VECTOR = new Vector3f(0.0f);
+  private static final Quaternionf ZERO_QUATERNION = new Quaternionf(0.0f, 0.0f, 0.0f, 0.0f);
 
-  public EntityModelImpl(ServerLevel level, Vec3 position, T delegate) {
-    this.level = level;
-    this.position = position;
+  protected EntityModelMeta meta;
+  protected final Set<Player> viewers = new HashSet<>();
+  protected final T delegate;
+
+  public EntityModelImpl(EntityModelMeta meta, T delegate) {
     this.delegate = delegate;
-    delegate.setPos(position);
-    delegate.setLevel(level);
+    setMeta(meta);
+  }
 
+  public static EntityModel create(EntityType entityType, World world) {
+    if (world instanceof CraftWorld craftWorld) {
+      ServerLevel level = craftWorld.getHandle();
+    }
+    Class<? extends org.bukkit.entity.Entity> entityClass = entityType.getEntityClass();
+    Class<? extends Entity> nmsClass = EntityMapper.getNMSEntityClass(entityClass);
+    new ItemDisplay()
   }
 
   @Override
-  public Vec3 position() {
-    return position;
-  }
-
-  @Override
-  public ServerLevel world() {
-    return level;
-  }
-
-  @Override
-  public boolean visible(ServerPlayer player) {
+  public boolean isVisible(Player player) {
     return viewers.contains(player);
   }
 
   @Override
-  public void show(ServerPlayer player) {
+  public void showTo(Player player) {
     if (!viewers.add(player)) {
       return;
     }
-    List<Packet<? super ClientGamePacketListener>> packets = List.of(
-        new ClientboundAddEntityPacket(delegate.getId(), delegate.getUUID(), delegate.getX(),
-            delegate.getY(), delegate.getZ(), delegate.getXRot(),
-            delegate.getYRot(), delegate.getType(), 0, delegate.getDeltaMovement(),
-            delegate.getYHeadRot()),
-        updatePacket()
-    );
-    ClientboundBundlePacket bundle = new ClientboundBundlePacket(packets);
-    player.connection.send(bundle);
-  }
-
-  @Override
-  public void hide(ServerPlayer player) {
-    if (!viewers.remove(player)) {
-      return;
+    if (player instanceof CraftPlayer craftPlayer) {
+      ServerPlayer handle = craftPlayer.getHandle();
+      List<Packet<? super ClientGamePacketListener>> packets = List.of(
+          new ClientboundAddEntityPacket(delegate.getId(), delegate.getUUID(), delegate.getX(),
+              delegate.getY(), delegate.getZ(), delegate.getXRot(), delegate.getYRot(),
+              delegate.getType(), 0, delegate.getDeltaMovement(), delegate.getYHeadRot()),
+          updatePacket()
+      );
+      ClientboundBundlePacket bundle = new ClientboundBundlePacket(packets);
+      handle.connection.send(bundle);
     }
-
-    ClientboundRemoveEntitiesPacket remove = new ClientboundRemoveEntitiesPacket(delegate.getId());
-    player.connection.send(remove);
   }
 
   @Override
-  public void teleport(Vec3 position) {
-    // move the server-side entity
-    delegate.teleportTo(position.x, position.y, position.z);
-
-    // build the PositionMoveRotation
-    PositionMoveRotation change = new PositionMoveRotation(
-        position,
-        Vec3.ZERO,
-        delegate.getYRot(),
-        delegate.getXRot()
-    );
-
-    // absolute teleport, no relatives
-    Set<Relative> relatives = java.util.EnumSet.noneOf(Relative.class);
-
-    // create the teleport packet
-    ClientboundTeleportEntityPacket packet = new ClientboundTeleportEntityPacket(
-        delegate.getId(),
-        change,
-        relatives,
-        delegate.onGround()
-    );
-
-    // send to all current viewers
-    all(packet);
+  public void hideFrom(Player player) {
+    if (viewers.remove(player) && player instanceof CraftPlayer craftPlayer) {
+      ServerPlayer handle = craftPlayer.getHandle();
+      ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(
+          delegate.getId());
+      handle.connection.send(packet);
+    }
   }
 
+  @Override
+  public void teleport(Location location) {
+
+  }
 
   @Override
-  public Set<ServerPlayer> viewers() {
+  public Set<Player> getViewers() {
     return viewers;
   }
 
   @Override
-  public T delegate() {
-    return delegate;
-  }
-
-  @Override
-  public void setGlowing(boolean glow) {
-    delegate.setGlowingTag(glow);
-    all(updatePacket());
-  }
-
-  @Override
-  public void setInvisible(boolean invisible) {
-    delegate.setInvisible(invisible);
-    all(updatePacket());
-  }
-
-  @Override
-  public void push() {
-
-  }
-
-  protected void all(Packet<?> packet) {
-    for (ServerPlayer viewer : viewers) {
-      viewer.connection.send(packet);
+  public void setMeta(EntityModelMeta meta) {
+    if (meta.getAttribute(
+        EntityModelAttributes.WORLD) instanceof CraftWorld craftWorld) {
+      delegate.setLevel(craftWorld.getHandle());
     }
+    Vector3f position = meta.getAttribute(EntityModelAttributes.POSITION,
+        new Vector3f());
+    delegate.setPos(position.x, position.y, position.z);
+    delegate.setInvisible(meta.getAttribute(EntityModelAttributes.INVISIBLE, false));
+    delegate.setGlowingTag(meta.getAttribute(EntityModelAttributes.GLOWING, false));
+    if (delegate instanceof Display display) {
+      Vector3f scale = meta.getAttribute(EntityModelAttributes.SCALE);
+      Vector3f translation = meta.getAttribute(EntityModelAttributes.TRANSLATION);
+      Quaternionf leftRotation = meta.getAttribute(EntityModelAttributes.LEFT_ROTATION);
+      Quaternionf rightRotation = meta.getAttribute(
+          EntityModelAttributes.RIGHT_ROTATION);
+      Transformation transformation = new Transformation(translation, leftRotation, scale,
+          rightRotation);
+      display.setTransformation(transformation);
+      display.setGlowColorOverride(
+          meta.getAttribute(EntityModelAttributes.GLOW_COLOR_OVERRIDE, 0));
+    }
+    if (delegate instanceof ItemDisplay itemDisplay) {
+      ItemStack itemStack = ItemStack.of(Material.PAPER);
+      Key itemModel = meta.getAttribute(EntityModelAttributes.ITEM_MODEL);
+      itemStack.setData(DataComponentTypes.ITEM_MODEL, itemModel);
+      itemDisplay.setItemStack(net.minecraft.world.item.ItemStack.fromBukkitCopy(itemStack));
+    }
+    Packet<? super ClientGamePacketListener> packet = updatePacket();
+    viewers.forEach(viewer -> {
+      if (viewer instanceof CraftPlayer craftPlayer) {
+        ServerPlayer handle = craftPlayer.getHandle();
+        handle.connection.send(packet);
+      }
+    });
+    this.meta = meta;
   }
 
   protected Packet<? super ClientGamePacketListener> updatePacket() {
-    return new ClientboundSetEntityDataPacket(delegate.getId(), delegate.getEntityData().packAll());
+    SynchedEntityData data = delegate.getEntityData();
+    return new ClientboundSetEntityDataPacket(delegate.getId(), data.packAll());
+  }
+
+  record EntityModelMetaImpl(Map<String, Object> attributes) implements EntityModelMeta {
+
+    public static EntityModelMeta create() throws IllegalStateException {
+      List<World> worlds = Bukkit.getWorlds();
+      Preconditions.checkState(!worlds.isEmpty());
+      EntityModelMeta meta = new EntityModelMetaImpl(new HashMap<>());
+      meta.setAttribute(EntityModelAttributes.TRANSLATION, ZERO_VECTOR);
+      meta.setAttribute(EntityModelAttributes.SCALE, ZERO_VECTOR);
+      meta.setAttribute(EntityModelAttributes.LEFT_ROTATION, ZERO_QUATERNION);
+      meta.setAttribute(EntityModelAttributes.RIGHT_ROTATION, ZERO_QUATERNION);
+      meta.setAttribute(EntityModelAttributes.WORLD, worlds.getFirst());
+      meta.setAttribute(EntityModelAttributes.POSITION, ZERO_VECTOR);
+      meta.setAttribute(EntityModelAttributes.INVISIBLE, false);
+      meta.setAttribute(EntityModelAttributes.GLOWING, false);
+      meta.setAttribute(EntityModelAttributes.GLOW_COLOR_OVERRIDE, 0);
+      meta.setAttribute(EntityModelAttributes.WORLD, worlds.getFirst());
+      return meta;
+    }
+
+
+    @Override
+    public <T> @NotNull T getAttribute(EntityModelAttribute<T> attribute, T def) {
+      T t = getAttribute(attribute);
+      return t != null ? t : def;
+    }
+
+    @Override
+    public <T> @Nullable T getAttribute(EntityModelAttribute<T> attribute) {
+      if (attribute instanceof EntityModelAttributeImpl<T>(String key, Class<T> clazz)) {
+        Object object = attributes.get(key);
+        if (object != null) {
+          return clazz.cast(object);
+        }
+      }
+      return null;
+    }
+
+    @Override
+    public <T> void setAttribute(EntityModelAttribute<T> attribute, T value) {
+      if (attribute instanceof EntityModelAttributeImpl<T> cast) {
+        attributes.put(cast.key(), value);
+      }
+    }
   }
 }

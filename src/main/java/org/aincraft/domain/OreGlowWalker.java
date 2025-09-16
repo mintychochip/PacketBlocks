@@ -92,7 +92,7 @@ public final class OreGlowWalker implements Listener {
           EntityModelImpl<Shulker> model = new EntityModelImpl<>(level, pos, shulker);
 
           // client-spawn and style
-          model.show(sPlayer);
+          model.showTo(sPlayer);
           model.setInvisible(true);
           model.setGlowing(true);
 
@@ -108,7 +108,7 @@ public final class OreGlowWalker implements Listener {
       while (it.hasNext()) {
         Map.Entry<Long, EntityModelImpl<Shulker>> e = it.next();
         if (!stillInRange.contains(e.getKey())) {
-          e.getValue().hide(sPlayer);
+          e.getValue().hideFrom(sPlayer);
           it.remove();
         }
       }
@@ -148,7 +148,7 @@ public final class OreGlowWalker implements Listener {
     if (mine == null) return;
     ServerPlayer sPlayer = ((CraftPlayer) p).getHandle();
     for (EntityModelImpl<Shulker> model : mine.values()) {
-      model.hide(sPlayer);
+      model.hideFrom(sPlayer);
     }
   }
 }

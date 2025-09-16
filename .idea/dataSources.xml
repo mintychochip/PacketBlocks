@@ -19,5 +19,17 @@
         </library>
       </libraries>
     </data-source>
+    <data-source source="LOCAL" name="postgres@aws-1-us-west-1.pooler.supabase.com" uuid="dec78877-e639-4413-b551-78fa8d1ff788">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://aws-1-us-west-1.pooler.supabase.com:6543/postgres</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.host.port" />
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+        <property name="com.intellij.clouds.kubernetes.db.container.port" />
+      </jdbc-additional-properties>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>
