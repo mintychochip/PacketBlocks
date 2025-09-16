@@ -1,5 +1,6 @@
 item:bus:
   item-model: packetblocks:electrum_ore
+  entity-type: shulker
   material: STONE
   display-name: Electrum Ore
   sounds:

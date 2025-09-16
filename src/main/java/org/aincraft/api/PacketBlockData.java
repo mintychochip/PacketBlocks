@@ -3,6 +3,7 @@ package org.aincraft.api;
 import java.util.List;
 import net.kyori.adventure.key.Key;
 import org.aincraft.loot.LootData;
+import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 
 public interface PacketBlockData {

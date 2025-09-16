@@ -41,7 +41,6 @@ import org.joml.Vector3f;
 class EntityModelImpl<T extends Entity> implements EntityModel {
 
   private static final Vector3f ZERO_VECTOR = new Vector3f(0.0f);
-  private static final Quaternionf ZERO_QUATERNION = new Quaternionf(0.0f, 0.0f, 0.0f, 0.0f);
 
   protected EntityModelMeta meta;
   protected final Set<Player> viewers = new HashSet<>();
@@ -112,9 +111,8 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
       Quaternionf leftRotation = meta.getAttribute(EntityModelAttributes.LEFT_ROTATION);
       Quaternionf rightRotation = meta.getAttribute(
           EntityModelAttributes.RIGHT_ROTATION);
-      Transformation transformation = new Transformation(translation, leftRotation, scale,
-          rightRotation);
-      display.setTransformation(transformation);
+      display.setTransformation(new Transformation(translation, leftRotation, scale,
+          rightRotation));
       display.setGlowColorOverride(
           meta.getAttribute(EntityModelAttributes.GLOW_COLOR_OVERRIDE, 0));
     }
