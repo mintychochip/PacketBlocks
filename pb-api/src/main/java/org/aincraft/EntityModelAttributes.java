@@ -1,9 +1,8 @@
-package org.aincraft.api;
+package org.aincraft;
 
 import com.google.common.base.Preconditions;
-import java.util.HashMap;
-import java.util.Map;
 import net.kyori.adventure.key.Key;
+import org.aincraft.EntityModelData.EntityModelAttribute;
 import org.aincraft.api.EntityModel.EntityModelAttribute;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
@@ -27,6 +26,8 @@ public final class EntityModelAttributes {
   public static final EntityModelAttribute<Boolean> INVISIBLE = attribute("invisible");
   public static final EntityModelAttribute<Boolean> GLOWING = attribute("glowing");
   public static final EntityModelAttribute<Integer> GLOW_COLOR_OVERRIDE = attribute("glow_color");
+  public static final EntityModelAttribute<Integer> SLIME_SIZE = attribute("slime_size");
+  public static final EntityModelAttribute<Float> SHULKER_PEEK = attribute("shulker_peek");
 
   @SuppressWarnings("unchecked")
   @NotNull

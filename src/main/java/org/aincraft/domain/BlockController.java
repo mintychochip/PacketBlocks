@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.aincraft.PacketItemService;
 import org.aincraft.api.BlockBinding;
 import org.aincraft.api.EntityModel;
 import org.aincraft.api.ItemData;

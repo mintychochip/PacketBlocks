@@ -12,7 +12,11 @@ import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class EntityMapper {
+final class EntityMapper {
+
+  private EntityMapper() {
+    throw new UnsupportedOperationException("cannot instantiate");
+  }
 
   private static final Map<EntityType, net.minecraft.world.entity.EntityType<?>> BUKKIT_TO_NMS_TYPE = new HashMap<>();
 
@@ -28,7 +32,7 @@ public class EntityMapper {
     BUKKIT_TO_NMS_TYPE.put(EntityType.FOX, net.minecraft.world.entity.EntityType.FOX);
     BUKKIT_TO_NMS_TYPE.put(EntityType.BAT, net.minecraft.world.entity.EntityType.BAT);
 
-    BUKKIT_TO_NMS_TYPE.put(EntityType.SHULKER,net.minecraft.world.entity.EntityType.SHULKER);
+    BUKKIT_TO_NMS_TYPE.put(EntityType.SHULKER, net.minecraft.world.entity.EntityType.SHULKER);
     BUKKIT_TO_NMS_TYPE.put(EntityType.ZOMBIE, net.minecraft.world.entity.EntityType.ZOMBIE);
     BUKKIT_TO_NMS_TYPE.put(EntityType.SKELETON, net.minecraft.world.entity.EntityType.SKELETON);
     BUKKIT_TO_NMS_TYPE.put(EntityType.CREEPER, net.minecraft.world.entity.EntityType.CREEPER);
@@ -48,7 +52,8 @@ public class EntityMapper {
     BUKKIT_TO_NMS_TYPE.put(EntityType.PAINTING, net.minecraft.world.entity.EntityType.PAINTING);
     BUKKIT_TO_NMS_TYPE.put(EntityType.ARMOR_STAND,
         net.minecraft.world.entity.EntityType.ARMOR_STAND);
-    BUKKIT_TO_NMS_TYPE.put(EntityType.ITEM_DISPLAY,net.minecraft.world.entity.EntityType.ITEM_DISPLAY);
+    BUKKIT_TO_NMS_TYPE.put(EntityType.ITEM_DISPLAY,
+        net.minecraft.world.entity.EntityType.ITEM_DISPLAY);
   }
 
   @Nullable

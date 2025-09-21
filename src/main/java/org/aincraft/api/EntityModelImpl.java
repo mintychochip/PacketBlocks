@@ -16,7 +16,6 @@ import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Display.ItemDisplay;
@@ -26,7 +25,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -54,7 +52,7 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
   public static EntityModel create(EntityType entityType, World world, Vector position) {
     EntityModelMeta meta = EntityModelMetaImpl.create();
     Entity entity = EntityMapper.create(entityType, world);
-    entity.setPos(position.getX(),position.getY(),position.getZ());
+    entity.setPos(position.getX(), position.getY(), position.getZ());
     return new EntityModelImpl<>(meta, entity);
   }
 
@@ -122,6 +120,10 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
       itemStack.setData(DataComponentTypes.ITEM_MODEL, itemModel);
       itemDisplay.setItemStack(net.minecraft.world.item.ItemStack.fromBukkitCopy(itemStack));
     }
+    if (delegate instanceof Shulker shulker) {
+      float peek = meta.getAttribute(EntityModelAttributes.SHULKER_PEEK);
+      shulker.setPeek(peek);
+    }
     Packet<? super ClientGamePacketListener> packet = updatePacket();
     viewers.forEach(viewer -> {
       if (viewer instanceof CraftPlayer craftPlayer) {
@@ -161,6 +163,8 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
       meta.setAttribute(EntityModelAttributes.GLOW_COLOR_OVERRIDE, 0);
       meta.setAttribute(EntityModelAttributes.WORLD, worlds.getFirst());
       meta.setAttribute(EntityModelAttributes.ITEM_MODEL, Key.key("minecraft:stone"));
+      meta.setAttribute(EntityModelAttributes.SLIME_SIZE, 0);
+      meta.setAttribute(EntityModelAttributes.SHULKER_PEEK, 0.0f);
       return meta;
     }
 

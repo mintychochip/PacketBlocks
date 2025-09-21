@@ -1,4 +1,4 @@
-package org.aincraft.domain;
+package org.aincraft.api;
 
 import com.google.inject.Inject;
 import java.sql.Connection;
@@ -8,8 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.aincraft.ConnectionSource;
-import org.aincraft.api.BlockBinding;
-import org.bukkit.Bukkit;
+import org.aincraft.domain.BlockBindingRepository;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
