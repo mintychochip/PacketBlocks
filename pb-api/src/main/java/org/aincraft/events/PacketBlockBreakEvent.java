@@ -5,7 +5,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class PacketBlockBreakEvent extends Event implements Cancellable {
+public final class PacketBlockBreakEvent extends Event implements Cancellable {
 
   private boolean cancelled = false;
   private static final HandlerList HANDLER_LIST = new HandlerList();

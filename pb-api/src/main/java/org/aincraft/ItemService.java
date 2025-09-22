@@ -1,12 +1,16 @@
 package org.aincraft;
 
 import java.util.Optional;
-import net.kyori.adventure.key.Key;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus.Internal;
+import org.jetbrains.annotations.NotNull;
 
-@Internal
 public interface ItemService {
+
+  @NotNull
+  static ItemService itemService() {
+    return Bridge.bridge().itemService();
+  }
 
   Optional<String> read(ItemStack itemStack);
 

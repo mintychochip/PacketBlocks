@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.aincraft"
-version = "1.0.0"
+version = "1.0.1"
 
 repositories {
     mavenCentral()
@@ -27,7 +27,7 @@ mavenPublishing {
     signAllPublications() // still fine to keep; won’t hurt
 
     pom {
-        name.set("pb-api")
+        name.set("packetblocks-api")
         description.set("PacketBlocks API")
         url.set("https://github.com/mintychochip/PacketBlocks")
         licenses {

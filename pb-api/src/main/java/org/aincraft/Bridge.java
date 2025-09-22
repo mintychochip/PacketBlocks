@@ -1,5 +1,6 @@
 package org.aincraft;
 
+import org.aincraft.registry.RegistryAccess;
 import org.jetbrains.annotations.NotNull;
 
 public interface Bridge {
@@ -9,6 +10,11 @@ public interface Bridge {
   }
 
   @NotNull
-  EntityModelFactory getEntityModelFactory();
+  ItemService itemService();
 
+  @NotNull
+  EntityModelFactory entityModelFactory();
+
+  @NotNull
+  RegistryAccess registryAccess();
 }

@@ -6,7 +6,14 @@ import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import java.util.Set;
+import net.kyori.adventure.key.Key;
+import org.aincraft.EntityModelImpl.EntityModelDataImpl;
+import org.aincraft.PacketBlock.PacketBlockMeta;
+import org.aincraft.registry.Registry;
+import org.aincraft.registry.RegistryAccess;
+import org.aincraft.registry.RegistryAccessKeys;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -26,5 +33,21 @@ public class PacketBlocks extends JavaPlugin {
     }));
     listeners.forEach(listener -> Bukkit.getPluginManager().registerEvents(listener, this));
     Bukkit.getPluginCommand("item").setExecutor(injector.getInstance(ItemCommand.class));
+    Registry<PacketBlockMeta> metaRegistry = RegistryAccess.registryAccess()
+        .getRegistry(RegistryAccessKeys.PACKET_BLOCK_META);
+    EntityModelData data = EntityModelDataImpl.create();
+    data.setAttribute(EntityModelAttributes.ITEM_MODEL, Key.key("packetblocks:electrum_ore"));
+    metaRegistry.register(new PacketBlockMetaImpl(Key.key("packetblocks:electrum_ore"),
+        new BlockItemMeta() {
+          @Override
+          public Key getItemModel() {
+            return Key.key("packetblocks:electrum_ore");
+          }
+
+          @Override
+          public Material getMaterial() {
+            return Material.STONE;
+          }
+        }, data));
   }
 }

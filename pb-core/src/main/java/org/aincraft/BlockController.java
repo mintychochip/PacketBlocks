@@ -1,6 +1,7 @@
 package org.aincraft;
 
 import com.google.inject.Inject;
+import io.papermc.paper.event.packet.PlayerChunkLoadEvent;
 import java.util.List;
 import java.util.Optional;
 import net.kyori.adventure.key.Key;
@@ -8,6 +9,7 @@ import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.events.PacketBlockInteractEvent;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -19,17 +21,25 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.jetbrains.annotations.ApiStatus.Internal;
 
 final class BlockController implements Listener {
 
+  private final Plugin plugin;
   private final PacketBlockService blockService;
   private final ItemService itemService;
 
   @Inject
-  BlockController(PacketBlockService blockService, ItemService itemService) {
+  BlockController(Plugin plugin, PacketBlockService blockService, ItemService itemService) {
+    this.plugin = plugin;
     this.blockService = blockService;
     this.itemService = itemService;
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  private void onChunkLoad(final PlayerChunkLoadEvent event) {
+
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -43,15 +53,15 @@ final class BlockController implements Listener {
     if (packetBlock == null) {
       return;
     }
-    PacketBlockInteractEvent packetBlockInteractEvent = new PacketBlockInteractEvent(
+    Player player = event.getPlayer();
+    Bukkit.getPluginManager().callEvent(new PacketBlockInteractEvent(
         event.getPlayer(), block,
         event.getAction(), event.getHand(),
-        event.getBlockFace(), event.getItem(), packetBlock.getMeta().key().toString());
-    Bukkit.getPluginManager().callEvent(packetBlockInteractEvent
+        event.getBlockFace(), event.getItem(), packetBlock.getMeta().key().toString())
     );
-    if (packetBlockInteractEvent.isCancelled()) {
-      event.setCancelled(true);
-    }
+    Bukkit.getScheduler().runTask(plugin, () -> {
+      player.sendBlockChange(location, Bukkit.createBlockData(Material.GLASS));
+    });
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -66,7 +76,11 @@ final class BlockController implements Listener {
         BlockBinding.create(block.getLocation(), resourceKey.get()));
     //TODO: handle for players around the block
     EntityModel model = packetBlock.getModel();
-    model.showTo(event.getPlayer());
+    Player player = event.getPlayer();
+    model.showTo(player);
+    Bukkit.getScheduler().runTaskLater(plugin, () -> {
+      player.sendBlockChange(block.getLocation(), Bukkit.createBlockData(Material.GLASS));
+    },2L);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -105,6 +119,7 @@ final class BlockController implements Listener {
 
   @Internal
   interface ExplodeEvent {
+
     List<Block> getBlockList();
   }
 }

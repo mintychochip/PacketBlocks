@@ -3,6 +3,7 @@ package org.aincraft;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.multibindings.MapBinder;
 import com.google.inject.multibindings.Multibinder;
 import java.time.Duration;
 import net.kyori.adventure.key.Key;
@@ -10,6 +11,9 @@ import org.aincraft.EntityModelData.EntityModelAttribute;
 import org.aincraft.EntityModelImpl.EntityModelDataImpl;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.Registry;
+import org.aincraft.registry.RegistryAccess;
+import org.aincraft.registry.RegistryAccessKeys;
+import org.apache.commons.lang3.reflect.TypeLiteral;
 import org.bukkit.Material;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
@@ -24,23 +28,14 @@ public class PluginModule extends AbstractModule {
 
   @Provides
   @Singleton
-  Registry<PacketBlockMeta> blockMetaRegistry() {
-    EntityModelData data = EntityModelDataImpl.create();
-    data.setAttribute(EntityModelAttributes.ITEM_MODEL,Key.key("packetblocks:electrum_ore"));
-    Registry<PacketBlockMeta> simple = Registry.createSimple();
-    simple.register(new PacketBlockMetaImpl(Key.key("packetblocks:electrum_ore"),
-        new BlockItemMeta() {
-          @Override
-          public Key getItemModel() {
-            return Key.key("packetblocks:electrum_ore");
-          }
+  Registry<PacketBlockMeta> blockMetaRegistry(RegistryAccess registryAccess) {
+    return registryAccess.getRegistry(RegistryAccessKeys.META);
+  }
 
-          @Override
-          public Material getMaterial() {
-            return Material.STONE;
-          }
-        }, data));
-    return simple;
+  @Provides
+  @Singleton
+  Registry<KeyedItem> itemRegistry(RegistryAccess registryAccess) {
+    return registryAccess.getRegistry(RegistryAccessKeys.ITEM);
   }
 
   @Provides
@@ -55,11 +50,12 @@ public class PluginModule extends AbstractModule {
   @Override
   protected void configure() {
     bind(Plugin.class).toInstance(plugin);
-    bind(ConnectionSource.class).toInstance(SQLiteSourceImpl.create(plugin,"block.db"));
+    bind(ConnectionSource.class).toInstance(SQLiteSourceImpl.create(plugin, "block.db"));
     bind(ItemService.class).to(ItemServiceImpl.class).in(Singleton.class);
     bind(BlockModelService.class).to(BlockModelServiceImpl.class).in(Singleton.class);
     bind(PacketBlockService.class).to(PacketBlockServiceImpl.class).in(Singleton.class);
-    Multibinder<Listener> binder = Multibinder.newSetBinder(binder(), Listener.class);
-    binder.addBinding().to(BlockController.class);
+    bind(RegistryAccess.class).to(RegistryAccessImpl.class).in(Singleton.class);
+    Multibinder<Listener> listenerBinder = Multibinder.newSetBinder(binder(), Listener.class);
+    listenerBinder.addBinding().to(BlockController.class);
   }
 }

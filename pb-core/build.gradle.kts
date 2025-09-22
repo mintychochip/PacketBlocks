@@ -6,8 +6,8 @@ plugins {
     `java-library`
 }
 
-group = "org.example"
-version = "1.0-SNAPSHOT"
+group = "org.aincraft"
+version = "1.0.1"
 
 paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.REOBF_PRODUCTION
 

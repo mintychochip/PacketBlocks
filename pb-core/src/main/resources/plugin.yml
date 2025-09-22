@@ -1,5 +1,5 @@
 name: PacketBlocks
-version: '1.1'
+version: '1.0.1'
 main: org.aincraft.PacketBlocks
 authors: [ mintychochip ]
 api-version: '1.13'
