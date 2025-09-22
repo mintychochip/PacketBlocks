@@ -1,11 +1,13 @@
 name: Release
+
 on:
   push:
-    tags: ['v*.*.*']
+    tags: ['v*.*.*']   # runs when you push a tag like v1.0.0
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -23,36 +25,21 @@ jobs:
           [ -n "${{ secrets.MAVEN_CENTRAL_PASSWORD }}" ] || (echo "❌ Missing MAVEN_CENTRAL_PASSWORD" && exit 1)
           [ -n "${{ secrets.SIGNING_KEY }}" ] || (echo "❌ Missing SIGNING_KEY" && exit 1)
           [ -n "${{ secrets.SIGNING_PASSWORD }}" ] || (echo "❌ Missing SIGNING_PASSWORD" && exit 1)
-          echo "✅ Secrets present"
+          echo "✅ All secrets present"
 
-      - name: Force-set Gradle properties via init script
+      - name: Debug creds visible to Gradle
         run: |
-          cat > init.gradle <<'EOF'
-          allprojects {
-            // Ensure these Gradle properties exist at configuration time
-            if (System.getenv("MAVEN_CENTRAL_USERNAME") != null) {
-              gradle.rootProject.extensions.extraProperties.set(
-                "mavenCentralUsername", System.getenv("MAVEN_CENTRAL_USERNAME")
-              )
-            }
-            if (System.getenv("MAVEN_CENTRAL_PASSWORD") != null) {
-              gradle.rootProject.extensions.extraProperties.set(
-                "mavenCentralPassword", System.getenv("MAVEN_CENTRAL_PASSWORD")
-              )
-            }
-          }
-          EOF
-          echo "Wrote init.gradle"
+          ./gradlew debugCentralCreds \
+            -PmavenCentralUsername="${{ secrets.MAVEN_CENTRAL_USERNAME }}" \
+            -PmavenCentralPassword="${{ secrets.MAVEN_CENTRAL_PASSWORD }}" \
+            --no-daemon || true
 
       - name: Publish to Maven Central
+        run: |
+          ./gradlew publishAllPublicationsToCentralPortal \
+            -PmavenCentralUsername="${{ secrets.MAVEN_CENTRAL_USERNAME }}" \
+            -PmavenCentralPassword="${{ secrets.MAVEN_CENTRAL_PASSWORD }}" \
+            --no-daemon --stacktrace
         env:
-          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
-          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
           SIGNING_KEY: ${{ secrets.SIGNING_KEY }}
           SIGNING_PASSWORD: ${{ secrets.SIGNING_PASSWORD }}
-        run: |
-          ./gradlew -I init.gradle \
-            publishAllPublicationsToCentralPortal \
-            -PmavenCentralUsername="${MAVEN_CENTRAL_USERNAME}" \
-            -PmavenCentralPassword="${MAVEN_CENTRAL_PASSWORD}" \
-            --no-daemon --stacktrace
