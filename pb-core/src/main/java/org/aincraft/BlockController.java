@@ -1,6 +1,7 @@
 package org.aincraft;
 
 import com.google.inject.Inject;
+import java.util.List;
 import java.util.Optional;
 import net.kyori.adventure.key.Key;
 import org.aincraft.PacketBlock.PacketBlockMeta;
@@ -13,9 +14,12 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.ApiStatus.Internal;
 
 final class BlockController implements Listener {
 
@@ -39,16 +43,15 @@ final class BlockController implements Listener {
     if (packetBlock == null) {
       return;
     }
-    Bukkit.getPluginManager().callEvent(
-        new PacketBlockInteractEvent(event.getPlayer(), block, event.getAction(), event.getHand(),
-            event.getBlockFace(), event.getItem(), packetBlock.getMeta().key().toString()));
-  }
-
-  @EventHandler(priority = EventPriority.HIGH,ignoreCancelled = true)
-  private void onCLick(final PacketBlockInteractEvent event) {
-    String resourceKey = event.getResourceKey();
-
-    Bukkit.broadcastMessage(resourceKey.toString());
+    PacketBlockInteractEvent packetBlockInteractEvent = new PacketBlockInteractEvent(
+        event.getPlayer(), block,
+        event.getAction(), event.getHand(),
+        event.getBlockFace(), event.getItem(), packetBlock.getMeta().key().toString());
+    Bukkit.getPluginManager().callEvent(packetBlockInteractEvent
+    );
+    if (packetBlockInteractEvent.isCancelled()) {
+      event.setCancelled(true);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -58,7 +61,6 @@ final class BlockController implements Listener {
     if (resourceKey.isEmpty()) {
       return;
     }
-    Bukkit.broadcastMessage("here");
     Block block = event.getBlock();
     PacketBlock packetBlock = blockService.save(
         BlockBinding.create(block.getLocation(), resourceKey.get()));
@@ -78,5 +80,31 @@ final class BlockController implements Listener {
     blockService.delete(location);
     PacketBlockMeta meta = packetBlock.getMeta();
     meta.getSoundEntry(SoundType.BREAK).ifPresent(sound -> sound.play(location));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  private void onEntityBlockBreak(final EntityExplodeEvent event) {
+    handleExplosionEvent(event::blockList);
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  private void onBlockExplodeEvent(final BlockExplodeEvent event) {
+    handleExplosionEvent(event::blockList);
+  }
+
+  private void handleExplosionEvent(final ExplodeEvent event) {
+    List<Block> blocks = event.getBlockList();
+    blocks.forEach(block -> {
+      Location location = block.getLocation();
+      PacketBlock packetBlock = blockService.load(location);
+      if (packetBlock != null) {
+        blockService.delete(location);
+      }
+    });
+  }
+
+  @Internal
+  interface ExplodeEvent {
+    List<Block> getBlockList();
   }
 }

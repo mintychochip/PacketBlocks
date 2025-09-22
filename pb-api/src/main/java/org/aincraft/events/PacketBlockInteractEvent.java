@@ -44,6 +44,14 @@ public final class PacketBlockInteractEvent extends Event implements Cancellable
     this.resourceKey = resourceKey;
   }
 
+  public @NotNull Player getPlayer() {
+    return player;
+  }
+
+  public @NotNull Block getBlock() {
+    return block;
+  }
+
   public @NotNull Action getAction() {
     return action;
   }
