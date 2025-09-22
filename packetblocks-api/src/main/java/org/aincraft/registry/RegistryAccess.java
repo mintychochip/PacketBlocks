@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 public interface RegistryAccess {
 
   @NotNull
+  @AvailableSince("1.0.2")
   static RegistryAccess registryAccess() {
     return Bridge.bridge().registryAccess();
   }

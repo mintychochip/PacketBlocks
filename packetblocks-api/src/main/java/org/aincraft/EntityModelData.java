@@ -1,8 +1,10 @@
 package org.aincraft;
 
+import org.jetbrains.annotations.ApiStatus.AvailableSince;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@AvailableSince("1.0.2")
 public interface EntityModelData {
 
   @NotNull
