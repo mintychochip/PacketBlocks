@@ -20,7 +20,7 @@ jobs:
 
       - name: Publish to Maven Central (Central Portal)
         run: |
-          ./gradlew :pb-api:publishAllPublicationsToCentralPortal \
+          ./gradlew :packetblocks-api:publishAllPublicationsToCentralPortal \
             -PmavenCentralUsername="${{ secrets.MAVEN_CENTRAL_USERNAME }}" \
             -PmavenCentralPassword="${{ secrets.MAVEN_CENTRAL_PASSWORD }}" \
             --no-daemon --stacktrace

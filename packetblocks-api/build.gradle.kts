@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "org.aincraft"
-version = "1.0.2"
+version = "1.0.0"
 
 repositories {
     mavenCentral()
