@@ -1,10 +1,10 @@
-// Root build.gradle.kts
-plugins {
-    // you can put general plugins here if you want, but NO nmcp or maven-publish
+subprojects {
+    apply(plugin = "java-library")
 }
 
 allprojects {
     repositories {
         mavenCentral()
+        maven("https://repo.papermc.io/repository/maven-public/")
     }
 }

@@ -1,19 +1,16 @@
 plugins {
-    `java-library`
     id("signing")                               // <-- add this
     id("com.vanniktech.maven.publish") version "0.34.0"
     id("com.gradleup.nmcp") version "1.0.0"
-}
-
-repositories {
-    mavenCentral()
-    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
     compileOnly("org.jetbrains:annotations:26.0.2-1")
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
 }
+
+group = providers.gradleProperty("group")
+version = providers.gradleProperty("version")
 
 java {
     withSourcesJar()
