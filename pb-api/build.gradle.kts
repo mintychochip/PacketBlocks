@@ -4,7 +4,7 @@ plugins {
     id("com.gradleup.nmcp") version "1.0.0"
 }
 
-group = "com.github.mintychochip"
+group = "org.aincraft"
 version = "1.0.0"
 
 repositories {
