@@ -75,3 +75,10 @@ nmcp {
         publishingType.set("AUTOMATIC")
     }
 }
+
+tasks.configureEach {
+    if (name == "plainJavadocJar") {
+        enabled = false
+    }
+}
+
