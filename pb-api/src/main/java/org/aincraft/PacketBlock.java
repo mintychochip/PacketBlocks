@@ -1,22 +1,19 @@
 package org.aincraft;
 
 import java.util.Optional;
-import net.kyori.adventure.key.Key;
-import org.jetbrains.annotations.Nullable;
+import net.kyori.adventure.key.Keyed;
 
 public interface PacketBlock {
 
   EntityModel getModel();
 
-  String resourceKey();
+  PacketBlockMeta getMeta();
 
-  interface PacketBlockMeta {
-
-    String resourceKey();
+  interface PacketBlockMeta extends Keyed {
 
     BlockItemMeta getBlockItemMeta();
 
-    EntityModelData entityModelMeta();
+    EntityModelData getEntityModelData();
 
     Optional<SoundEntry> getSoundEntry(SoundType type);
   }

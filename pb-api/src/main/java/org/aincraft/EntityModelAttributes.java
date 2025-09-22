@@ -3,7 +3,6 @@ package org.aincraft;
 import com.google.common.base.Preconditions;
 import net.kyori.adventure.key.Key;
 import org.aincraft.EntityModelData.EntityModelAttribute;
-import org.aincraft.api.EntityModel.EntityModelAttribute;
 import org.bukkit.World;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
@@ -38,7 +37,7 @@ public final class EntityModelAttributes {
     return (EntityModelAttributeImpl<T>) attribute;
   }
 
-  record EntityModelAttributeImpl<T>(String key, Class<T> clazz) implements
+  public record EntityModelAttributeImpl<T>(String key, Class<T> clazz) implements
       EntityModelAttribute<T> {
 
   }

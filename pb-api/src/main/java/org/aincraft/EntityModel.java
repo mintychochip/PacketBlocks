@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 public interface EntityModel {
 
   static EntityModel create(EntityType entityType, Location location) {
-    return EntityModelImpl.create(entityType, location.getWorld(),location.toVector());
+    return Bridge.bridge().getEntityModelFactory().create(entityType, location);
   }
 
   boolean isVisible(Player player);
@@ -21,8 +21,8 @@ public interface EntityModel {
 
   Set<Player> getViewers();
 
-  void setMeta(EntityModelData entityModelData);
+  void setData(EntityModelData data);
 
-  EntityModelData getMeta();
+  EntityModelData getData();
 
 }
