@@ -1,6 +1,8 @@
 package org.aincraft;
 
+import java.util.Map;
 import java.util.Optional;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 
 public interface PacketBlock {

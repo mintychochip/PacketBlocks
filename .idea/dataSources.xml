@@ -69,5 +69,15 @@
         </library>
       </libraries>
     </data-source>
+    <data-source source="LOCAL" name="block.db [2]" uuid="32ba9f93-6588-46cf-9464-8e3cdf346ac6">
+      <driver-ref>sqlite.xerial</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.sqlite.JDBC</jdbc-driver>
+      <jdbc-url>jdbc:sqlite:$PROJECT_DIR$/packetblocks-core/run/plugins/PacketBlocks/block.db</jdbc-url>
+      <jdbc-additional-properties>
+        <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
+      </jdbc-additional-properties>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

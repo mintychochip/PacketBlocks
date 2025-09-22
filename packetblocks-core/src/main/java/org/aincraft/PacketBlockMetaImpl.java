@@ -13,16 +13,18 @@ public final class PacketBlockMetaImpl implements PacketBlockMeta {
   private final @NotNull Key key;
   private final @NotNull BlockItemMeta blockItemMeta;
   private final @NotNull EntityModelData entityModelData;
-  private final @NotNull Map<@NotNull SoundType, @NotNull SoundEntry> entries = new HashMap<>();
+  private final @NotNull Map<@NotNull SoundType, @NotNull SoundEntry> entries;
 
   public PacketBlockMetaImpl(
       final @NotNull Key key,
       final @NotNull BlockItemMeta blockItemMeta,
-      final @NotNull EntityModelData entityModelData
+      final @NotNull EntityModelData entityModelData,
+      @NotNull Map<@NotNull SoundType, @NotNull SoundEntry> entries
   ) {
     this.key = key;
     this.blockItemMeta = blockItemMeta;
     this.entityModelData = entityModelData;
+    this.entries = entries;
   }
 
   @Override

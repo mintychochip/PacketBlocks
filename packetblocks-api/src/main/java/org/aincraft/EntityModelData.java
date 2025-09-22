@@ -6,6 +6,11 @@ import org.jetbrains.annotations.Nullable;
 public interface EntityModelData {
 
   @NotNull
+  static EntityModelData create() {
+    return Bridge.bridge().packetBlockFactory().create();
+  }
+
+  @NotNull
   <T> T getAttribute(EntityModelAttribute<T> attribute, T def);
 
   @Nullable
@@ -18,6 +23,7 @@ public interface EntityModelData {
   }
 
   interface Factory {
+
     EntityModelData create();
   }
 }

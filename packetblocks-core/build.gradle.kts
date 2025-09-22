@@ -7,7 +7,7 @@ plugins {
 }
 
 group = "org.aincraft"
-version = "1.0.1"
+version = "1.0.2"
 
 paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.REOBF_PRODUCTION
 

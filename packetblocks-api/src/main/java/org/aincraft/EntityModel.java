@@ -8,7 +8,7 @@ import org.bukkit.entity.Player;
 public interface EntityModel {
 
   static EntityModel create(EntityType entityType, Location location) {
-    return Bridge.bridge().entityModelFactory().create(entityType, location);
+    return Bridge.bridge().packetBlockFactory().create(entityType, location);
   }
 
   boolean isVisible(Player player);

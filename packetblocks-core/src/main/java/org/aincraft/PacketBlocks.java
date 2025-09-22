@@ -5,6 +5,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
+import java.util.HashMap;
 import java.util.Set;
 import net.kyori.adventure.key.Key;
 import org.aincraft.EntityModelImpl.EntityModelDataImpl;
@@ -48,6 +49,6 @@ public class PacketBlocks extends JavaPlugin {
           public Material getMaterial() {
             return Material.STONE;
           }
-        }, data));
+        }, data, new HashMap<>()));
   }
 }

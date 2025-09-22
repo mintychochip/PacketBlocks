@@ -13,7 +13,7 @@ public interface Bridge {
   ItemService itemService();
 
   @NotNull
-  EntityModelFactory entityModelFactory();
+  PacketBlockFactory packetBlockFactory();
 
   @NotNull
   RegistryAccess registryAccess();
