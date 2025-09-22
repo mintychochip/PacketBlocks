@@ -1,27 +1,27 @@
 plugins {
     `java-library`
-    `maven-publish`
-    signing
     id("com.vanniktech.maven.publish") version "0.34.0"
-    id("com.gradleup.nmcp") version "1.0.0"
 }
 
-group = "com.github.yourname"     // your verified namespace
-version = "1.0.0"                  // release (use -SNAPSHOT for snapshots)
+group = "com.github.mintychochip"
+version = "1.0.0"
 
-java {
-    withSourcesJar()
-    withJavadocJar()
+repositories {
+    mavenCentral()
+    maven("https://repo.papermc.io/repository/maven-public/")
 }
 
+dependencies {
+    compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
+}
+
+// Vanniktech wires maven-publish + signing and reads SIGNING_KEY/SIGNING_PASSWORD from env.
 mavenPublishing {
-    publishToMavenCentral()          // configures Central-ready metadata
-    signAllPublications()
-    coordinates(group.toString(), project.name, version.toString())
+    publishToMavenCentral()
     pom {
         name.set("pb-api")
-        description.set("Your high-performance whatever, like Caffeine’s style.")
-        url.set("https://github.com/yourname/pb-api")
+        description.set("PacketBlocks API")
+        url.set("https://github.com/mintychochip/PacketBlocks")
         licenses {
             license {
                 name.set("Apache-2.0")
@@ -29,29 +29,16 @@ mavenPublishing {
             }
         }
         scm {
-            url.set("https://github.com/yourname/pb-api")
-            connection.set("scm:git:https://github.com/yourname/pb-api.git")
-            developerConnection.set("scm:git:ssh://[email protected]:yourname/pb-api.git")
+            url.set("https://github.com/mintychochip/PacketBlocks")
+            connection.set("scm:git:https://github.com/mintychochip/PacketBlocks.git")
+            developerConnection.set("scm:git:ssh://[email protected]:mintychochip/PacketBlocks.git")
         }
         developers {
             developer {
-                id.set("you"); name.set("Your Name"); email.set("you@example.com")
+                id.set("mintychochip")
+                name.set("mintychochip")
+                email.set("[email protected]")
             }
         }
     }
-}
-
-nmcp {
-    publishAllPublicationsToCentralPortal {
-        // AUTOMATIC ⇒ validates then publishes; USER_MANAGED ⇒ you click Publish in the Portal UI
-        publishingType.set("AUTOMATIC")
-    }
-}
-
-signing {
-    useInMemoryPgpKeys(
-        providers.environmentVariable("SIGNING_KEY").orNull,
-        providers.environmentVariable("SIGNING_PASSWORD").orNull
-    )
-    sign(publishing.publications)
 }
