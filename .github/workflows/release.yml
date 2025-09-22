@@ -2,12 +2,11 @@ name: Release
 
 on:
   push:
-    tags: ['v*.*.*']   # runs when you push a tag like v1.0.0
+    tags: ['v*.*.*']  # e.g. v1.0.0
 
 jobs:
   publish:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -19,24 +18,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      - name: Check secrets present
+      - name: Publish to Maven Central (Central Portal)
         run: |
-          [ -n "${{ secrets.MAVEN_CENTRAL_USERNAME }}" ] || (echo "❌ Missing MAVEN_CENTRAL_USERNAME" && exit 1)
-          [ -n "${{ secrets.MAVEN_CENTRAL_PASSWORD }}" ] || (echo "❌ Missing MAVEN_CENTRAL_PASSWORD" && exit 1)
-          [ -n "${{ secrets.SIGNING_KEY }}" ] || (echo "❌ Missing SIGNING_KEY" && exit 1)
-          [ -n "${{ secrets.SIGNING_PASSWORD }}" ] || (echo "❌ Missing SIGNING_PASSWORD" && exit 1)
-          echo "✅ All secrets present"
-
-      - name: Debug creds visible to Gradle
-        run: |
-          ./gradlew debugCentralCreds \
-            -PmavenCentralUsername="${{ secrets.MAVEN_CENTRAL_USERNAME }}" \
-            -PmavenCentralPassword="${{ secrets.MAVEN_CENTRAL_PASSWORD }}" \
-            --no-daemon || true
-
-      - name: Publish to Maven Central
-        run: |
-          ./gradlew publishAllPublicationsToCentralPortal \
+          ./gradlew :pb-api:publishAllPublicationsToCentralPortal \
             -PmavenCentralUsername="${{ secrets.MAVEN_CENTRAL_USERNAME }}" \
             -PmavenCentralPassword="${{ secrets.MAVEN_CENTRAL_PASSWORD }}" \
             --no-daemon --stacktrace

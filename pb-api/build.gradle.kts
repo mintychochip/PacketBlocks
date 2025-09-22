@@ -1,6 +1,7 @@
 plugins {
     `java-library`
     id("com.vanniktech.maven.publish") version "0.34.0"
+    id("com.gradleup.nmcp") version "1.0.0"
 }
 
 group = "com.github.mintychochip"
@@ -15,7 +16,11 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
 }
 
-// Vanniktech wires maven-publish + signing and reads SIGNING_KEY/SIGNING_PASSWORD from env.
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 mavenPublishing {
     publishToMavenCentral()
     pom {
@@ -40,5 +45,19 @@ mavenPublishing {
                 email.set("[email protected]")
             }
         }
+    }
+}
+
+nmcp {
+    publishAllPublicationsToCentralPortal {
+        username.set(
+            providers.gradleProperty("mavenCentralUsername")
+                .orElse(providers.environmentVariable("MAVEN_CENTRAL_USERNAME"))
+        )
+        password.set(
+            providers.gradleProperty("mavenCentralPassword")
+                .orElse(providers.environmentVariable("MAVEN_CENTRAL_PASSWORD"))
+        )
+        publishingType.set("AUTOMATIC")
     }
 }
