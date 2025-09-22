@@ -21,7 +21,6 @@ final class ItemServiceImpl implements ItemService {
     this.itemKey = new NamespacedKey(plugin, PACKET_ITEM_KEY_STRING);
   }
 
-
   @Override
   public Optional<String> read(ItemStack itemStack) {
     if (invalidItem(itemStack)) {
@@ -39,7 +38,6 @@ final class ItemServiceImpl implements ItemService {
     if (invalidItem(itemStack)) {
       return;
     }
-    Bukkit.broadcastMessage("here");
     itemStack.editPersistentDataContainer(
         p -> p.set(itemKey, PersistentDataType.STRING, resourceKey));
   }

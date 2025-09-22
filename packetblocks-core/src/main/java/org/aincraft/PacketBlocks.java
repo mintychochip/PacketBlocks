@@ -7,8 +7,8 @@ import com.google.inject.ProvisionException;
 import com.google.inject.TypeLiteral;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.logging.Logger;
 import net.kyori.adventure.key.Key;
-import org.aincraft.EntityModelImpl.EntityModelDataImpl;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.Registry;
 import org.aincraft.registry.RegistryAccess;
@@ -37,7 +37,8 @@ public final class PacketBlocks extends JavaPlugin {
     Registry<PacketBlockMeta> metaRegistry = RegistryAccess.registryAccess()
         .getRegistry(RegistryAccessKeys.PACKET_BLOCK_META);
     EntityModelData data = EntityModelData.create();
-    data.setAttribute(EntityModelAttributes.ITEM_MODEL, Key.key("longhardfish:block/gutting_station"));
+    data.setAttribute(EntityModelAttributes.ITEM_MODEL,
+        Key.key("longhardfish:block/gutting_station"));
     metaRegistry.register(Bridge.bridge().packetBlockFactory()
         .createBlockMeta(Key.key("longhardfish:block/gutting_station"), new BlockItemMeta() {
           @Override

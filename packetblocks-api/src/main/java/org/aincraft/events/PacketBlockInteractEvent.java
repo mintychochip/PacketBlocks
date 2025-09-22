@@ -9,9 +9,11 @@ import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.AvailableSince;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+@AvailableSince("1.0.2")
 public final class PacketBlockInteractEvent extends PacketBlockEvent implements Cancellable {
 
   private static final @NotNull HandlerList HANDLERS = new HandlerList();

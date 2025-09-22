@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundBundlePacket;
+import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -20,10 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Display;
 import net.minecraft.world.entity.Display.ItemDisplay;
 import net.minecraft.world.entity.Entity;
-import org.aincraft.EntityModel;
-import org.aincraft.EntityModelAttributes;
 import org.aincraft.EntityModelAttributes.EntityModelAttributeImpl;
-import org.aincraft.EntityModelData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -92,9 +90,60 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
     }
   }
 
+  private static final double INV_UNIT = 4096.0;                   // 1 / (1/4096)
+  private static final double MAX_REL  = Short.MAX_VALUE / 4096.0; // ≈ 7.99976 blocks
+
+  @Override
+  public void move(Location to) {
+    // Target position (blocks)
+    final double tx = to.getX();
+    final double ty = to.getY();
+    final double tz = to.getZ();
+
+    // Compute block-space deltas from current server position
+    final double dxB = tx - delegate.getX();
+    final double dyB = ty - delegate.getY();
+    final double dzB = tz - delegate.getZ();
+
+    // Enforce per-axis limit for a single relative packet
+    if (Math.abs(dxB) > MAX_REL || Math.abs(dyB) > MAX_REL || Math.abs(dzB) > MAX_REL) {
+      throw new IllegalArgumentException(String.format(
+          "Relative move too large for one packet (%.3f, %.3f, %.3f). Max per axis is ±%.5f blocks.",
+          dxB, dyB, dzB, MAX_REL));
+      // If you prefer to clamp instead of throw:
+      // dxB = Math.copySign(Math.min(Math.abs(dxB), MAX_REL), dxB);
+      // dyB = Math.copySign(Math.min(Math.abs(dyB), MAX_REL), dyB);
+      // dzB = Math.copySign(Math.min(Math.abs(dzB), MAX_REL), dzB);
+    }
+
+    // Encode to protocol shorts (1/4096-block units). Use rounding, not truncation.
+    short dx = (short) Math.round(dxB * INV_UNIT);
+    short dy = (short) Math.round(dyB * INV_UNIT);
+    short dz = (short) Math.round(dzB * INV_UNIT);
+
+    // Apply EXACTLY what we encoded so server and client stay in sync
+    final double applyX = dx / INV_UNIT;
+    final double applyY = dy / INV_UNIT;
+    final double applyZ = dz / INV_UNIT;
+    delegate.setPos(delegate.getX() + applyX, delegate.getY() + applyY, delegate.getZ() + applyZ);
+
+    // Rotation → protocol bytes
+    byte yaw   = (byte) (to.getYaw()   * 256.0F / 360.0F);
+    byte pitch = (byte) (to.getPitch() * 256.0F / 360.0F);
+
+    // Build & send the relative move+look packet
+    ClientboundMoveEntityPacket.PosRot packet =
+        new ClientboundMoveEntityPacket.PosRot(
+            delegate.getId(), dx, dy, dz, yaw, pitch, delegate.onGround()
+        );
+    all(packet);
+  }
+
+
+
+
   @Override
   public void teleport(Location location) {
-
   }
 
   @Override
@@ -146,6 +195,15 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
     return new ClientboundSetEntityDataPacket(delegate.getId(), data.packAll());
   }
 
+  private void all(Packet<? extends ClientGamePacketListener> packet) {
+    viewers.forEach(viewer -> {
+      if (viewer instanceof CraftPlayer craftPlayer) {
+        ServerPlayer handle = craftPlayer.getHandle();
+        handle.connection.send(packet);
+      }
+    });
+  }
+
   record EntityModelDataImpl(Map<String, Object> attributes) implements EntityModelData {
 
     static EntityModelData create() throws IllegalStateException {
@@ -195,4 +253,5 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
       }
     }
   }
+
 }

@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import org.aincraft.BlockBinding.BlockBindingImpl;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -72,7 +73,7 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
           return null;
         }
         String resourceKey = rs.getString("resource_key");
-        return BlockBinding.create(location, resourceKey);
+        return new BlockBindingImpl(location, resourceKey);
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);

@@ -5,15 +5,13 @@ plugins {
     id("com.gradleup.nmcp") version "1.0.0"
 }
 
-group = "org.aincraft"
-version = "1.0.2"
-
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
+    compileOnly("org.jetbrains:annotations:26.0.2-1")
     compileOnly("io.papermc.paper:paper-api:1.21.1-R0.1-SNAPSHOT")
 }
 

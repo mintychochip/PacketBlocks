@@ -1,8 +1,10 @@
 package org.aincraft;
 
 import com.google.inject.Inject;
+import java.util.List;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.Registry;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.jetbrains.annotations.Nullable;
@@ -69,5 +71,11 @@ final class PacketBlockServiceImpl implements PacketBlockService {
         return blockMetaRegistry.get(NamespacedKey.fromString(binding.resourceKey()));
       }
     };
+  }
+
+  @Override
+  public List<PacketBlock> loadAll(Chunk chunk) {
+    List<BlockBinding> bindings = blockBindingRepository.loadAllByChunk(chunk);
+    return List.of();
   }
 }

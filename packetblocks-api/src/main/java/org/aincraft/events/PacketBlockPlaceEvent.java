@@ -5,8 +5,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.ApiStatus;
+import org.jetbrains.annotations.ApiStatus.AvailableSince;
 import org.jetbrains.annotations.NotNull;
 
+@AvailableSince("1.0.2")
 public final class PacketBlockPlaceEvent extends PacketBlockEvent implements Cancellable {
 
   private static final @NotNull HandlerList HANDLERS = new HandlerList();

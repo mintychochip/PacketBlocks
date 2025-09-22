@@ -15,7 +15,7 @@ public interface PacketBlock {
 
     BlockItemMeta getBlockItemMeta();
 
-    EntityModelData getEntityModelData();
+    EntityModelData getEntityModelData ();
 
     Optional<SoundEntry> getSoundEntry(SoundType type);
   }
