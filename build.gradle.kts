@@ -8,3 +8,10 @@ nmcp {
         publishingType.set("AUTOMATIC")
     }
 }
+
+tasks.register("debugCentralCreds") {
+    doLast {
+        println("mavenCentralUsername = " + (findProperty("mavenCentralUsername") ?: "<null>"))
+        println("mavenCentralPassword = " + (if (findProperty("mavenCentralPassword") == null) "<null>" else "<present>"))
+    }
+}
