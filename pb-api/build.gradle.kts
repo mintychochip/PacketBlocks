@@ -1,5 +1,6 @@
 plugins {
     `java-library`
+    id("signing")                               // <-- add this
     id("com.vanniktech.maven.publish") version "0.34.0"
     id("com.gradleup.nmcp") version "1.0.0"
 }
@@ -23,6 +24,8 @@ java {
 
 mavenPublishing {
     publishToMavenCentral()
+    signAllPublications() // still fine to keep; won’t hurt
+
     pom {
         name.set("pb-api")
         description.set("PacketBlocks API")
@@ -48,6 +51,17 @@ mavenPublishing {
     }
 }
 
+signing {
+    val key = providers.environmentVariable("SIGNING_KEY").orNull
+    val pass = providers.environmentVariable("SIGNING_PASSWORD").orNull
+    if (key != null && pass != null) {
+        useInMemoryPgpKeys(key, pass)
+        sign(publishing.publications)
+    } else {
+        logger.warn("Signing disabled: SIGNING_KEY or SIGNING_PASSWORD missing")
+    }
+}
+
 nmcp {
     publishAllPublicationsToCentralPortal {
         username.set(
@@ -61,22 +75,3 @@ nmcp {
         publishingType.set("AUTOMATIC")
     }
 }
-
-/** ---- FIX THE ERROR ----
- * Disable the extra 'plainJavadocJar' so Gradle doesn't see an undeclared output being used.
- * You still publish the normal 'javadocJar' created by the Java plugin/Vanniktech.
- */
-tasks.matching { it.name == "plainJavadocJar" }.configureEach {
-    enabled = false
-}
-
-/*
- * If you prefer to keep 'plainJavadocJar' instead of disabling it,
- * you can make metadata depend on it like this:
- *
- * import org.gradle.api.tasks.GenerateModuleMetadata
- * tasks.withType<GenerateModuleMetadata>().configureEach {
- *     dependsOn(tasks.matching { it.name == "plainJavadocJar" })
- *     dependsOn(tasks.named("javadocJar"))
- * }
- */
