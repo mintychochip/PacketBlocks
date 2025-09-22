@@ -61,3 +61,22 @@ nmcp {
         publishingType.set("AUTOMATIC")
     }
 }
+
+/** ---- FIX THE ERROR ----
+ * Disable the extra 'plainJavadocJar' so Gradle doesn't see an undeclared output being used.
+ * You still publish the normal 'javadocJar' created by the Java plugin/Vanniktech.
+ */
+tasks.matching { it.name == "plainJavadocJar" }.configureEach {
+    enabled = false
+}
+
+/*
+ * If you prefer to keep 'plainJavadocJar' instead of disabling it,
+ * you can make metadata depend on it like this:
+ *
+ * import org.gradle.api.tasks.GenerateModuleMetadata
+ * tasks.withType<GenerateModuleMetadata>().configureEach {
+ *     dependsOn(tasks.matching { it.name == "plainJavadocJar" })
+ *     dependsOn(tasks.named("javadocJar"))
+ * }
+ */
