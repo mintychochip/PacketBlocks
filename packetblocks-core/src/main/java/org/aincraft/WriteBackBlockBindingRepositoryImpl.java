@@ -22,10 +22,11 @@ import org.jetbrains.annotations.Nullable;
 
 public final class WriteBackBlockBindingRepositoryImpl implements BlockBindingRepository {
 
+  private static final Duration TTL = Duration.ofMinutes(10);
   @NotNull
   private final BlockBindingRepository delegate;
   private final Cache<Location, BlockBinding> readCache = Caffeine.newBuilder()
-      .expireAfterAccess(Duration.ofMinutes(10)).build();
+      .expireAfterAccess(TTL).build();
   private final Map<Location, BlockBinding> pendingUpdates = new ConcurrentHashMap<>();
   private final Set<Location> pendingDeletes = ConcurrentHashMap.newKeySet();
   private final int batchSize;

@@ -4,7 +4,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.block.Action;
 import org.bukkit.inventory.EquipmentSlot;
@@ -13,17 +12,14 @@ import org.jetbrains.annotations.ApiStatus;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public final class PacketBlockInteractEvent extends Event implements Cancellable {
+public final class PacketBlockInteractEvent extends PacketBlockEvent implements Cancellable {
 
-  private static final HandlerList HANDLERS = new HandlerList();
+  private static final @NotNull HandlerList HANDLERS = new HandlerList();
 
-  private final @NotNull Player player;
-  private final @NotNull Block block;
   private final @NotNull Action action;
   private final @Nullable EquipmentSlot hand;
   private final @Nullable BlockFace face;
   private final @Nullable ItemStack item;
-  private final @NotNull String resourceKey;
   private boolean cancelled;
 
   @ApiStatus.Internal
@@ -33,23 +29,14 @@ public final class PacketBlockInteractEvent extends Event implements Cancellable
       @NotNull Action action,
       @Nullable EquipmentSlot hand,
       @Nullable BlockFace face,
-      @Nullable ItemStack item, @NotNull String resourceKey
+      @Nullable ItemStack item,
+      @NotNull String resourceKey
   ) {
-    this.player = player;
-    this.block = block;
+    super(player, block, resourceKey);
     this.action = action;
     this.hand = hand;
     this.face = face;
     this.item = item;
-    this.resourceKey = resourceKey;
-  }
-
-  public @NotNull Player getPlayer() {
-    return player;
-  }
-
-  public @NotNull Block getBlock() {
-    return block;
   }
 
   public @NotNull Action getAction() {
@@ -66,10 +53,6 @@ public final class PacketBlockInteractEvent extends Event implements Cancellable
 
   public @Nullable ItemStack getItem() {
     return item;
-  }
-
-  public @NotNull String getResourceKey() {
-    return resourceKey;
   }
 
   public boolean isLeftClick() {

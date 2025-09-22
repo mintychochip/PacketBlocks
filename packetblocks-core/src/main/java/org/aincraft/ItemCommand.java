@@ -26,8 +26,8 @@ public class ItemCommand implements CommandExecutor {
       @NotNull String label, @NotNull String @NotNull [] args) {
     if (sender instanceof Player player) {
       ItemStack itemStack = ItemStack.of(Material.STONE);
-      ItemService.itemService().write(itemStack,"packetblocks:electrum_ore");
-      itemStack.setData(DataComponentTypes.ITEM_MODEL, Key.key("packetblocks:electrum_ore"));
+      ItemService.itemService().write(itemStack,"longhardfish:block/gutting_station");
+      itemStack.setData(DataComponentTypes.ITEM_MODEL, Key.key("longhardfish:block/gutting_station"));
       player.getInventory().addItem(itemStack);
     }
     return true;

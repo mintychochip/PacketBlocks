@@ -19,7 +19,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
-public class PacketBlocks extends JavaPlugin {
+public final class PacketBlocks extends JavaPlugin {
 
   @Override
   public void onEnable() {
@@ -36,10 +36,24 @@ public class PacketBlocks extends JavaPlugin {
     Bukkit.getPluginCommand("item").setExecutor(injector.getInstance(ItemCommand.class));
     Registry<PacketBlockMeta> metaRegistry = RegistryAccess.registryAccess()
         .getRegistry(RegistryAccessKeys.PACKET_BLOCK_META);
-    EntityModelData data = EntityModelDataImpl.create();
-    data.setAttribute(EntityModelAttributes.ITEM_MODEL, Key.key("packetblocks:electrum_ore"));
-    metaRegistry.register(new PacketBlockMetaImpl(Key.key("packetblocks:electrum_ore"),
-        new BlockItemMeta() {
+    EntityModelData data = EntityModelData.create();
+    data.setAttribute(EntityModelAttributes.ITEM_MODEL, Key.key("longhardfish:block/gutting_station"));
+    metaRegistry.register(Bridge.bridge().packetBlockFactory()
+        .createBlockMeta(Key.key("longhardfish:block/gutting_station"), new BlockItemMeta() {
+          @Override
+          public Key getItemModel() {
+            return Key.key("penis");
+          }
+
+          @Override
+          public Material getMaterial() {
+            return Material.STONE;
+          }
+        }, data, new HashMap<>()));
+    EntityModelData oreData = EntityModelData.create();
+    oreData.setAttribute(EntityModelAttributes.ITEM_MODEL, Key.key("packetblocks:electrum_ore"));
+    metaRegistry.register(Bridge.bridge().packetBlockFactory()
+        .createBlockMeta(Key.key("packetblocks:electrum_ore"), new BlockItemMeta() {
           @Override
           public Key getItemModel() {
             return Key.key("packetblocks:electrum_ore");
@@ -49,6 +63,6 @@ public class PacketBlocks extends JavaPlugin {
           public Material getMaterial() {
             return Material.STONE;
           }
-        }, data, new HashMap<>()));
+        }, oreData, new HashMap<>()));
   }
 }
