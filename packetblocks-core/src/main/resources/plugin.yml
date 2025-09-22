@@ -1,0 +1,10 @@
+name: PacketBlocks
+version: '1.0.1'
+main: org.aincraft.PacketBlocks
+authors: [ mintychochip ]
+api-version: '1.13'
+softdepend:
+  - Preferences
+commands:
+  item:
+    description: test
