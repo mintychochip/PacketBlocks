@@ -9,8 +9,8 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/pb-api" />
-            <option value="$PROJECT_DIR$/pb-core" />
+            <option value="$PROJECT_DIR$/packetblocks-api" />
+            <option value="$PROJECT_DIR$/packetblocks-core" />
           </set>
         </option>
       </GradleProjectSettings>

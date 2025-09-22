@@ -1,3 +1,3 @@
 rootProject.name = "packetblocks"
 
-include("pb-core", "pb-api")
+include("packetblocks-core", "packetblocks-api")
