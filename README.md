@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
     // Replace 'VERSION' with the latest release or snapshot version of PacketBlocks
-    implementation 'com.mintychochip:packetblocks-api:VERSION'
+    implementation 'org.aincraft:packetblocks-api:VERSION'
 }
 ```
 
