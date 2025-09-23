@@ -23,9 +23,4 @@ public interface EntityModelData {
   interface EntityModelAttribute<T> {
 
   }
-
-  interface Factory {
-
-    EntityModelData create();
-  }
 }

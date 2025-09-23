@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Optional;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
+import org.bukkit.entity.Player;
 
 public interface PacketBlock {
 

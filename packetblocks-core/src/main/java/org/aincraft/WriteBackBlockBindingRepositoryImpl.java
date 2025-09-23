@@ -3,6 +3,7 @@ package org.aincraft;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.naming.Binding;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
@@ -25,10 +27,10 @@ public final class WriteBackBlockBindingRepositoryImpl implements BlockBindingRe
   private static final Duration TTL = Duration.ofMinutes(10);
   @NotNull
   private final BlockBindingRepository delegate;
-  private final Cache<Location, BlockBinding> readCache = Caffeine.newBuilder()
+  private final Cache<LocationKey, BlockBinding> readCache = Caffeine.newBuilder()
       .expireAfterAccess(TTL).build();
-  private final Map<Location, BlockBinding> pendingUpdates = new ConcurrentHashMap<>();
-  private final Set<Location> pendingDeletes = ConcurrentHashMap.newKeySet();
+  private final Map<LocationKey, BlockBinding> pendingUpdates = new ConcurrentHashMap<>();
+  private final Set<LocationKey> pendingDeletes = ConcurrentHashMap.newKeySet();
   private final int batchSize;
   private final AtomicBoolean flush = new AtomicBoolean(false);
 
@@ -51,55 +53,78 @@ public final class WriteBackBlockBindingRepositoryImpl implements BlockBindingRe
 
   @Override
   public @Nullable BlockBinding load(Location location) {
-    if (pendingDeletes.contains(location)) {
+    LocationKey locationKey = LocationKey.create(location);
+    if (pendingDeletes.contains(locationKey)) {
       return null;
     }
-    BlockBinding binding = pendingUpdates.get(location);
+    BlockBinding binding = pendingUpdates.get(locationKey);
     if (binding != null) {
       return binding;
     }
-    return readCache.get(location, delegate::load);
+    return readCache.get(locationKey, key -> delegate.load(location));
   }
 
   @Override
   public boolean delete(Location location) {
-    pendingDeletes.add(location);
-    pendingUpdates.remove(location);
-    readCache.invalidate(location);
+    LocationKey locationKey = LocationKey.create(location);
+    pendingDeletes.add(locationKey);
+    pendingUpdates.remove(locationKey);
+    readCache.invalidate(locationKey);
     return true;
   }
 
   @Override
-  public boolean save(BlockBinding blockBinding) {
-    pendingDeletes.remove(blockBinding.location());
-    pendingUpdates.put(blockBinding.location(), blockBinding);
-    readCache.put(blockBinding.location(), blockBinding);
+  public boolean save(BlockBinding binding) {
+    LocationKey locationKey = LocationKey.create(binding.location());
+    pendingDeletes.remove(locationKey);
+    pendingUpdates.put(locationKey, binding);
+    readCache.put(locationKey, binding);
     return true;
   }
 
   @Override
   public List<BlockBinding> loadAllByChunk(Chunk chunk) {
-    return delegate.loadAllByChunk(chunk);
+    List<BlockBinding> stale = delegate.loadAllByChunk(chunk);
+    Map<LocationKey, BlockBinding> merged = new HashMap<>();
+    for (BlockBinding binding : stale) {
+      merged.put(LocationKey.create(binding.location()), binding);
+    }
+    for (LocationKey key : pendingDeletes) {
+      int cx = chunk.getX();
+      int cz = chunk.getZ();
+      if (key.cx() == cx && key.cz() == cz) {
+        merged.remove(key);
+      }
+    }
+    for (LocationKey key : pendingUpdates.keySet()) {
+      BlockBinding binding = pendingUpdates.get(key);
+      if (binding == null) {
+        continue;
+      }
+      merged.put(key,binding);
+    }
+    return new ArrayList<>(merged.values());
   }
 
   private void flush() {
     if (!flush.compareAndSet(false, true)) {
       return;
     }
-    Map<Location, BlockBinding> batchUpdates = new HashMap<>();
-    Iterator<Entry<Location, BlockBinding>> updateIterator = pendingUpdates.entrySet().iterator();
+    Map<LocationKey, BlockBinding> batchUpdates = new HashMap<>();
+    Iterator<Entry<LocationKey, BlockBinding>> updateIterator = pendingUpdates.entrySet()
+        .iterator();
     while (updateIterator.hasNext() && batchUpdates.size() < batchSize) {
-      Entry<Location, BlockBinding> entry = updateIterator.next();
-      Location key = entry.getKey();
+      Entry<LocationKey, BlockBinding> entry = updateIterator.next();
+      LocationKey key = entry.getKey();
       BlockBinding value = entry.getValue();
       if (pendingUpdates.remove(key, value)) {
         batchUpdates.put(key, value);
       }
     }
-    Set<Location> batchDeletes = new HashSet<>();
-    Iterator<Location> deleteIterator = pendingDeletes.iterator();
+    Set<LocationKey> batchDeletes = new HashSet<>();
+    Iterator<LocationKey> deleteIterator = pendingDeletes.iterator();
     while (deleteIterator.hasNext() && batchDeletes.size() < batchSize) {
-      Location key = deleteIterator.next();
+      LocationKey key = deleteIterator.next();
       if (pendingDeletes.remove(key)) {
         batchDeletes.add(key);
       }
@@ -108,7 +133,7 @@ public final class WriteBackBlockBindingRepositoryImpl implements BlockBindingRe
       batchUpdates.forEach((__, value) -> {
         delegate.save(value);
       });
-      batchDeletes.forEach(delegate::delete);
+      batchDeletes.forEach(key -> delegate.delete(key.location()));
     } catch (Throwable t) {
       pendingUpdates.putAll(batchUpdates);
       pendingDeletes.addAll(batchDeletes);
@@ -116,5 +141,4 @@ public final class WriteBackBlockBindingRepositoryImpl implements BlockBindingRe
       flush.set(false);
     }
   }
-
 }

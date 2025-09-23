@@ -1,13 +1,15 @@
 package org.aincraft;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.google.inject.Inject;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import org.aincraft.BlockBinding.BlockBindingImpl;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -15,7 +17,11 @@ import org.jetbrains.annotations.NotNull;
 
 final class RelationalBlockBindingRepositoryImpl implements BlockBindingRepository {
 
+  private static final Duration TTL = Duration.ofMinutes(10);
   private final ConnectionSource connectionSource;
+
+  private final Cache<LocationKey, BlockBinding> readCache = Caffeine.newBuilder()
+      .expireAfterAccess(TTL).build();
 
   @Inject
   public RelationalBlockBindingRepositoryImpl(
@@ -24,19 +30,18 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
   }
 
   @Override
-  public boolean save(BlockBinding blockBinding) {
+  public boolean save(BlockBinding binding) {
     String sql = "INSERT INTO block_bindings (world, x, y, z, cx, cz, resource_key) VALUES (?,?,?,?,?,?,?)";
     try (Connection connection = connectionSource.getConnection();
         PreparedStatement ps = connection.prepareStatement(sql)) {
-
-      ps.setString(1, blockBinding.worldName());
-      ps.setDouble(2, blockBinding.x());
-      ps.setDouble(3, blockBinding.y());
-      ps.setDouble(4, blockBinding.z());
-      ps.setInt(5, blockBinding.chunkX());
-      ps.setInt(6, blockBinding.chunkZ());
-      ps.setString(7, blockBinding.resourceKey());
-
+      ps.setString(1, binding.worldName());
+      ps.setDouble(2, binding.x());
+      ps.setDouble(3, binding.y());
+      ps.setDouble(4, binding.z());
+      ps.setInt(5, binding.chunkX());
+      ps.setInt(6, binding.chunkZ());
+      ps.setString(7, binding.resourceKey());
+      readCache.put(LocationKey.create(binding.location()), binding);
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       throw new RuntimeException("Failed to save BlockBinding", e);
@@ -53,6 +58,7 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
       ps.setDouble(2, location.x());
       ps.setDouble(3, location.y());
       ps.setDouble(4, location.z());
+      readCache.invalidate(LocationKey.create(location));
       return ps.executeUpdate() > 0;
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -61,6 +67,11 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
 
   @Override
   public BlockBinding load(Location location) {
+    LocationKey locationKey = LocationKey.create(location);
+    BlockBinding binding = readCache.getIfPresent(locationKey);
+    if (binding != null) {
+      return binding;
+    }
     try (Connection connection = connectionSource.getConnection();
         PreparedStatement ps = connection.prepareStatement(
             "SELECT resource_key FROM block_bindings WHERE world=? AND x=? AND y=? AND z=?")) {
@@ -73,7 +84,9 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
           return null;
         }
         String resourceKey = rs.getString("resource_key");
-        return new BlockBindingImpl(location, resourceKey);
+        binding = new BlockBindingImpl(location, resourceKey);
+        readCache.put(locationKey,binding);
+        return binding;
       }
     } catch (SQLException e) {
       throw new RuntimeException(e);
@@ -94,6 +107,12 @@ final class RelationalBlockBindingRepositoryImpl implements BlockBindingReposito
           double x = rs.getDouble("x");
           double y = rs.getDouble("y");
           double z = rs.getDouble("z");
+          BlockBinding binding = readCache.getIfPresent(
+              new LocationKey(world, x, y, z, chunk.getX(), chunk.getZ()));
+          if (binding != null) {
+            bindings.add(binding);
+            continue;
+          }
           String resourceKey = rs.getString("resource_key");
           bindings.add(BlockBinding.create(world, x, y, z, resourceKey));
         }

@@ -1,6 +1,7 @@
 package org.aincraft;
 
 import com.google.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.Registry;
@@ -76,6 +77,21 @@ final class PacketBlockServiceImpl implements PacketBlockService {
   @Override
   public List<PacketBlock> loadAll(Chunk chunk) {
     List<BlockBinding> bindings = blockBindingRepository.loadAllByChunk(chunk);
-    return List.of();
+    List<PacketBlock> blocks = new ArrayList<>();
+    bindings.forEach(binding -> {
+      EntityModel entityModel = blockModelService.load(binding.location());
+      blocks.add(new PacketBlock() {
+        @Override
+        public EntityModel getModel() {
+          return entityModel;
+        }
+
+        @Override
+        public PacketBlockMeta getMeta() {
+          return blockMetaRegistry.get(NamespacedKey.fromString(binding.resourceKey()));
+        }
+      });
+    });
+    return blocks;
   }
 }

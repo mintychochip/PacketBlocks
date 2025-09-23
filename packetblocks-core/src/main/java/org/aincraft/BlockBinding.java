@@ -1,7 +1,6 @@
 package org.aincraft;
 
 import com.google.common.base.Preconditions;
-import org.aincraft.BlockBinding.BlockBindingImpl;
 import org.apache.logging.log4j.util.InternalApi;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -52,7 +51,4 @@ public sealed interface BlockBinding permits BlockBindingImpl {
     return chunk().getZ();
   }
 
-  record BlockBindingImpl(Location location, String resourceKey) implements BlockBinding {
-
-  }
 }

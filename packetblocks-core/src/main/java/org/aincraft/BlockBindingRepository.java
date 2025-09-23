@@ -14,7 +14,7 @@ public interface BlockBindingRepository {
 
   boolean delete(Location location);
 
-  boolean save(BlockBinding blockBinding);
+  boolean save(BlockBinding binding);
 
   List<BlockBinding> loadAllByChunk(Chunk chunk);
 }

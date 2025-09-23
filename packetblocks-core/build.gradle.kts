@@ -5,7 +5,8 @@ plugins {
     java
 }
 
-paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.REOBF_PRODUCTION
+paperweight.reobfArtifactConfiguration =
+    io.papermc.paperweight.userdev.ReobfArtifactConfiguration.REOBF_PRODUCTION
 
 repositories {
     gradlePluginPortal()
@@ -18,6 +19,22 @@ dependencies {
         exclude(group = "io.papermc.paper", module = "paper-api")
     }
     paperweight.paperDevBundle("1.21.8-R0.1-SNAPSHOT")
+}
+
+tasks {
+    processResources {
+        filesMatching("plugin.yml") {
+            expand(
+                mapOf(
+                    "version" to project.version,
+                    "group" to project.group.toString(),
+                    "plugin_bootstrap" to project.findProperty("plugin_bootstrap"),
+                    "plugin_name" to project.findProperty("plugin_name"),
+                    "api_version" to (project.findProperty("api_version") ?: "1.13")
+                )
+            )
+        }
+    }
 }
 
 tasks.assemble {

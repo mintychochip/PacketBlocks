@@ -1,10 +1,8 @@
-name: PacketBlocks
-version: '1.0.1'
-main: org.aincraft.PacketBlocks
+name: ${{plugin_bootstrap}}
+version: ${{version}}
+main: ${{group}}.${{plugin_name}}
 authors: [ mintychochip ]
-api-version: '1.13'
-softdepend:
-  - Preferences
+api-version: ${{api_version}}
 commands:
   item:
     description: test
