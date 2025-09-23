@@ -15,18 +15,14 @@ An alternative to “baked blocks” (e.g., retexturing Note/Mushroom/Chorus Fru
 
 ### Developer API
 
-```groovy
+```kotlin
 repositories {
     mavenCentral()
-    // If PacketBlocks is published to a custom or GitHub Packages repository, add that repository here:
-    // maven { url 'https://repo.yourdomain.com/releases' }
-    // or for GitHub Packages:
-    // maven { url = uri("https://maven.pkg.github.com/mintychochip/PacketBlocks") }
 }
 
 dependencies {
     // Replace 'VERSION' with the latest release or snapshot version of PacketBlocks
-    implementation 'org.aincraft:packetblocks-api:VERSION'
+    compileOnly("org.aincraft:packetblocks-api:VERSION")
 }
 ```
 
