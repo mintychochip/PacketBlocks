@@ -37,7 +37,7 @@ Listen to block-related actions by listening to `PacketBlockBreakEvent`,`PacketB
 
 Example:
 ```java
-import com.mintychochip.packetblocks.event.PacketBlockBreakEvent;
+import org.aincraft.events.PacketBlockBreakEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
