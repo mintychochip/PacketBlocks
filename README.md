@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
     // Replace 'VERSION' with the latest release or snapshot version of PacketBlocks
-    implementation 'com.mintychochip:PacketBlocks:VERSION'
+    implementation 'com.mintychochip:packetblocks-api:VERSION'
 }
 ```
 
@@ -42,9 +42,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 
 public class MyBlockListener implements Listener {
-    @EventHandler
-    public void onPacketBlockBreak(PacketBlockBreakEvent event) {
-        // Your custom logic here
+    @EventHandler (priority=EventPriority.MONITOR, ignoreCancelled=true)
+    public void onPacketBlockBreak(final PacketBlockBreakEvent event) {
+        // Your logic here
         System.out.println("A block was broken by PacketBlocks: " + event.getBlock().getType());
     }
 }
