@@ -52,8 +52,8 @@ final class BlockController implements Listener {
     Player player = event.getPlayer();
     List<PacketBlock> blocks = blockService.loadAll(chunk);
     for (PacketBlock block : blocks) {
-      EntityModel model = block.getModel();
-      model.showTo(player);
+      BlockModel model = block.model();
+      model.show(player);
     }
   }
 
@@ -63,8 +63,8 @@ final class BlockController implements Listener {
     Player player = event.getPlayer();
     List<PacketBlock> blocks = blockService.loadAll(chunk);
     for (PacketBlock block : blocks) {
-      EntityModel model = block.getModel();
-      model.hideFrom(player);
+      BlockModel model = block.model();
+      model.hide(player);
     }
   }
 
@@ -85,9 +85,9 @@ final class BlockController implements Listener {
         event.getAction(), event.getHand(),
         event.getBlockFace(), event.getItem(), packetBlock.getMeta().key().toString())
     );
-    EntityModel model = packetBlock.getModel();
+    BlockModel model = packetBlock.model();
     Bukkit.getScheduler().runTask(plugin, () -> {
-      for (Player viewer : model.getViewers()) {
+      for (Player viewer : model.viewers()) {
         viewer.sendBlockChange(location, Bukkit.createBlockData(Material.GLASS));
       }
     });
@@ -112,10 +112,10 @@ final class BlockController implements Listener {
     Location location = block.getLocation();
     PacketBlock packetBlock = blockService.save(
         new BlockBindingImpl(location, resourceKey));
-    EntityModel model = packetBlock.getModel();
+    BlockModel model = packetBlock.model();
     Chunk chunk = location.getChunk();
     for (Player viewer : chunk.getPlayersSeeingChunk()) {
-      model.showTo(viewer);
+      model.show(viewer);
     }
     Bukkit.getScheduler().runTaskLater(plugin, () -> {
       for (Player viewer : chunk.getPlayersSeeingChunk()) {

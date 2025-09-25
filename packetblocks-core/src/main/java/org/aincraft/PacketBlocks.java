@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.logging.Logger;
 import net.kyori.adventure.key.Key;
+import org.aincraft.BlockModel.BlockModelData;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.Registry;
 import org.aincraft.registry.RegistryAccess;
@@ -36,9 +37,8 @@ public final class PacketBlocks extends JavaPlugin {
     Bukkit.getPluginCommand("item").setExecutor(injector.getInstance(ItemCommand.class));
     Registry<PacketBlockMeta> metaRegistry = RegistryAccess.registryAccess()
         .getRegistry(RegistryAccessKeys.PACKET_BLOCK_META);
-    EntityModelData data = EntityModelData.create();
-    data.setAttribute(EntityModelAttributes.ITEM_MODEL,
-        Key.key("longhardfish:block/gutting_station"));
+    BlockModelData data = BlockModelData.builder()
+        .itemModel(Key.key("longhardfish:block/gutting_station")).build();
     metaRegistry.register(Bridge.bridge().packetBlockFactory()
         .createBlockMeta(Key.key("longhardfish:block/gutting_station"), new BlockItemMeta() {
           @Override
@@ -51,8 +51,8 @@ public final class PacketBlocks extends JavaPlugin {
             return Material.STONE;
           }
         }, data, new HashMap<>()));
-    EntityModelData oreData = EntityModelData.create();
-    oreData.setAttribute(EntityModelAttributes.ITEM_MODEL, Key.key("packetblocks:electrum_ore"));
+    BlockModelData oreData = BlockModelData.builder()
+        .itemModel( Key.key("packetblocks:electrum_ore")).build();
     metaRegistry.register(Bridge.bridge().packetBlockFactory()
         .createBlockMeta(Key.key("packetblocks:electrum_ore"), new BlockItemMeta() {
           @Override

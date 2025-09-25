@@ -39,7 +39,7 @@ final class PacketBlockServiceImpl implements PacketBlockService {
     blockModelService.save(blockBinding);
     return new PacketBlock() {
       @Override
-      public EntityModel getModel() {
+      public BlockModel model() {
         return blockModelService.load(blockBinding.location());
       }
 
@@ -52,7 +52,7 @@ final class PacketBlockServiceImpl implements PacketBlockService {
 
   @Override
   public @Nullable PacketBlock load(Location location) {
-    EntityModel model = blockModelService.load(location);
+    BlockModel model = blockModelService.load(location);
     if (model == null) {
       return null;
     }
@@ -63,7 +63,7 @@ final class PacketBlockServiceImpl implements PacketBlockService {
     return new PacketBlock() {
 
       @Override
-      public EntityModel getModel() {
+      public BlockModel model() {
         return model;
       }
 
@@ -79,11 +79,11 @@ final class PacketBlockServiceImpl implements PacketBlockService {
     List<BlockBinding> bindings = blockBindingRepository.loadAllByChunk(chunk);
     List<PacketBlock> blocks = new ArrayList<>();
     bindings.forEach(binding -> {
-      EntityModel entityModel = blockModelService.load(binding.location());
+      BlockModel model = blockModelService.load(binding.location());
       blocks.add(new PacketBlock() {
         @Override
-        public EntityModel getModel() {
-          return entityModel;
+        public BlockModel model() {
+          return model;
         }
 
         @Override

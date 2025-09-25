@@ -13,7 +13,7 @@ import org.jetbrains.annotations.Nullable;
 final class BlockModelServiceImpl implements BlockModelService {
 
   private final Registry<PacketBlockMeta> blockMetaRegistry;
-  private final Map<Location, EntityModel> modelMap = new HashMap<>();
+  private final Map<Location, BlockModel> modelMap = new HashMap<>();
 
   @Inject
   BlockModelServiceImpl(
@@ -24,36 +24,34 @@ final class BlockModelServiceImpl implements BlockModelService {
 
   @Override
   public boolean save(BlockBinding blockBinding) {
-    EntityModel newModel = blockFromBinding(blockBinding);
-    EntityModel oldModel = modelMap.remove(blockBinding.location());
+    BlockModel model = blockFromBinding(blockBinding);
+    BlockModel oldModel = modelMap.remove(blockBinding.location());
     if (oldModel != null) {
-      oldModel.getViewers().forEach(oldModel::hideFrom);
+      oldModel.viewers().forEach(oldModel::hide);
     }
-    modelMap.put(blockBinding.location(), newModel);
+    modelMap.put(blockBinding.location(), model);
     return true;
   }
 
   @Override
-  public @Nullable EntityModel load(Location location) {
+  public @Nullable BlockModel load(Location location) {
     return modelMap.get(location);
   }
 
   @Override
   public boolean delete(Location location) {
-    EntityModel model = modelMap.remove(location);
-    if (model != null) {
-      model.getViewers().forEach(model::hideFrom);
+    BlockModel blockModel = modelMap.remove(location);
+    if (blockModel != null) {
+      blockModel.viewers().forEach(blockModel::hide);
     }
     return true;
   }
 
-  private EntityModel blockFromBinding(BlockBinding blockBinding) {
+  private BlockModel blockFromBinding(BlockBinding blockBinding) {
     PacketBlockMeta blockMeta = blockMetaRegistry.get(
         NamespacedKey.fromString(blockBinding.resourceKey()));
-    Location location = blockBinding.location();
-    EntityModel model = EntityModel.create(EntityType.ITEM_DISPLAY,
-        blockBinding.location());
-    model.setData(blockMeta.getEntityModelData());
+    BlockModel model = BlockModel.create(blockBinding.location());
+    model.data(blockMeta.blockModelData());
     return model;
   }
 }

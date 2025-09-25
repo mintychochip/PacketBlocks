@@ -3,6 +3,8 @@ package org.aincraft;
 import com.google.inject.Inject;
 import java.util.Map;
 import net.kyori.adventure.key.Key;
+import org.aincraft.BlockModel.BlockModelData;
+import org.aincraft.BlockModel.BlockModelData.Builder;
 import org.aincraft.EntityModelImpl.EntityModelDataImpl;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.RegistryAccess;
@@ -20,19 +22,22 @@ record BridgeImpl(RegistryAccess registryAccess, ItemService itemService) implem
   public @NotNull PacketBlockFactory packetBlockFactory() {
     return new PacketBlockFactory() {
       @Override
-      public EntityModel create(EntityType entityType, Location location) {
-        return EntityModelImpl.create(entityType, location.getWorld(), location.toVector());
+      public BlockModel create(Location location) {
+        EntityModel entityModel = EntityModelImpl.create(EntityType.ITEM_DISPLAY,
+            location.getWorld(), location.toVector());
+        return new BlockModelImpl(entityModel);
       }
 
       @Override
-      public EntityModelData create() {
-        return EntityModelDataImpl.create();
+      public Builder dataBuilder() {
+        return new BlockModelDataImpl.BuilderImpl();
       }
+
 
       @Override
       public PacketBlockMeta createBlockMeta(Key key, BlockItemMeta blockItemMeta,
-          EntityModelData entityModelData, Map<SoundType, SoundEntry> entries) {
-        return new PacketBlockMetaImpl(key, blockItemMeta, entityModelData, entries);
+          BlockModel.BlockModelData blockModelData, Map<SoundType, SoundEntry> entries) {
+        return new PacketBlockMetaImpl(key, blockItemMeta, blockModelData, entries);
       }
     };
   }

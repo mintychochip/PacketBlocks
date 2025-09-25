@@ -4,14 +4,14 @@ import java.util.Map;
 import net.kyori.adventure.key.Key;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
 
 public interface PacketBlockFactory {
 
-  EntityModel create(EntityType entityType, Location location);
+  BlockModel create(Location location);
 
-  EntityModelData create();
+  BlockModel.BlockModelData.Builder dataBuilder();
 
-  PacketBlockMeta createBlockMeta(Key key, BlockItemMeta blockItemMeta, EntityModelData entityModelData,
+  PacketBlockMeta createBlockMeta(Key key, BlockItemMeta blockItemMeta,
+      BlockModel.BlockModelData blockModelData,
       Map<SoundType, SoundEntry> entries);
 }

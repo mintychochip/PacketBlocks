@@ -58,12 +58,12 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
   }
 
   @Override
-  public boolean isVisible(Player player) {
+  public boolean visible(Player player) {
     return viewers.contains(player);
   }
 
   @Override
-  public void showTo(Player player) {
+  public void show(Player player) {
     if (!viewers.add(player)) {
       return;
     }
@@ -81,7 +81,7 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
   }
 
   @Override
-  public void hideFrom(Player player) {
+  public void hide(Player player) {
     if (viewers.remove(player) && player instanceof CraftPlayer craftPlayer) {
       ServerPlayer handle = craftPlayer.getHandle();
       ClientboundRemoveEntitiesPacket packet = new ClientboundRemoveEntitiesPacket(
@@ -147,7 +147,7 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
   }
 
   @Override
-  public Set<Player> getViewers() {
+  public Set<Player> viewers() {
     return viewers;
   }
 

@@ -8,7 +8,7 @@ public interface BlockModelService {
   boolean save(BlockBinding blockBinding);
 
   @Nullable
-  EntityModel load(Location location);
+  BlockModel load(Location location);
 
   boolean delete(Location location);
 }

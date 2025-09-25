@@ -1,22 +1,19 @@
 package org.aincraft;
 
-import java.util.Map;
 import java.util.Optional;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
-import org.bukkit.entity.Player;
 
 public interface PacketBlock {
 
-  EntityModel getModel();
+  BlockModel model();
 
   PacketBlockMeta getMeta();
 
   interface PacketBlockMeta extends Keyed {
 
-    BlockItemMeta getBlockItemMeta();
+    BlockItemMeta blockItemMeta();
 
-    EntityModelData getEntityModelData ();
+    BlockModel.BlockModelData blockModelData();
 
     Optional<SoundEntry> getSoundEntry(SoundType type);
   }

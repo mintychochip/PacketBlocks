@@ -4,28 +4,22 @@ import java.util.Set;
 import org.bukkit.Location;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
-import org.bukkit.util.Vector;
 import org.jetbrains.annotations.ApiStatus.AvailableSince;
 
-@AvailableSince("1.0.2")
 public interface EntityModel {
 
-  static EntityModel create(EntityType entityType, Location location) {
-    return Bridge.bridge().packetBlockFactory().create(entityType, location);
-  }
+  boolean visible(Player player);
 
-  boolean isVisible(Player player);
+  void show(Player player);
 
-  void showTo(Player player);
-
-  void hideFrom(Player player);
+  void hide(Player player);
 
   @AvailableSince("1.0.2")
   void move(Location location);
 
   void teleport(Location location);
 
-  Set<Player> getViewers();
+  Set<Player> viewers();
 
   void setData(EntityModelData data);
 
