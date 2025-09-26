@@ -8,7 +8,7 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-public final class EntityModelAttributes {
+final class EntityModelAttributes {
 
   private EntityModelAttributes() {
     throw new UnsupportedOperationException("do not instantiate");

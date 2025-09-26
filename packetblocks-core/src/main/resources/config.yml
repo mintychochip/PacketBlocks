@@ -1,2 +1,7 @@
 packetblocks:electrum_ore:
   item-model: packetblocks:electrum_ore
+  translation: [-1,-1,-1]
+  scale: [1,1,1]
+  left-rotation: [0,0,0,1]
+  right-rotation: [0,0,0,1]
+

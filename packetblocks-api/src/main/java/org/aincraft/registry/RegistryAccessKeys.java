@@ -1,6 +1,5 @@
 package org.aincraft.registry;
 
-import net.kyori.adventure.key.Key;
 import org.aincraft.KeyedItem;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.RegistryAccess.RegistryAccessKey;

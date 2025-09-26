@@ -6,7 +6,7 @@ import net.kyori.adventure.key.Key;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.jetbrains.annotations.NotNull;
 
-record PacketBlockMetaImpl(Key key, BlockItemMeta blockItemMeta, BlockModel.BlockModelData blockModelData,
+record PacketBlockMetaImpl(Key key, BlockItemMeta blockItemMeta, BlockModelData blockModelData,
                            Map<@NotNull SoundType, @NotNull SoundEntry> soundEntries) implements
     PacketBlockMeta {
 

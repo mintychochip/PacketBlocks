@@ -59,13 +59,13 @@ final class BlockController implements Listener {
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   private void onPlayerChunkUnload(final PlayerChunkUnloadEvent event) {
-    Chunk chunk = event.getChunk();
-    Player player = event.getPlayer();
-    List<PacketBlock> blocks = blockService.loadAll(chunk);
-    for (PacketBlock block : blocks) {
-      BlockModel model = block.model();
-      model.hide(player);
-    }
+//    Chunk chunk = event.getChunk();
+//    Player player = event.getPlayer();
+//    List<PacketBlock> blocks = blockService.loadAll(chunk);
+//    for (PacketBlock block : blocks) {
+//      BlockModel model = block.model();
+//      model.hide(player);
+//    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

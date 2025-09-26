@@ -13,7 +13,7 @@ public interface PacketBlock {
 
     BlockItemMeta blockItemMeta();
 
-    BlockModel.BlockModelData blockModelData();
+    BlockModelData blockModelData();
 
     Optional<SoundEntry> getSoundEntry(SoundType type);
   }

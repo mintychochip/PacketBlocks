@@ -37,13 +37,13 @@ import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-class EntityModelImpl<T extends Entity> implements EntityModel {
+final class EntityModelImpl<T extends Entity> implements EntityModel {
 
   private static final Vector3f ZERO_VECTOR = new Vector3f(0.0f);
 
-  protected EntityModelData data;
-  protected final Set<Player> viewers = new HashSet<>();
-  protected final T delegate;
+  private EntityModelData data;
+  private final Set<Player> viewers = new HashSet<>();
+  private final T delegate;
 
   public EntityModelImpl(EntityModelData data, T delegate) {
     this.delegate = delegate;
@@ -53,6 +53,7 @@ class EntityModelImpl<T extends Entity> implements EntityModel {
   public static EntityModel create(EntityType entityType, World world, Vector position) {
     EntityModelData meta = EntityModelDataImpl.create();
     Entity nmsEntity = EntityMapper.create(entityType, world);
+    //TODO: throw an error here
     nmsEntity.setPos(position.getX(), position.getY(), position.getZ());
     return new EntityModelImpl<>(meta, nmsEntity);
   }

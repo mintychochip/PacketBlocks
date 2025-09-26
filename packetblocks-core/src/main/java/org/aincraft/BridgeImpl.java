@@ -3,9 +3,7 @@ package org.aincraft;
 import com.google.inject.Inject;
 import java.util.Map;
 import net.kyori.adventure.key.Key;
-import org.aincraft.BlockModel.BlockModelData;
-import org.aincraft.BlockModel.BlockModelData.Builder;
-import org.aincraft.EntityModelImpl.EntityModelDataImpl;
+import org.aincraft.BlockModelData.Builder;
 import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.RegistryAccess;
 import org.bukkit.Location;
@@ -36,7 +34,7 @@ record BridgeImpl(RegistryAccess registryAccess, ItemService itemService) implem
 
       @Override
       public PacketBlockMeta createBlockMeta(Key key, BlockItemMeta blockItemMeta,
-          BlockModel.BlockModelData blockModelData, Map<SoundType, SoundEntry> entries) {
+          BlockModelData blockModelData, Map<SoundType, SoundEntry> entries) {
         return new PacketBlockMetaImpl(key, blockItemMeta, blockModelData, entries);
       }
     };

@@ -11,9 +11,9 @@ final class BridgeAccessor {
   private static final AtomicReference<Bridge> BRIDGE = new AtomicReference<>();
 
   static Bridge bridgeAccess() throws IllegalStateException {
-    Bridge current = BRIDGE.get();
-    if (current != null) {
-      return current;
+    Bridge bridge = BRIDGE.get();
+    if (bridge != null) {
+      return bridge;
     }
     RegisteredServiceProvider<Bridge> bridgeRegistration = Bukkit.getServicesManager()
         .getRegistration(Bridge.class);

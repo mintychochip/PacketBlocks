@@ -3,7 +3,6 @@ package org.aincraft;
 import java.util.Optional;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.ApiStatus.AvailableSince;
-import org.jetbrains.annotations.ApiStatus.Internal;
 import org.jetbrains.annotations.NotNull;
 
 @AvailableSince("1.0.2")

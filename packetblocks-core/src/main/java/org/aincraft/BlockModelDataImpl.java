@@ -6,7 +6,7 @@ import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 record BlockModelDataImpl(EntityModelData entityModelData)
-    implements BlockModel.BlockModelData {
+    implements BlockModelData {
 
   @Override
   public Vector3f translation() {
@@ -33,41 +33,42 @@ record BlockModelDataImpl(EntityModelData entityModelData)
     return entityModelData.getAttribute(EntityModelAttributes.ITEM_MODEL);
   }
 
-  static final class BuilderImpl implements BlockModel.BlockModelData.Builder {
+  static final class BuilderImpl implements BlockModelData.Builder {
+
     private final EntityModelData data = EntityModelDataImpl.create();
 
     @Override
-    public BlockModel.BlockModelData.Builder translation(Vector3f translation) {
+    public BlockModelData.Builder translation(Vector3f translation) {
       data.setAttribute(EntityModelAttributes.TRANSLATION, translation);
       return this;
     }
 
     @Override
-    public BlockModel.BlockModelData.Builder scale(Vector3f scale) {
+    public BlockModelData.Builder scale(Vector3f scale) {
       data.setAttribute(EntityModelAttributes.SCALE, scale);
       return this;
     }
 
     @Override
-    public BlockModel.BlockModelData.Builder leftRotation(Quaternionf leftRotation) {
+    public BlockModelData.Builder leftRotation(Quaternionf leftRotation) {
       data.setAttribute(EntityModelAttributes.LEFT_ROTATION, leftRotation);
       return this;
     }
 
     @Override
-    public BlockModel.BlockModelData.Builder rightRotation(Quaternionf rightRotation) {
+    public BlockModelData.Builder rightRotation(Quaternionf rightRotation) {
       data.setAttribute(EntityModelAttributes.RIGHT_ROTATION, rightRotation);
       return this;
     }
 
     @Override
-    public BlockModel.BlockModelData.Builder itemModel(Key itemModel) {
+    public BlockModelData.Builder itemModel(Key itemModel) {
       data.setAttribute(EntityModelAttributes.ITEM_MODEL, itemModel);
       return this;
     }
 
     @Override
-    public BlockModel.BlockModelData build() {
+    public BlockModelData build() {
       return new BlockModelDataImpl(data);
     }
   }

@@ -9,9 +9,9 @@ public interface PacketBlockFactory {
 
   BlockModel create(Location location);
 
-  BlockModel.BlockModelData.Builder dataBuilder();
+  BlockModelData.Builder dataBuilder();
 
   PacketBlockMeta createBlockMeta(Key key, BlockItemMeta blockItemMeta,
-      BlockModel.BlockModelData blockModelData,
+      BlockModelData blockModelData,
       Map<SoundType, SoundEntry> entries);
 }

@@ -8,8 +8,8 @@ import org.jetbrains.annotations.NotNull;
 
 final class RegistryAccessImpl implements RegistryAccess {
 
-  private final Registry<PacketBlockMeta> META_REGISTRY = Registry.createSimple();
-  private final Registry<KeyedItem> ITEM_REGISTRY = Registry.createSimple();
+  private final Registry<PacketBlockMeta> META_REGISTRY = Registry.simple();
+  private final Registry<KeyedItem> ITEM_REGISTRY = Registry.simple();
 
   @SuppressWarnings("unchecked")
   @Override

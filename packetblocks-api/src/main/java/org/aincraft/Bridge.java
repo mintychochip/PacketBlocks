@@ -1,14 +1,10 @@
 package org.aincraft;
 
 import org.aincraft.registry.RegistryAccess;
-import org.jetbrains.annotations.ApiStatus.AvailableSince;
 import org.jetbrains.annotations.NotNull;
 
-@AvailableSince("1.0.2")
 public interface Bridge {
 
-  @NotNull
-  @AvailableSince("1.0.2")
   static Bridge bridge() throws IllegalStateException {
     return BridgeAccessor.bridgeAccess();
   }

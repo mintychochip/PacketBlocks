@@ -10,7 +10,7 @@ import org.bukkit.craftbukkit.CraftWorld;
 import org.bukkit.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 
-public final class EntityMapper {
+final class EntityMapper {
 
   private EntityMapper() {
     throw new UnsupportedOperationException("cannot instantiate");

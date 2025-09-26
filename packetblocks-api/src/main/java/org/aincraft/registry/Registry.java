@@ -8,7 +8,9 @@ import org.jetbrains.annotations.NotNull;
 @AvailableSince("1.0.2")
 public sealed interface Registry<T extends Keyed> permits SimpleRegistryImpl {
 
-  static <T extends Keyed> Registry<T> createSimple() {
+  @NotNull
+  @AvailableSince("1.0.2")
+  static <T extends Keyed> Registry<T> simple() {
     return new SimpleRegistryImpl<>();
   }
 
