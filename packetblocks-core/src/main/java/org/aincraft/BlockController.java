@@ -21,6 +21,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockDropItemEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
@@ -83,7 +84,7 @@ final class BlockController implements Listener {
     Bukkit.getPluginManager().callEvent(new PacketBlockInteractEvent(
         player, block,
         event.getAction(), event.getHand(),
-        event.getBlockFace(), event.getItem(), packetBlock.getMeta().key().toString())
+        event.getBlockFace(), event.getItem(), packetBlock.blockModelData().key().toString())
     );
     BlockModel model = packetBlock.model();
     Bukkit.getScheduler().runTask(plugin, () -> {
@@ -119,7 +120,7 @@ final class BlockController implements Listener {
     }
     Bukkit.getScheduler().runTaskLater(plugin, () -> {
       for (Player viewer : chunk.getPlayersSeeingChunk()) {
-        viewer.sendBlockChange(block.getLocation(),Bukkit.createBlockData(Material.GLASS));
+        viewer.sendBlockChange(block.getLocation(), Bukkit.createBlockData(Material.GLASS));
       }
     }, 2L);
   }
@@ -133,8 +134,8 @@ final class BlockController implements Listener {
       return;
     }
     Player player = event.getPlayer();
-    PacketBlockMeta meta = packetBlock.getMeta();
-    Key key = meta.key();
+    BlockModelData modelData = packetBlock.blockModelData();
+    Key key = modelData.key();
     PacketBlockBreakEvent blockBreakEvent = new PacketBlockBreakEvent(player, block,
         key.toString());
     Bukkit.getPluginManager().callEvent(blockBreakEvent);
@@ -143,17 +144,41 @@ final class BlockController implements Listener {
       return;
     }
     blockService.delete(location);
-    meta.getSoundEntry(SoundType.BREAK).ifPresent(sound -> sound.play(location));
+  }
+
+  @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+  private void onBlockDropItem(final BlockDropItemEvent event) {
+
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   private void onPistonBlockPush(final BlockPistonExtendEvent event) {
-    handlePistonMoveEvent(new PistonEvent(event.getDirection(), event.getBlocks()));
+    handlePistonMoveEvent(new PistonEvent() {
+      @Override
+      public List<Block> blockList() {
+        return event.getBlocks();
+      }
+
+      @Override
+      public void cancel() {
+        event.setCancelled(true);
+      }
+    });
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   private void onPistonBlockRetract(final BlockPistonRetractEvent event) {
-    handlePistonMoveEvent(new PistonEvent(event.getDirection(), event.getBlocks()));
+    handlePistonMoveEvent(new PistonEvent() {
+      @Override
+      public List<Block> blockList() {
+        return event.getBlocks();
+      }
+
+      @Override
+      public void cancel() {
+        event.setCancelled(true);
+      }
+    });
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -167,13 +192,13 @@ final class BlockController implements Listener {
   }
 
   private void handlePistonMoveEvent(final PistonEvent event) {
-    BlockFace blockFace = event.blockFace();
-    Vector direction = blockFace.getDirection();
     List<Block> blockList = event.blockList();
     blockList.forEach(block -> {
       Location location = block.getLocation();
       PacketBlock packetBlock = blockService.load(location);
-      Location newLocation = location.add(direction);
+      if (packetBlock != null) {
+        event.cancel();
+      }
     });
   }
 
@@ -188,9 +213,11 @@ final class BlockController implements Listener {
     }
   }
 
-  @Internal
-  record PistonEvent(BlockFace blockFace, List<Block> blockList) {
+  interface PistonEvent {
 
+    List<Block> blockList();
+
+    void cancel();
   }
 
   @Internal

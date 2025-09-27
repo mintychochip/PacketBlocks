@@ -16,6 +16,7 @@ import net.minecraft.network.protocol.game.ClientboundBundlePacket;
 import net.minecraft.network.protocol.game.ClientboundMoveEntityPacket;
 import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
 import net.minecraft.network.protocol.game.ClientboundSetEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Display;
@@ -91,57 +92,24 @@ final class EntityModelImpl<T extends Entity> implements EntityModel {
     }
   }
 
-  private static final double INV_UNIT = 4096.0;                   // 1 / (1/4096)
-  private static final double MAX_REL  = Short.MAX_VALUE / 4096.0; // ≈ 7.99976 blocks
+  private static final int    UNITS_PER_BLOCK = 4096;           // 1/4096 block
 
   @Override
   public void move(Location to) {
-    // Target position (blocks)
-    final double tx = to.getX();
-    final double ty = to.getY();
-    final double tz = to.getZ();
+    Vector tp = to.toVector();
+    Vector delta = tp.subtract(new Vector(delegate.getX(), delegate.getY(), delegate.getZ()));
+    Vector deltaUnits = delta.multiply(4096);
 
-    // Compute block-space deltas from current server position
-    final double dxB = tx - delegate.getX();
-    final double dyB = ty - delegate.getY();
-    final double dzB = tz - delegate.getZ();
+    for (int i = 0; i < 1; i++) {
 
-    // Enforce per-axis limit for a single relative packet
-    if (Math.abs(dxB) > MAX_REL || Math.abs(dyB) > MAX_REL || Math.abs(dzB) > MAX_REL) {
-      throw new IllegalArgumentException(String.format(
-          "Relative move too large for one packet (%.3f, %.3f, %.3f). Max per axis is ±%.5f blocks.",
-          dxB, dyB, dzB, MAX_REL));
-      // If you prefer to clamp instead of throw:
-      // dxB = Math.copySign(Math.min(Math.abs(dxB), MAX_REL), dxB);
-      // dyB = Math.copySign(Math.min(Math.abs(dyB), MAX_REL), dyB);
-      // dzB = Math.copySign(Math.min(Math.abs(dzB), MAX_REL), dzB);
+
+      ClientboundMoveEntityPacket.Pos pkt =
+          new ClientboundMoveEntityPacket.Pos(
+              delegate.getId(), (short) deltaUnits.getX(), (short) deltaUnits.getY(), (short) deltaUnits.getZ(), delegate.onGround()
+          );
+      all(pkt);
     }
-
-    // Encode to protocol shorts (1/4096-block units). Use rounding, not truncation.
-    short dx = (short) Math.round(dxB * INV_UNIT);
-    short dy = (short) Math.round(dyB * INV_UNIT);
-    short dz = (short) Math.round(dzB * INV_UNIT);
-
-    // Apply EXACTLY what we encoded so server and client stay in sync
-    final double applyX = dx / INV_UNIT;
-    final double applyY = dy / INV_UNIT;
-    final double applyZ = dz / INV_UNIT;
-    delegate.setPos(delegate.getX() + applyX, delegate.getY() + applyY, delegate.getZ() + applyZ);
-
-    // Rotation → protocol bytes
-    byte yaw   = (byte) (to.getYaw()   * 256.0F / 360.0F);
-    byte pitch = (byte) (to.getPitch() * 256.0F / 360.0F);
-
-    // Build & send the relative move+look packet
-    ClientboundMoveEntityPacket.PosRot packet =
-        new ClientboundMoveEntityPacket.PosRot(
-            delegate.getId(), dx, dy, dz, yaw, pitch, delegate.onGround()
-        );
-    all(packet);
   }
-
-
-
 
   @Override
   public void teleport(Location location) {

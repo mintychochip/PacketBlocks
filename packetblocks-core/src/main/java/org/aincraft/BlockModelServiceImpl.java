@@ -12,13 +12,13 @@ import org.jetbrains.annotations.Nullable;
 
 final class BlockModelServiceImpl implements BlockModelService {
 
-  private final Registry<PacketBlockMeta> blockMetaRegistry;
+  private final Registry<BlockModelData> blockModelDataRegistry;
   private final Map<Location, BlockModel> modelMap = new HashMap<>();
 
   @Inject
   BlockModelServiceImpl(
-      Registry<PacketBlockMeta> blockMetaRegistry) {
-    this.blockMetaRegistry = blockMetaRegistry;
+      Registry<BlockModelData> blockModelDataRegistry) {
+    this.blockModelDataRegistry = blockModelDataRegistry;
   }
 
 
@@ -48,10 +48,8 @@ final class BlockModelServiceImpl implements BlockModelService {
   }
 
   private BlockModel blockFromBinding(BlockBinding blockBinding) {
-    PacketBlockMeta blockMeta = blockMetaRegistry.get(
+    BlockModelData modelData = blockModelDataRegistry.get(
         NamespacedKey.fromString(blockBinding.resourceKey()));
-    BlockModel model = BlockModel.create(blockBinding.location());
-    model.data(blockMeta.blockModelData());
-    return model;
+    return BlockModel.create(blockBinding.location(),modelData);
   }
 }

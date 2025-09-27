@@ -7,9 +7,9 @@ import org.bukkit.Location;
 
 public interface PacketBlockFactory {
 
-  BlockModel create(Location location);
+  BlockModel create(Location location, BlockModelData blockModelData);
 
-  BlockModelData.Builder dataBuilder();
+  BlockModelData.Builder blockModelDataBuilder(Key key);
 
   PacketBlockMeta createBlockMeta(Key key, BlockItemMeta blockItemMeta,
       BlockModelData blockModelData,

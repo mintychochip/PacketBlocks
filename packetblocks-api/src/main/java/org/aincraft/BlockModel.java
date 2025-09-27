@@ -1,6 +1,7 @@
 package org.aincraft;
 
 import java.util.Set;
+import net.kyori.adventure.key.Key;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus.AvailableSince;
@@ -11,8 +12,8 @@ public interface BlockModel {
 
   @NotNull
   @AvailableSince("1.0.4")
-  static BlockModel create(Location location) {
-    return Bridge.bridge().packetBlockFactory().create(location);
+  static BlockModel create(Location location, BlockModelData blockModelData) {
+    return Bridge.bridge().packetBlockFactory().create(location, blockModelData);
   }
 
   boolean visible(Player player);

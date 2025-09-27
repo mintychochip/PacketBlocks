@@ -3,10 +3,11 @@ package org.aincraft;
 import com.google.inject.AbstractModule;
 import com.google.inject.Provides;
 import com.google.inject.Singleton;
+import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import java.time.Duration;
-import java.util.logging.Logger;
 import org.aincraft.PacketBlock.PacketBlockMeta;
+import org.aincraft.commands.CommandModule;
 import org.aincraft.registry.Registry;
 import org.aincraft.registry.RegistryAccess;
 import org.aincraft.registry.RegistryAccessKeys;
@@ -19,12 +20,6 @@ public class PluginModule extends AbstractModule {
 
   public PluginModule(Plugin plugin) {
     this.plugin = plugin;
-  }
-
-  @Provides
-  @Singleton
-  Registry<PacketBlockMeta> blockMetaRegistry(RegistryAccess registryAccess) {
-    return registryAccess.getRegistry(RegistryAccessKeys.PACKET_BLOCK_META);
   }
 
   @Provides
@@ -44,7 +39,10 @@ public class PluginModule extends AbstractModule {
 
   @Override
   protected void configure() {
+    install(new CommandModule());
     bind(Plugin.class).toInstance(plugin);
+    bind(new TypeLiteral<Registry<BlockModelData>>() {
+    }).toProvider(BlockModelDataRegistryProvider.class);
     bind(ConnectionSource.class).toInstance(SQLiteSourceImpl.create(plugin, "block.db"));
     bind(ItemService.class).to(ItemServiceImpl.class).in(Singleton.class);
     bind(BlockModelService.class).to(BlockModelServiceImpl.class).in(Singleton.class);

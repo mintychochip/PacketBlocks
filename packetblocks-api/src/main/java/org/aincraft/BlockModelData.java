@@ -1,18 +1,19 @@
 package org.aincraft;
 
 import net.kyori.adventure.key.Key;
+import net.kyori.adventure.key.Keyed;
 import org.jetbrains.annotations.ApiStatus.AvailableSince;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 @AvailableSince("1.0.4")
-public interface BlockModelData {
+public interface BlockModelData extends Keyed {
 
   @NotNull
   @AvailableSince("1.0.4")
-  static Builder builder() {
-    return Bridge.bridge().packetBlockFactory().dataBuilder();
+  static Builder builder(Key key) {
+    return Bridge.bridge().packetBlockFactory().blockModelDataBuilder(key);
   }
 
   Vector3f translation();

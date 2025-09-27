@@ -20,15 +20,18 @@ record BridgeImpl(RegistryAccess registryAccess, ItemService itemService) implem
   public @NotNull PacketBlockFactory packetBlockFactory() {
     return new PacketBlockFactory() {
       @Override
-      public BlockModel create(Location location) {
+      public BlockModel create(Location location, BlockModelData blockModelData) {
         EntityModel entityModel = EntityModelImpl.create(EntityType.ITEM_DISPLAY,
             location.getWorld(), location.toVector());
-        return new BlockModelImpl(entityModel);
+        if (blockModelData instanceof BlockModelDataImpl impl) {
+          entityModel.setData(impl.entityModelData());
+        }
+        return new BlockModelImpl(entityModel, blockModelData);
       }
 
       @Override
-      public Builder dataBuilder() {
-        return new BlockModelDataImpl.BuilderImpl();
+      public Builder blockModelDataBuilder(Key key) {
+        return new BlockModelDataImpl.BuilderImpl(key);
       }
 
 

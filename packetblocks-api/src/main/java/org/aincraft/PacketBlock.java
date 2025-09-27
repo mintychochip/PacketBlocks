@@ -7,7 +7,7 @@ public interface PacketBlock {
 
   BlockModel model();
 
-  PacketBlockMeta getMeta();
+  BlockModelData blockModelData();
 
   interface PacketBlockMeta extends Keyed {
 

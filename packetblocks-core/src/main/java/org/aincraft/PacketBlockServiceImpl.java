@@ -13,15 +13,15 @@ import org.jetbrains.annotations.Nullable;
 final class PacketBlockServiceImpl implements PacketBlockService {
 
   private final BlockModelService blockModelService;
-  private final Registry<PacketBlockMeta> blockMetaRegistry;
+  private final Registry<BlockModelData> blockModelDataRegistry;
   private final BlockBindingRepository blockBindingRepository;
 
   @Inject
   public PacketBlockServiceImpl(
-      BlockModelService blockModelService, Registry<PacketBlockMeta> blockMetaRegistry,
+      BlockModelService blockModelService, Registry<BlockModelData> blockModelDataRegistry,
       BlockBindingRepository blockBindingRepository) {
     this.blockModelService = blockModelService;
-    this.blockMetaRegistry = blockMetaRegistry;
+    this.blockModelDataRegistry = blockModelDataRegistry;
     this.blockBindingRepository = blockBindingRepository;
   }
 
@@ -44,9 +44,11 @@ final class PacketBlockServiceImpl implements PacketBlockService {
       }
 
       @Override
-      public PacketBlockMeta getMeta() {
-        return blockMetaRegistry.get(NamespacedKey.fromString(blockBinding.resourceKey()));
+      public BlockModelData blockModelData() {
+        return blockModelDataRegistry.get(NamespacedKey.fromString(blockBinding.resourceKey()));
       }
+
+
     };
   }
 
@@ -68,9 +70,10 @@ final class PacketBlockServiceImpl implements PacketBlockService {
       }
 
       @Override
-      public PacketBlockMeta getMeta() {
-        return blockMetaRegistry.get(NamespacedKey.fromString(binding.resourceKey()));
+      public BlockModelData blockModelData() {
+        return blockModelDataRegistry.get(NamespacedKey.fromString(binding.resourceKey()));
       }
+
     };
   }
 
@@ -87,8 +90,8 @@ final class PacketBlockServiceImpl implements PacketBlockService {
         }
 
         @Override
-        public PacketBlockMeta getMeta() {
-          return blockMetaRegistry.get(NamespacedKey.fromString(binding.resourceKey()));
+        public BlockModelData blockModelData() {
+          return blockModelDataRegistry.get(NamespacedKey.fromString(binding.resourceKey()));
         }
       });
     });

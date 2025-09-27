@@ -5,7 +5,7 @@ import org.aincraft.EntityModelImpl.EntityModelDataImpl;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-record BlockModelDataImpl(EntityModelData entityModelData)
+record BlockModelDataImpl(Key key, EntityModelData entityModelData)
     implements BlockModelData {
 
   @Override
@@ -35,7 +35,12 @@ record BlockModelDataImpl(EntityModelData entityModelData)
 
   static final class BuilderImpl implements BlockModelData.Builder {
 
+    private final Key key;
     private final EntityModelData data = EntityModelDataImpl.create();
+
+    BuilderImpl(Key key) {
+      this.key = key;
+    }
 
     @Override
     public BlockModelData.Builder translation(Vector3f translation) {
@@ -69,7 +74,7 @@ record BlockModelDataImpl(EntityModelData entityModelData)
 
     @Override
     public BlockModelData build() {
-      return new BlockModelDataImpl(data);
+      return new BlockModelDataImpl(key, data);
     }
   }
 }

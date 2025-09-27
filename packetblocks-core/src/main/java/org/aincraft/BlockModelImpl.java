@@ -7,9 +7,11 @@ import org.bukkit.entity.Player;
 final class BlockModelImpl implements BlockModel {
 
   private final EntityModel entityModel;
+  private BlockModelData blockModelData;
 
-  public BlockModelImpl(EntityModel entityModel) {
+  public BlockModelImpl(EntityModel entityModel, BlockModelData blockModelData) {
     this.entityModel = entityModel;
+    this.blockModelData = blockModelData;
   }
 
   @Override
@@ -44,6 +46,7 @@ final class BlockModelImpl implements BlockModel {
 
   @Override
   public void data(BlockModelData blockModelData) {
+    this.blockModelData = blockModelData;
     if (blockModelData instanceof BlockModelDataImpl impl) {
       entityModel.setData(impl.entityModelData());
     }
@@ -51,6 +54,6 @@ final class BlockModelImpl implements BlockModel {
 
   @Override
   public BlockModelData data() {
-    return new BlockModelDataImpl(entityModel.getData());
+    return blockModelData;
   }
 }
