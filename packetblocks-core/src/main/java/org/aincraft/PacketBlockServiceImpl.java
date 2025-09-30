@@ -3,7 +3,6 @@ package org.aincraft;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
-import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.Registry;
 import org.bukkit.Chunk;
 import org.bukkit.Location;

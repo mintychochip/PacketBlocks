@@ -2,7 +2,6 @@ package org.aincraft;
 
 import java.util.Set;
 import org.bukkit.Location;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.ApiStatus.AvailableSince;
 

@@ -6,7 +6,6 @@ import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
 import java.time.Duration;
-import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.commands.CommandModule;
 import org.aincraft.registry.Registry;
 import org.aincraft.registry.RegistryAccess;

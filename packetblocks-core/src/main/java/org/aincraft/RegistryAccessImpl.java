@@ -2,7 +2,6 @@ package org.aincraft;
 
 import com.google.inject.Inject;
 import net.kyori.adventure.key.Keyed;
-import org.aincraft.PacketBlock.PacketBlockMeta;
 import org.aincraft.registry.Registry;
 import org.aincraft.registry.RegistryAccess;
 import org.jetbrains.annotations.NotNull;

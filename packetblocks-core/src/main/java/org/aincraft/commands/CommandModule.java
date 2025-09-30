@@ -4,7 +4,6 @@ import com.google.inject.PrivateModule;
 import com.google.inject.Singleton;
 import com.google.inject.TypeLiteral;
 import com.google.inject.multibindings.Multibinder;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 
 public final class CommandModule extends PrivateModule {
 
