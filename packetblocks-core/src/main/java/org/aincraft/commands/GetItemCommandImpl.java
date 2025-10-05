@@ -29,17 +29,14 @@ final class GetItemCommandImpl extends AbstractCommandImpl {
   private static final String AMOUNT_IDENTIFIER = "amount";
   private static final String RESOURCE_KEY_IDENTIFIER = "resource_key";
   private final ItemFactory itemFactory;
-  private final Registry<BlockModelData> blockModelDataRegistry;
   private final Registry<BlockItemMeta> blockItemMetaRegistry;
 
   @Inject
   GetItemCommandImpl(BlockBindingRepository blockBindingRepository,
       ItemFactory itemFactory,
-      Registry<BlockModelData> blockModelDataRegistry,
       Registry<BlockItemMeta> blockItemMetaRegistry) {
     super(blockBindingRepository);
     this.itemFactory = itemFactory;
-    this.blockModelDataRegistry = blockModelDataRegistry;
     this.blockItemMetaRegistry = blockItemMetaRegistry;
   }
 
@@ -76,7 +73,7 @@ final class GetItemCommandImpl extends AbstractCommandImpl {
     CommandSender sender = context.getSource().getSender();
     if (sender instanceof Player player) {
       ItemStack stack = itemFactory.create(resourceKey, amount);
-      message(amount, stack.getData(DataComponentTypes.ITEM_NAME), player.getName());
+      sender.sendRichMessage(message(amount, stack.getData(DataComponentTypes.ITEM_NAME), player.getName()));
       player.getInventory().addItem(stack);
       return PacketBlockCommand.SUCCESS;
     }

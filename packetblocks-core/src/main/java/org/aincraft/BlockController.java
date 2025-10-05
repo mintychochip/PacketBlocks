@@ -44,6 +44,7 @@ final class BlockController implements Listener {
     this.itemService = itemService;
   }
 
+  //TODO: sync when the player stops chunk/unloading to prevent the jittering issue
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   private void onPlayerChunkLoad(final PlayerChunkLoadEvent event) {
     Chunk chunk = event.getChunk();
