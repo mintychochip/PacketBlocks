@@ -1,5 +1,6 @@
 package org.aincraft.registry;
 
+import java.util.Set;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 import org.jetbrains.annotations.ApiStatus.AvailableSince;
@@ -24,4 +25,6 @@ public sealed interface Registry<T extends Keyed> permits SimpleRegistryImpl {
   }
 
   boolean isRegistered(Key key);
+
+  Set<Key> keySet();
 }

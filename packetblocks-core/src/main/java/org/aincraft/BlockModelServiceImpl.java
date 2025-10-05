@@ -1,17 +1,18 @@
 package org.aincraft;
 
+import com.google.common.base.Preconditions;
 import com.google.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import org.aincraft.registry.Registry;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.NotNull;
 
 final class BlockModelServiceImpl implements BlockModelService {
 
   private final Registry<BlockModelData> blockModelDataRegistry;
-  private final Map<Location, BlockModel> modelMap = new HashMap<>();
+  private final Map<LocationKey, BlockModel> modelMap = new HashMap<>();
 
   @Inject
   BlockModelServiceImpl(
@@ -21,24 +22,32 @@ final class BlockModelServiceImpl implements BlockModelService {
 
 
   @Override
-  public boolean save(BlockBinding blockBinding) {
+  public boolean save(@NotNull BlockBinding blockBinding) {
+    LocationKey locationKey = LocationKey.create(blockBinding.location());
     BlockModel model = blockFromBinding(blockBinding);
-    BlockModel oldModel = modelMap.remove(blockBinding.location());
+    BlockModel oldModel = modelMap.remove(locationKey);
     if (oldModel != null) {
       oldModel.viewers().forEach(oldModel::hide);
     }
-    modelMap.put(blockBinding.location(), model);
+    modelMap.put(locationKey, model);
     return true;
   }
 
   @Override
-  public @Nullable BlockModel load(Location location) {
-    return modelMap.get(location);
+  public boolean isModelLoaded(@NotNull Location location) {
+    return modelMap.containsKey(LocationKey.create(location));
+  }
+
+  @Override
+  public @NotNull BlockModel loadModel(@NotNull Location location) throws IllegalArgumentException {
+    Preconditions.checkArgument(isModelLoaded(location));
+    return modelMap.get(LocationKey.create(location));
   }
 
   @Override
   public boolean delete(Location location) {
-    BlockModel blockModel = modelMap.remove(location);
+    LocationKey locationKey = LocationKey.create(location);
+    BlockModel blockModel = modelMap.remove(locationKey);
     if (blockModel != null) {
       blockModel.viewers().forEach(blockModel::hide);
     }

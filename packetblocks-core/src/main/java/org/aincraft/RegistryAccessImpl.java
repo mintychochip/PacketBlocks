@@ -9,11 +9,14 @@ import org.jetbrains.annotations.NotNull;
 final class RegistryAccessImpl implements RegistryAccess {
 
   private final Registry<KeyedItem> ITEM_REGISTRY = Registry.simple();
-  private final Registry<BlockModelData> BLOCK_MODEL_DATA_REGISTRY;
+  private final Registry<BlockItemMeta> blockItemMetaRegistry;
+  private final Registry<BlockModelData> blockModelDataRegistry;
 
   @Inject
-  RegistryAccessImpl(Registry<BlockModelData> blockModelDataRegistry) {
-    BLOCK_MODEL_DATA_REGISTRY = blockModelDataRegistry;
+  RegistryAccessImpl(Registry<BlockItemMeta> blockItemMetaRegistry,
+      Registry<BlockModelData> blockModelDataRegistry) {
+    this.blockItemMetaRegistry = blockItemMetaRegistry;
+    this.blockModelDataRegistry = blockModelDataRegistry;
   }
 
   @SuppressWarnings("unchecked")
@@ -21,7 +24,8 @@ final class RegistryAccessImpl implements RegistryAccess {
   public @NotNull <T extends Keyed> Registry<T> getRegistry(RegistryAccessKey<T> registryAccessKey)
       throws IllegalStateException {
     return switch (registryAccessKey.getKey()) {
-      case "block_model_data" -> (Registry<T>) BLOCK_MODEL_DATA_REGISTRY;
+      case "block_item_meta" -> (Registry<T>) blockItemMetaRegistry;
+      case "block_model_data" -> (Registry<T>) blockModelDataRegistry;
       case "keyed_item" -> (Registry<T>) ITEM_REGISTRY;
       default -> throw new IllegalStateException("Unexpected value: " + registryAccessKey.getKey());
     };

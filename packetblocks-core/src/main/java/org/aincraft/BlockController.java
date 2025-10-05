@@ -52,18 +52,20 @@ final class BlockController implements Listener {
     for (PacketBlock block : blocks) {
       BlockModel model = block.model();
       model.show(player);
+      Bukkit.getScheduler().runTaskLater(plugin,() -> {
+      },2L);
     }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   private void onPlayerChunkUnload(final PlayerChunkUnloadEvent event) {
-//    Chunk chunk = event.getChunk();
-//    Player player = event.getPlayer();
-//    List<PacketBlock> blocks = blockService.loadAll(chunk);
-//    for (PacketBlock block : blocks) {
-//      BlockModel model = block.model();
-//      model.hide(player);
-//    }
+    Chunk chunk = event.getChunk();
+    Player player = event.getPlayer();
+    List<PacketBlock> blocks = blockService.loadAll(chunk);
+    for (PacketBlock block : blocks) {
+      BlockModel model = block.model();
+      model.hide(player);
+    }
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)

@@ -3,6 +3,7 @@ package org.aincraft.registry;
 import com.google.common.base.Preconditions;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.key.Keyed;
 import org.jetbrains.annotations.NotNull;
@@ -25,5 +26,10 @@ final class SimpleRegistryImpl<T extends Keyed> implements Registry<T> {
   @Override
   public boolean isRegistered(Key key) {
     return registrar.containsKey(key);
+  }
+
+  @Override
+  public Set<Key> keySet() {
+    return registrar.keySet();
   }
 }

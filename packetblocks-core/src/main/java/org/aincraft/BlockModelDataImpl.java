@@ -35,11 +35,11 @@ record BlockModelDataImpl(Key key, EntityModelData entityModelData)
 
   static final class BuilderImpl implements BlockModelData.Builder {
 
-    private final Key key;
+    private final Key resourceKey;
     private final EntityModelData data = EntityModelDataImpl.create();
 
-    BuilderImpl(Key key) {
-      this.key = key;
+    BuilderImpl(Key resourceKey) {
+      this.resourceKey = resourceKey;
     }
 
     @Override
@@ -74,7 +74,7 @@ record BlockModelDataImpl(Key key, EntityModelData entityModelData)
 
     @Override
     public BlockModelData build() {
-      return new BlockModelDataImpl(key, data);
+      return new BlockModelDataImpl(resourceKey, data);
     }
   }
 }

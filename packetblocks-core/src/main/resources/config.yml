@@ -1,5 +1,5 @@
 packetblocks:electrum_ore:
-  name: Electrum Ore
+  display-name: Electrum Ore
   item-model: packetblocks:electrum_ore
 longhardfish:block/gutting_station:
   item-model: longhardfish:block/gutting_station

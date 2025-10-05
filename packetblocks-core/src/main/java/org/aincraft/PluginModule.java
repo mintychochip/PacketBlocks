@@ -41,12 +41,15 @@ public class PluginModule extends AbstractModule {
     install(new CommandModule());
     bind(Plugin.class).toInstance(plugin);
     bind(new TypeLiteral<Registry<BlockModelData>>() {
-    }).toProvider(BlockModelDataRegistryProvider.class);
+    }).toProvider(BlockModelDataRegistryProvider.class).in(Singleton.class);
+    bind(new TypeLiteral<Registry<BlockItemMeta>>() {
+    }).toProvider(BlockItemDataRegistryProvider.class).in(Singleton.class);
     bind(ConnectionSource.class).toInstance(SQLiteSourceImpl.create(plugin, "block.db"));
     bind(ItemService.class).to(ItemServiceImpl.class).in(Singleton.class);
     bind(BlockModelService.class).to(BlockModelServiceImpl.class).in(Singleton.class);
     bind(PacketBlockService.class).to(PacketBlockServiceImpl.class).in(Singleton.class);
     bind(RegistryAccess.class).to(RegistryAccessImpl.class).in(Singleton.class);
+    bind(ItemFactory.class).to(ItemFactoryImpl.class).in(Singleton.class);
     Multibinder<Listener> listenerBinder = Multibinder.newSetBinder(binder(), Listener.class);
     listenerBinder.addBinding().to(BlockController.class);
   }

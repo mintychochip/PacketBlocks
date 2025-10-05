@@ -89,9 +89,7 @@ public final class WriteBackBlockBindingRepositoryImpl implements BlockBindingRe
       merged.put(LocationKey.create(binding.location()), binding);
     }
     for (LocationKey key : pendingDeletes) {
-      int cx = chunk.getX();
-      int cz = chunk.getZ();
-      if (key.cx() == cx && key.cz() == cz) {
+      if (key.cx() == chunk.getX() && key.cz() == chunk.getZ()) {
         merged.remove(key);
       }
     }

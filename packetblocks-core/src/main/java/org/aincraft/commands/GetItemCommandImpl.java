@@ -9,14 +9,15 @@ import io.papermc.paper.command.brigadier.CommandSourceStack;
 import io.papermc.paper.command.brigadier.Commands;
 import io.papermc.paper.command.brigadier.argument.ArgumentTypes;
 import io.papermc.paper.datacomponent.DataComponentTypes;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.aincraft.BlockBinding;
 import org.aincraft.BlockBindingRepository;
+import org.aincraft.BlockItemMeta;
 import org.aincraft.BlockModelData;
-import org.aincraft.ItemService;
+import org.aincraft.ItemFactory;
 import org.aincraft.registry.Registry;
-import org.bukkit.Material;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
@@ -25,34 +26,61 @@ import org.bukkit.inventory.ItemStack;
 
 final class GetItemCommandImpl extends AbstractCommandImpl {
 
-  private final ItemService itemService;
+  private static final String AMOUNT_IDENTIFIER = "amount";
+  private static final String RESOURCE_KEY_IDENTIFIER = "resource_key";
+  private final ItemFactory itemFactory;
   private final Registry<BlockModelData> blockModelDataRegistry;
+  private final Registry<BlockItemMeta> blockItemMetaRegistry;
 
   @Inject
   GetItemCommandImpl(BlockBindingRepository blockBindingRepository,
-      ItemService itemService, Registry<BlockModelData> blockModelDataRegistry) {
+      ItemFactory itemFactory,
+      Registry<BlockModelData> blockModelDataRegistry,
+      Registry<BlockItemMeta> blockItemMetaRegistry) {
     super(blockBindingRepository);
-    this.itemService = itemService;
+    this.itemFactory = itemFactory;
     this.blockModelDataRegistry = blockModelDataRegistry;
+    this.blockItemMetaRegistry = blockItemMetaRegistry;
   }
 
   @Override
   public LiteralArgumentBuilder<CommandSourceStack> build() {
     return Commands.literal("get")
         .executes(context -> execute(context, 1))
-        .then(Commands.argument("amount", IntegerArgumentType.integer(1))
+        .then(Commands.argument(AMOUNT_IDENTIFIER, IntegerArgumentType.integer(1))
             .executes(context -> {
-              Integer amount = context.getArgument("amount", Integer.class);
+              Integer amount = context.getArgument(AMOUNT_IDENTIFIER, Integer.class);
               return execute(context, amount);
             }))
-        .then(Commands.argument("resource-key", ArgumentTypes.key())
-            .then(Commands.argument("amount", IntegerArgumentType.integer(1))
+        .then(Commands.argument(RESOURCE_KEY_IDENTIFIER, ArgumentTypes.key())
+            .suggests((context, builder) -> {
+              blockItemMetaRegistry.keySet().forEach(key -> builder.suggest(key.toString()));
+              return builder.buildFuture();
+            }).executes(context -> itemFromResourceKey(context, 1))
+            .then(Commands.argument(AMOUNT_IDENTIFIER, IntegerArgumentType.integer(1))
                 .executes(context -> {
-
-                  return 1;
+                  int amount = context.getArgument(AMOUNT_IDENTIFIER, Integer.class);
+                  return itemFromResourceKey(context, amount);
                 })
             )
         );
+  }
+
+  private int itemFromResourceKey(CommandContext<CommandSourceStack> context, int amount) {
+    return itemFromResourceKey(context, context.getArgument(RESOURCE_KEY_IDENTIFIER, Key.class),
+        amount);
+  }
+
+  private int itemFromResourceKey(CommandContext<CommandSourceStack> context, Key resourceKey,
+      int amount) {
+    CommandSender sender = context.getSource().getSender();
+    if (sender instanceof Player player) {
+      ItemStack stack = itemFactory.create(resourceKey, amount);
+      message(amount, stack.getData(DataComponentTypes.ITEM_NAME), player.getName());
+      player.getInventory().addItem(stack);
+      return PacketBlockCommand.SUCCESS;
+    }
+    return PacketBlockCommand.FAIL;
   }
 
   private int execute(CommandContext<CommandSourceStack> context, int amount)
@@ -64,15 +92,7 @@ final class GetItemCommandImpl extends AbstractCommandImpl {
     }
     try {
       BlockBinding binding = rayTracePacketBlock(player);
-      BlockModelData modelData = blockModelDataRegistry.get(
-          NamespacedKey.fromString(binding.resourceKey()));
-      ItemStack stack = ItemStack.of(Material.STONE);
-      stack.setAmount(amount);
-      stack.setData(DataComponentTypes.ITEM_MODEL, modelData.itemModel());
-      itemService.write(stack, binding.resourceKey());
-      player.getInventory().addItem(stack);
-      sender.sendRichMessage(
-          message(amount, stack.getData(DataComponentTypes.ITEM_NAME), player.getName()));
+      itemFromResourceKey(context, NamespacedKey.fromString(binding.resourceKey()), amount);
     } catch (BindingException ex) {
       Block block = ex.getBlock();
       ItemStack stack = ItemStack.of(block.getType(), amount);
